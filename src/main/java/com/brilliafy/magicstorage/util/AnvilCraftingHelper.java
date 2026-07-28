@@ -22,8 +22,9 @@ import java.util.Map;
 
 /**
  * Anvil crafting via reflection on vanilla ContainerRepair.
- * Delegates ALL logic to vanilla — handles repairs, renaming, enchant combining,
+ * Delegates ALL logic to vanilla — handles repairs, enchant combining,
  * weapon combining, modded items, everything.
+ * Nametag rename is intentionally blocked.
  *
  * Grid: slot 0 = left item, slot 4 = right item.
  */
@@ -102,7 +103,6 @@ public class AnvilCraftingHelper {
     public static boolean canCraft(ItemStack slot0, ItemStack slot4, EntityPlayer player) {
         if (slot0.isEmpty() || slot4.isEmpty()) return false;
         if (isAnvil(slot0) || isAnvil(slot4)) return false;
-        // Block nametag rename — we don't want this feature
         if (slot4.getItem() == Items.NAME_TAG) return false;
         AnvilResult ar = computeResult(slot0, slot4, player);
         return ar != null;
@@ -110,6 +110,7 @@ public class AnvilCraftingHelper {
 
     /**
      * Compute result and XP cost via vanilla ContainerRepair reflection.
+     * Also ensures the left item's custom display name is always preserved on the result.
      */
     public static AnvilResult computeResult(ItemStack left, ItemStack right, EntityPlayer player) {
         if (left.isEmpty() || right.isEmpty()) return null;
@@ -143,6 +144,10 @@ public class AnvilCraftingHelper {
             }
 
             if (!resultStack.isEmpty() && cost > 0) {
+                // Always preserve the left item's custom display name on the result
+                if (left.hasDisplayName()) {
+                    resultStack.setStackDisplayName(left.getDisplayName());
+                }
                 return new AnvilResult(resultStack, cost);
             }
         } catch (Exception e) {
@@ -158,9 +163,7 @@ public class AnvilCraftingHelper {
      */
     private static Map<Enchantment, Integer> getAllEnchants(ItemStack stack) {
         Map<Enchantment, Integer> enchants = new LinkedHashMap<>();
-        Map<Enchantment, Integer> normal = EnchantmentHelper.getEnchantments(stack);
-        if (!normal.isEmpty()) enchants.putAll(normal);
-        // Enchanted books store in StoredEnchantments
+        // For enchanted books, ONLY read StoredEnchantments (ench tag is typically empty)
         if (stack.getItem() == Items.ENCHANTED_BOOK && stack.hasTagCompound()) {
             NBTTagList stored = stack.getTagCompound().getTagList("StoredEnchantments", 10);
             for (int i = 0; i < stored.tagCount(); i++) {
@@ -168,33 +171,27 @@ public class AnvilCraftingHelper {
                 Enchantment ench = Enchantment.getEnchantmentByID(tag.getShort("id"));
                 if (ench != null) enchants.put(ench, (int) tag.getShort("lvl"));
             }
+        } else {
+            // Regular items use ench tag
+            Map<Enchantment, Integer> normal = EnchantmentHelper.getEnchantments(stack);
+            if (!normal.isEmpty()) enchants.putAll(normal);
         }
         return enchants;
     }
 
     /**
-     * Build a display stack with enchantment diff + "Level cost: X" lore for tooltip.
-     * @param leftInput  the original left item (before anvil)
-     * @param rightInput the original right item (before anvil)
-     * @param anvilResult the vanilla anvil result
-     * @param xpCost     the XP level cost
+     * Build a display stack with enchantment list + "Level cost: X" lore for tooltip.
+     * Preserves the left item's custom display name.
      */
     public static ItemStack buildDisplayStack(ItemStack leftInput, ItemStack rightInput, ItemStack anvilResult, int xpCost) {
         ItemStack display = anvilResult.copy();
         display.setCount(1);
         NBTTagCompound rootTag = display.hasTagCompound() ? display.getTagCompound().copy() : new NBTTagCompound();
 
-        // Only add a fake ench tag if the item actually has enchantments
-        // (avoids enchanted glint on non-enchanted repair results like iron sword + iron)
-        NBTTagList enchList = rootTag.getTagList("ench", 10);
-        NBTTagList storedEnchList = null;
-        boolean hasRealEnchants = (enchList != null && enchList.tagCount() > 0);
-        if (!hasRealEnchants && display.getItem() == Items.ENCHANTED_BOOK) {
-            storedEnchList = rootTag.getTagList("StoredEnchantments", 10);
-            hasRealEnchants = storedEnchList != null && storedEnchList.tagCount() > 0;
+        // Preserve left item's custom display name
+        if (leftInput.hasDisplayName()) {
+            display.setStackDisplayName(leftInput.getDisplayName());
         }
-        // Only add fake ench if there are real enchants (to preserve existing glint)
-        // Non-enchanted items stay glint-free
 
         // Build lore: show ALL enchantments on the result + cost
         NBTTagList lore = new NBTTagList();
@@ -217,6 +214,8 @@ public class AnvilCraftingHelper {
         if (displayTag == null) displayTag = new NBTTagCompound();
         displayTag.setTag("Lore", lore);
         rootTag.setTag("display", displayTag);
+        // HideFlags bit 0 = hide enchantments (prevents native tooltip from duplicating our lore)
+        // For enchanted books, this also hides StoredEnchantments tooltip
         rootTag.setInteger("HideFlags", 1);
         display.setTagCompound(rootTag);
         return display;
@@ -226,15 +225,14 @@ public class AnvilCraftingHelper {
 
     /**
      * Consume ingredients for anvil craft.
-     * Left item: always 1 (the item being repaired/renamed/enchanted).
-     * Right item: for repair, calculates how many materials are needed based on durability.
-     *             For enchant/rename, consumes 1.
+     * Left item: always 1.
+     * Right item: for repair, consumes only what's needed to fully repair.
+     *             For enchant, consumes 1.
      */
     public static void consumeIngredients(ItemStack[] matrix, ItemStack leftInput, ItemStack rightInput) {
         if (!matrix[0].isEmpty()) matrix[0].shrink(1);
         if (matrix[4].isEmpty()) return;
 
-        // Check if this is a repair (same item or repairable material) vs enchant/rename
         int materialsNeeded = calculateMaterialCount(leftInput, rightInput);
         int available = matrix[4].getCount();
         int toConsume = Math.min(materialsNeeded, available);
@@ -243,17 +241,17 @@ public class AnvilCraftingHelper {
 
     /**
      * Calculate how many of the right item are needed for repair.
-     * Each material repairs 25% of max durability (vanilla behavior).
-     * For non-repair scenarios (enchant, rename), returns 1.
+     * Uses getIsRepairable to detect valid repair materials (iron ingots for iron tools, etc.)
      */
     private static int calculateMaterialCount(ItemStack left, ItemStack right) {
         if (left.isEmpty() || right.isEmpty()) return 1;
 
         boolean isSameItem = left.getItem() == right.getItem();
-        boolean isRepairMaterial = !isSameItem && right.getItem().isRepairable() && left.getItem().isRepairable();
+        // Check if right item is a valid repair material for left item
+        boolean isRepairMaterial = !isSameItem && right.getItem().getIsRepairable(left, right);
 
         if (!isSameItem && !isRepairMaterial) {
-            // Enchant combining or name tag rename — consume 1
+            // Enchant combining — consume 1
             return 1;
         }
 
