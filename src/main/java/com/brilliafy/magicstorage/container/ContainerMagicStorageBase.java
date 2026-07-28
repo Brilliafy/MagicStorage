@@ -146,7 +146,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 int power = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(tile, player.world);
                 com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
                     com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], player, power, slot);
-                if (er != null && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
+                    if (er != null && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
                     ItemStack enchanted = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.applyEnchantList(m[0], er.enchantments);
                     if (!player.inventory.addItemStackToInventory(enchanted)) player.dropItem(enchanted, false);
                     com.brilliafy.magicstorage.util.EnchantingCraftingHelper.consumeIngredients(m);
@@ -156,6 +156,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             new net.minecraft.network.play.server.SPacketSetExperience(
                                 player.experience, player.experienceTotal, player.experienceLevel));
                     }
+                    player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                     for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                     onCraftMatrixChanged(matrix);
                     detectAndSendChanges();
@@ -187,6 +188,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 if (!player.inventory.addItemStackToInventory(ar.stack)) player.dropItem(ar.stack, false);
                 com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m, ar);
                 com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(player, ar.cost);
+                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int i = 0; i < 9; i++) matrix.setInventorySlotContents(i, m[i]);
                 onCraftMatrixChanged(matrix);
                 detectAndSendChanges();
@@ -202,6 +204,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     if (!player.inventory.addItemStackToInventory(r)) player.dropItem(r, false);
                 }
                 com.brilliafy.magicstorage.util.PotionCraftingHelper.consumeIngredients(m, player.getRNG());
+                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_BREWING_STAND_BREW, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
                 detectAndSendChanges();
@@ -468,6 +471,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             ItemStack realItem = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.applyEnchantList(savedItem, er.enchantments);
                             stack.setTagCompound(realItem.getTagCompound());
                             playerIn.onEnchant(stack, er.xpCost);
+                            playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                             // Force client to update cursor immediately (fixes tooltip delay)
                             if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
                                 ((net.minecraft.entity.player.EntityPlayerMP) playerIn).connection.sendPacket(
@@ -498,6 +502,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         stack.onCrafting(playerIn.world, playerIn, 1);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m, ar);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(playerIn, ar.cost);
+                        playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                         // Modify the cursor item IN PLACE — vanilla ignores onTake return value
                         // and keeps the item from decrStackSize (the display stack with lore)
                         ItemStack realResult = ar.stack.copy();
@@ -523,6 +528,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     if (!results.isEmpty()) {
                         stack.onCrafting(playerIn.world, playerIn, 1);
                         com.brilliafy.magicstorage.util.PotionCraftingHelper.consumeIngredients(m, playerIn.getRNG());
+                        playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_BREWING_STAND_BREW, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
