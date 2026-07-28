@@ -38,6 +38,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
     @Override
     public InventoryCrafting getCraftMatrix() { return this.matrix; }
+    public InventoryCraftResult getResult() { return this.result; }
     public abstract TileStorageHeart getTileMaster();
     public abstract void slotChanged();
     public abstract boolean isRequest();

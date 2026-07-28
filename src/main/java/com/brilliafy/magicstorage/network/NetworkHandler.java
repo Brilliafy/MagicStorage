@@ -161,8 +161,13 @@ public class NetworkHandler {
                                 sizeRequested, false);
                             // Refresh crafting result (enchanting power depends on network items)
                             if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
-                                ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).onCraftMatrixChanged(
-                                    ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getCraftMatrix());
+                                com.brilliafy.magicstorage.container.ContainerMagicStorageBase base = (com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container;
+                                base.onCraftMatrixChanged(base.getCraftMatrix());
+                                // Force-send result slot to client
+                                if (base.getResult() != null) {
+                                    net.minecraft.item.ItemStack resultStack = base.getResult().getStackInSlot(0);
+                                    player.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(base.windowId, 0, resultStack));
+                                }
                             }
                         } else {
                             result = unit.extractItem(
@@ -257,8 +262,13 @@ public class NetworkHandler {
                             }
                             // Refresh crafting result (enchanting power depends on network items)
                             if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
-                                ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).onCraftMatrixChanged(
-                                    ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getCraftMatrix());
+                                com.brilliafy.magicstorage.container.ContainerMagicStorageBase base = (com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container;
+                                base.onCraftMatrixChanged(base.getCraftMatrix());
+                                // Force-send result slot to client
+                                if (base.getResult() != null) {
+                                    net.minecraft.item.ItemStack resultStack = base.getResult().getStackInSlot(0);
+                                    player.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(base.windowId, 0, resultStack));
+                                }
                             }
                         } else {
                             // Unit path
