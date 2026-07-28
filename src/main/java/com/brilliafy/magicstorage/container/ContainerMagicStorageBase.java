@@ -358,13 +358,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
                 if (slot >= 0) {
                     TileStorageHeart master = getTileMaster();
-                    if (master != null) {
-                        int power = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, player.world);
-                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
-                            com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], player, power, slot);
-                        if (er == null || !com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
-                            enchantResultLocked = true;
-                        }
+                    int power = (master != null) ? com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, player.world) : 0;
+                    com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
+                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], player, power, slot);
+                    if (er == null || !com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
+                        enchantResultLocked = true;
                     }
                 }
             }
