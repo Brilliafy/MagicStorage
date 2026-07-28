@@ -24,6 +24,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     protected boolean recipeLocked = false;
     protected boolean isSimple = false;
     protected boolean anvilResultLocked = false; // true when XP insufficient for anvil result
+    protected boolean enchantResultLocked = false; // true when XP insufficient for enchant result
     protected List<ItemStack> cachedStacks = new ArrayList<>();
     protected List<ItemStack> cachedCraftableStacks = new ArrayList<>();
 
@@ -82,6 +83,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         for (int i = 0; i < 9; i++) m[i] = craftMatrix.getStackInSlot(i);
 
         // 1. Enchanting — simulate table, show tooltip hint
+        enchantResultLocked = false;
         if (master.hasEnchantingTable() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
             int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
             if (slot >= 0) {
@@ -91,6 +93,9 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 if (er != null) {
                     if (com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(playerInv.player, Math.max(er.xpCost, er.enchantLevel))) {
                         result.setInventorySlotContents(0, er.displayStack);
+                    } else {
+                        enchantResultLocked = true;
+                        result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.EnchantingCraftingHelper.buildDisplayStackInsufficientXp(m[0], er.clue, er.xpCost, er.enchantLevel));
                     }
                     return;
                 }
@@ -320,14 +325,14 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 }
             }
         }
-        // Block ALL clicks on result slot when anvil XP insufficient
-        if (slotId == 0 && anvilResultLocked && clickTypeIn != net.minecraft.inventory.ClickType.QUICK_CRAFT) {
+        // Block ALL clicks on result slot when XP insufficient (anvil or enchanting)
+        if (slotId == 0 && (anvilResultLocked || enchantResultLocked) && clickTypeIn != net.minecraft.inventory.ClickType.QUICK_CRAFT) {
             return net.minecraft.item.ItemStack.EMPTY;
         }
 
         // Handle hotkey on result slot: craft + move to specific hotbar slot
         if (clickTypeIn == net.minecraft.inventory.ClickType.SWAP && slotId == 0 && !player.world.isRemote) {
-            if (anvilResultLocked) return ItemStack.EMPTY; // Block when XP insufficient
+            if (anvilResultLocked || enchantResultLocked) return ItemStack.EMPTY; // Block when XP insufficient
             TileStorageHeart master = getTileMaster();
             if (master != null && dragType >= 0 && dragType < 9) {
                 // Snapshot inventory before craft

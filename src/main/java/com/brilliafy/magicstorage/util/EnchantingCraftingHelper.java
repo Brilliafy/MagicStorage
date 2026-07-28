@@ -194,7 +194,8 @@ public class EnchantingCraftingHelper {
     //  Display
     // ============================================================
 
-    private static ItemStack buildDisplayStack(ItemStack item, EnchantmentData clue, int xpCost, int enchantLevel) {
+    /** Make buildDisplayStack public for use by the container */
+    public static ItemStack buildDisplayStack(ItemStack item, EnchantmentData clue, int xpCost, int enchantLevel) {
         ItemStack r = item.copy();
         r.setCount(1);
         net.minecraft.nbt.NBTTagCompound rootTag = r.hasTagCompound()
@@ -226,6 +227,30 @@ public class EnchantingCraftingHelper {
         rootTag.setInteger("HideFlags", 1);
         r.setTagCompound(rootTag);
         return r;
+    }
+
+    /** Display stack with red insufficient XP tooltip */
+    public static ItemStack buildDisplayStackInsufficientXp(ItemStack item, EnchantmentData clue, int xpCost, int enchantLevel) {
+        ItemStack display = buildDisplayStack(item, clue, xpCost, enchantLevel);
+        net.minecraft.nbt.NBTTagCompound rootTag = display.getTagCompound();
+        if (rootTag != null && rootTag.hasKey("display", 10)) {
+            net.minecraft.nbt.NBTTagCompound displayTag = rootTag.getCompoundTag("display");
+            net.minecraft.nbt.NBTTagList lore = displayTag.hasKey("Lore", 9) ? displayTag.getTagList("Lore", 8) : new net.minecraft.nbt.NBTTagList();
+            // Change cost line from green to red, append insufficient XP
+            net.minecraft.nbt.NBTTagList newLore = new net.minecraft.nbt.NBTTagList();
+            for (int i = 0; i < lore.tagCount(); i++) {
+                String line = lore.getStringTagAt(i);
+                if (line.contains("Cost:")) {
+                    newLore.appendTag(new net.minecraft.nbt.NBTTagString(line.replace("§a", "§c")));
+                } else {
+                    newLore.appendTag(new net.minecraft.nbt.NBTTagString(line));
+                }
+            }
+            newLore.appendTag(new net.minecraft.nbt.NBTTagString(""));
+            newLore.appendTag(new net.minecraft.nbt.NBTTagString("§c✖ Insufficient XP"));
+            displayTag.setTag("Lore", newLore);
+        }
+        return display;
     }
 
     // ============================================================
