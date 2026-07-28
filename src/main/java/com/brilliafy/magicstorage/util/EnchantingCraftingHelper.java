@@ -253,6 +253,25 @@ public class EnchantingCraftingHelper {
         return display;
     }
 
+    /** Display stack with red unavailable tier tooltip */
+    public static ItemStack buildDisplayStackUnavailableTier(ItemStack item) {
+        ItemStack display = item.copy();
+        display.setCount(1);
+        net.minecraft.nbt.NBTTagCompound rootTag = display.hasTagCompound()
+            ? display.getTagCompound().copy() : new net.minecraft.nbt.NBTTagCompound();
+
+        net.minecraft.nbt.NBTTagList lore = new net.minecraft.nbt.NBTTagList();
+        lore.appendTag(new net.minecraft.nbt.NBTTagString("§c✖ Unavailable tier"));
+
+        net.minecraft.nbt.NBTTagCompound displayTag = rootTag.getCompoundTag("display");
+        if (displayTag == null) displayTag = new net.minecraft.nbt.NBTTagCompound();
+        displayTag.setTag("Lore", lore);
+        rootTag.setTag("display", displayTag);
+        rootTag.setInteger("HideFlags", 1);
+        display.setTagCompound(rootTag);
+        return display;
+    }
+
     // ============================================================
     //  Utilities
     // ============================================================
