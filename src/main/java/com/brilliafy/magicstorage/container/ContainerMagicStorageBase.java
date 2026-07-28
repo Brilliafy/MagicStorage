@@ -457,29 +457,20 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         @Override
         public boolean canTakeStack(EntityPlayer playerIn) {
             if (anvilResultLocked || enchantResultLocked) return false;
-            // Check XP on client — flags are only set server-side by findMatchingRecipe
+            // On client, compute checks directly (flags only set server-side)
             if (playerInv.player.world.isRemote) {
                 ItemStack[] m = new ItemStack[9];
                 for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-                // Anvil check
+                // Anvil: computeResult works without heart
                 if (!m[0].isEmpty() && !m[4].isEmpty()) {
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
                     if (ar != null && !com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
                         return false;
                     }
                 }
-                // Enchant check
+                // Enchanting: block if lapis present (can't compute power on client)
                 if (!m[0].isEmpty() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
-                    int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
-                    if (slot >= 0) {
-                        TileStorageHeart master = getTileMaster();
-                        int power = (master != null) ? com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, playerInv.player.world) : 0;
-                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
-                            com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], playerInv.player, power, slot);
-                        if (er == null || !com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(playerInv.player, Math.max(er.xpCost, er.enchantLevel))) {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
             }
             return super.canTakeStack(playerIn);
@@ -488,29 +479,19 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         @Override
         public ItemStack decrStackSize(int amount) {
             if (anvilResultLocked || enchantResultLocked) return ItemStack.EMPTY;
-            // Also check directly on client
             if (playerInv.player.world.isRemote) {
                 ItemStack[] m = new ItemStack[9];
                 for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-                // Anvil check
+                // Anvil: computeResult works without heart
                 if (!m[0].isEmpty() && !m[4].isEmpty()) {
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
                     if (ar != null && !com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
                         return ItemStack.EMPTY;
                     }
                 }
-                // Enchant check
+                // Enchanting: block if lapis present (can't compute power on client)
                 if (!m[0].isEmpty() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
-                    int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
-                    if (slot >= 0) {
-                        TileStorageHeart master = getTileMaster();
-                        int power = (master != null) ? com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, playerInv.player.world) : 0;
-                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
-                            com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], playerInv.player, power, slot);
-                        if (er == null || !com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(playerInv.player, Math.max(er.xpCost, er.enchantLevel))) {
-                            return ItemStack.EMPTY;
-                        }
-                    }
+                    return ItemStack.EMPTY;
                 }
             }
             return super.decrStackSize(amount);
