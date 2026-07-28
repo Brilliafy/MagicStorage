@@ -182,28 +182,17 @@ public class AnvilCraftingHelper {
         display.setCount(1);
         NBTTagCompound rootTag = display.hasTagCompound() ? display.getTagCompound().copy() : new NBTTagCompound();
 
-        // Ensure an ench tag exists so vanilla renders the item correctly
+        // Only add a fake ench tag if the item actually has enchantments
+        // (avoids enchanted glint on non-enchanted repair results like iron sword + iron)
         NBTTagList enchList = rootTag.getTagList("ench", 10);
-        if (enchList == null || enchList.tagCount() == 0) {
-            if (display.getItem() == Items.ENCHANTED_BOOK) {
-                NBTTagList stored = rootTag.getTagList("StoredEnchantments", 10);
-                if (stored == null || stored.tagCount() == 0) {
-                    enchList = new NBTTagList();
-                    NBTTagCompound fakeEnch = new NBTTagCompound();
-                    fakeEnch.setShort("id", (short) 0);
-                    fakeEnch.setShort("lvl", (short) 1);
-                    enchList.appendTag(fakeEnch);
-                    rootTag.setTag("ench", enchList);
-                }
-            } else {
-                enchList = new NBTTagList();
-                NBTTagCompound fakeEnch = new NBTTagCompound();
-                fakeEnch.setShort("id", (short) 0);
-                fakeEnch.setShort("lvl", (short) 1);
-                enchList.appendTag(fakeEnch);
-                rootTag.setTag("ench", enchList);
-            }
+        NBTTagList storedEnchList = null;
+        boolean hasRealEnchants = (enchList != null && enchList.tagCount() > 0);
+        if (!hasRealEnchants && display.getItem() == Items.ENCHANTED_BOOK) {
+            storedEnchList = rootTag.getTagList("StoredEnchantments", 10);
+            hasRealEnchants = storedEnchList != null && storedEnchList.tagCount() > 0;
         }
+        // Only add fake ench if there are real enchants (to preserve existing glint)
+        // Non-enchanted items stay glint-free
 
         // Build lore: enchantment diff + cost
         NBTTagList lore = new NBTTagList();
