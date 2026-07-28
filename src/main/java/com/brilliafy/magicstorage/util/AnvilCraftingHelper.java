@@ -101,8 +101,18 @@ public class AnvilCraftingHelper {
         if (slot4.getItem() == Items.NAME_TAG && slot4.hasDisplayName()) return true;
         // Same-item repair
         if (slot0.getItem() == slot4.getItem() && slot0.getItem().isRepairable()) return true;
-        // Enchant combining: right item must have enchantments applicable to left
+        // Rename any item (both slots have display names)
+        if (slot0.hasDisplayName() && slot0.getItem() == slot4.getItem()) return true;
+        // Enchant combining: check both normal enchants and StoredEnchantments (enchanted books)
         Map<Enchantment, Integer> rightEnchants = EnchantmentHelper.getEnchantments(slot4);
+        if (rightEnchants.isEmpty() && slot4.getItem() == Items.ENCHANTED_BOOK && slot4.hasTagCompound()) {
+            net.minecraft.nbt.NBTTagList stored = slot4.getTagCompound().getTagList("StoredEnchantments", 10);
+            for (int i = 0; i < stored.tagCount(); i++) {
+                net.minecraft.nbt.NBTTagCompound tag = stored.getCompoundTagAt(i);
+                Enchantment ench = Enchantment.getEnchantmentByID(tag.getShort("id"));
+                if (ench != null) rightEnchants.put(ench, (int) tag.getShort("lvl"));
+            }
+        }
         if (!rightEnchants.isEmpty()) {
             for (Enchantment ench : rightEnchants.keySet()) {
                 if (ench != null && canApply(ench, slot0)) return true;
