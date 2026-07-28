@@ -111,7 +111,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 } else {
                     // Show result with red "Insufficient XP" tooltip, block taking
                     anvilResultLocked = true;
-                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost, ar.cost + " levels required"));
+                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost, "insufficient"));
                 }
                 return;
             }
