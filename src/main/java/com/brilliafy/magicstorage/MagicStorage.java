@@ -27,6 +27,7 @@ public class MagicStorage {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         LOGGER.info("Magic Storage preInit");
+        com.brilliafy.magicstorage.config.ModConfig.load(event);
         net.minecraftforge.common.ForgeChunkManager.setForcedChunkLoadingCallback(this, new com.brilliafy.magicstorage.tile.ChunkLoadCallback());
         proxy.preInit(event);
     }
