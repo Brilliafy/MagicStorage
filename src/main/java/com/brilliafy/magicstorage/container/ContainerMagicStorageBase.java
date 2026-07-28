@@ -397,7 +397,9 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerIn);
                     if (ar != null) return ar.stack.copy();
                 }
-                return stack;
+                // Return EMPTY instead of stack — stack is the display lore item,
+                // the server will send the correct result via SPacketSetSlot
+                return ItemStack.EMPTY;
             }
             
             // For custom recipes: handle everything ourselves, skip super.onTake
