@@ -305,17 +305,14 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     @Override
     public ItemStack slotClick(int slotId, int dragType, net.minecraft.inventory.ClickType clickTypeIn, EntityPlayer player) {
         // Compute anvilResultLocked on client side (only set server-side by findMatchingRecipe)
-        if (slotId == 0 && player.world.isRemote) {
+        if (slotId == 0 && player.world.isRemote && matrix != null) {
             anvilResultLocked = false;
-            TileStorageHeart master = getTileMaster();
-            if (master != null && master.hasAnvil() && matrix != null) {
-                ItemStack[] m = new ItemStack[9];
-                for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-                if (!m[0].isEmpty() && !m[4].isEmpty()) {
-                    com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], player);
-                    if (ar != null && !com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(player, ar.cost)) {
-                        anvilResultLocked = true;
-                    }
+            ItemStack[] m = new ItemStack[9];
+            for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
+            if (!m[0].isEmpty() && !m[4].isEmpty()) {
+                com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], player);
+                if (ar != null && !com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(player, ar.cost)) {
+                    anvilResultLocked = true;
                 }
             }
         }
