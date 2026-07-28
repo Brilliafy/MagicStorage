@@ -109,15 +109,8 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             }
         }
         // 4. Brewing
-        com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] BREW CHECK: hasStand=" + master.hasBrewingStand() + " blaze=" + (m[0].isEmpty() ? "empty" : m[0].getDisplayName()) + " ing=" + (m[1].isEmpty() ? "empty" : m[1].getDisplayName()) + " b3=" + (m[3].isEmpty() ? "empty" : m[3].getDisplayName()) + " b4=" + (m[4].isEmpty() ? "empty" : m[4].getDisplayName()) + " b5=" + (m[5].isEmpty() ? "empty" : m[5].getDisplayName()));
-        if (master.hasBrewingStand()) {
-            List<ItemStack> bottles = com.brilliafy.magicstorage.util.PotionCraftingHelper.getBottles(m[3], m[4], m[5]);
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] BREW: bottles=" + bottles.size());
-        }
         if (master.hasBrewingStand() && com.brilliafy.magicstorage.util.PotionCraftingHelper.canCraft(m[0], m[1], m[3], m[4], m[5])) {
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] BREW: canCraft passed!");
             List<ItemStack> results = com.brilliafy.magicstorage.util.PotionCraftingHelper.computeResult(m);
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] BREW: results=" + results.size());
             if (!results.isEmpty()) { result.setInventorySlotContents(0, results.get(0)); return; }
         }
         // 5. Vanilla

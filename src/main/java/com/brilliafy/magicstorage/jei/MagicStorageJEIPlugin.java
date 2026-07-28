@@ -47,6 +47,5 @@ public class MagicStorageJEIPlugin implements IModPlugin {
         registry.addRecipeCatalyst(new ItemStack(ModBlocksRef.CRAFTING_ACCESS), EnchantingRecipeCategory.UID);
         registry.addRecipes(EnchantingRecipeCategory.generateAllRecipes(), EnchantingRecipeCategory.UID);
 
-        com.brilliafy.magicstorage.MagicStorage.LOGGER.info("Magic Storage JEI: all integrations loaded");
     }
 }

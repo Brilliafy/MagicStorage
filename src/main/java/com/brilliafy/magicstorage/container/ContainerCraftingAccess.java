@@ -40,8 +40,6 @@ public class ContainerCraftingAccess extends ContainerMagicStorageBase {
         bindGrid();       // slot 0=result, 1-9=matrix
         bindPlayerInvo(playerInv); // slots 10-45
         onCraftMatrixChanged(matrix);
-        if (playerInv.player.world.isRemote) return;
-        com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] CA open: heartFound=" + (heart != null) + " heartPos=" + (tile != null ? tile.getHeartPos() : "null") + " hasEnchantTable=" + (heart != null ? heart.hasEnchantingTable() : "N/A"));
     }
 
     @Override
