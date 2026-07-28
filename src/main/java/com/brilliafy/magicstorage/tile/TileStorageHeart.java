@@ -113,7 +113,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
             refreshOpenGUIs();
         }
 
-        if (com.brilliafy.magicstorage.config.ModConfig.autoSortEnabled && connectedUnits.size() >= 2 && tickCounter % (com.brilliafy.magicstorage.config.ModConfig.autoSortIntervalSeconds * 20) == 0) {
+        if (com.brilliafy.magicstorage.config.ModConfig.softAutoSortEnabled && connectedUnits.size() >= 2 && tickCounter % (com.brilliafy.magicstorage.config.ModConfig.softAutoSortIntervalSeconds * 20) == 0) {
             autosort();
         }
     }

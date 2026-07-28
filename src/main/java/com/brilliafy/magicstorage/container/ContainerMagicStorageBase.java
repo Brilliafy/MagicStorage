@@ -404,10 +404,16 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (playerIn.world.isRemote) {
                 if (master != null && master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerIn)) {
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerIn);
-                    if (ar != null) return ar.stack.copy();
+                    if (ar != null) {
+                        if (com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerIn, ar.cost)) {
+                            return ar.stack.copy();
+                        }
+                        // XP insufficient — clear the cursor (vanilla already put display stack there via decrStackSize)
+                        playerIn.inventory.setItemStack(ItemStack.EMPTY);
+                        return ItemStack.EMPTY;
+                    }
                 }
-                // Return EMPTY instead of stack — stack is the display lore item,
-                // the server will send the correct result via SPacketSetSlot
+                playerIn.inventory.setItemStack(ItemStack.EMPTY);
                 return ItemStack.EMPTY;
             }
             

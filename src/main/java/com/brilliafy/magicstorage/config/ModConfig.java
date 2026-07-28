@@ -7,8 +7,8 @@ public class ModConfig {
 
     private static Configuration configFile;
 
-    public static boolean autoSortEnabled = true;
-    public static int autoSortIntervalSeconds = 60;
+    public static boolean softAutoSortEnabled = true;
+    public static int softAutoSortIntervalSeconds = 60;
 
     public static void load(FMLPreInitializationEvent event) {
         configFile = new Configuration(event.getSuggestedConfigurationFile());
@@ -19,20 +19,20 @@ public class ModConfig {
     private static void syncConfig() {
         String CATEGORY_SORTING = "sorting";
 
-        autoSortEnabled = configFile.getBoolean(
-            "autoSortEnabled",
+        softAutoSortEnabled = configFile.getBoolean(
+            "softAutoSortEnabled",
             CATEGORY_SORTING,
-            autoSortEnabled,
-            "When enabled, items will automatically move into storage units that already contain matching items and have available space."
+            softAutoSortEnabled,
+            "When enabled, items are automatically moved into storage units that already contain matching items with available space. Does not move items to new slots — only consolidates into existing ones to save storage space."
         );
 
-        autoSortIntervalSeconds = configFile.getInt(
-            "autoSortIntervalSeconds",
+        softAutoSortIntervalSeconds = configFile.getInt(
+            "softAutoSortIntervalSeconds",
             CATEGORY_SORTING,
-            autoSortIntervalSeconds,
+            softAutoSortIntervalSeconds,
             10,
             3600,
-            "How often in seconds the auto-sort runs to redistribute items across storage units."
+            "How often in seconds the soft auto-sort runs to consolidate items across storage units."
         );
 
         if (configFile.hasChanged()) {
