@@ -23,6 +23,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     protected InventoryCraftingNetwork matrix;
     protected boolean recipeLocked = false;
     protected boolean isSimple = false;
+    protected boolean anvilResultLocked = false; // true when XP insufficient for anvil result
     protected List<ItemStack> cachedStacks = new ArrayList<>();
     protected List<ItemStack> cachedCraftableStacks = new ArrayList<>();
 
@@ -101,10 +102,17 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (!smelted.isEmpty()) { result.setInventorySlotContents(0, smelted); return; }
         }
         // 3. Anvil — delegate to vanilla ContainerRepair via reflection
+        anvilResultLocked = false;
         if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerInv.player)) {
             com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
-            if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
-                result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost));
+            if (ar != null) {
+                if (com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
+                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost));
+                } else {
+                    // Show result with red "Insufficient XP" tooltip, block taking
+                    anvilResultLocked = true;
+                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost, ar.cost + " levels required"));
+                }
                 return;
             }
         }
@@ -298,6 +306,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     public ItemStack slotClick(int slotId, int dragType, net.minecraft.inventory.ClickType clickTypeIn, EntityPlayer player) {
         // Handle hotkey on result slot: craft + move to specific hotbar slot
         if (clickTypeIn == net.minecraft.inventory.ClickType.SWAP && slotId == 0 && !player.world.isRemote) {
+            if (anvilResultLocked) return ItemStack.EMPTY; // Block when XP insufficient
             TileStorageHeart master = getTileMaster();
             if (master != null && dragType >= 0 && dragType < 9) {
                 // Snapshot inventory before craft
@@ -375,6 +384,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     public final class SlotCraftingNetwork extends SlotCrafting {
         public SlotCraftingNetwork(EntityPlayer player, InventoryCrafting crafting, IInventory result, int slotIndex, int x, int y) {
             super(player, crafting, result, slotIndex, x, y);
+        }
+
+        @Override
+        public boolean canTakeStack(EntityPlayer playerIn) {
+            // Block taking when anvil result shown but XP insufficient
+            if (anvilResultLocked) return false;
+            return super.canTakeStack(playerIn);
         }
 
         @Override

@@ -206,6 +206,28 @@ public class AnvilCraftingHelper {
         return display;
     }
 
+    /** Overload with custom error message (e.g. insufficient XP) */
+    public static ItemStack buildDisplayStack(ItemStack leftInput, ItemStack rightInput, ItemStack anvilResult, int xpCost, String errorMessage) {
+        ItemStack display = buildDisplayStack(leftInput, rightInput, anvilResult, xpCost);
+        // Add red error line to existing lore
+        NBTTagCompound rootTag = display.getTagCompound();
+        if (rootTag != null && rootTag.hasKey("display", 10)) {
+            NBTTagCompound displayTag = rootTag.getCompoundTag("display");
+            NBTTagList lore = displayTag.hasKey("Lore", 9) ? displayTag.getTagList("Lore", 8) : new NBTTagList();
+            // Insert error before the cost line (last line)
+            NBTTagList newLore = new NBTTagList();
+            for (int i = 0; i < lore.tagCount() - 1; i++) {
+                newLore.appendTag(lore.get(i));
+            }
+            newLore.appendTag(new NBTTagString("\u00A7c" + errorMessage));
+            if (lore.tagCount() > 0) {
+                newLore.appendTag(lore.get(lore.tagCount() - 1)); // cost line
+            }
+            displayTag.setTag("Lore", newLore);
+        }
+        return display;
+    }
+
     // ===================== Consuming =====================
 
     /**
