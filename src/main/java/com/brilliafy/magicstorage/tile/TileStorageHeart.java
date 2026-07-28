@@ -201,7 +201,12 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 com.brilliafy.magicstorage.gui.IStorageContainer container = (com.brilliafy.magicstorage.gui.IStorageContainer) player.openContainer;
                 if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
                     TileStorageHeart h = ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getTileMaster();
-                    if (h == this) com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendTo(networkRefreshMsg, player);
+                    if (h == this) {
+                        com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendTo(networkRefreshMsg, player);
+                        // Refresh enchanting/anvil result when network items change
+                        ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).onCraftMatrixChanged(
+                            ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getCraftMatrix());
+                    }
                 } else if (container instanceof com.brilliafy.magicstorage.container.ContainerStorageAccess) {
                     com.brilliafy.magicstorage.container.ContainerStorageAccess ca = (com.brilliafy.magicstorage.container.ContainerStorageAccess) container;
                     if (ca.getAccessTile() != null) {
