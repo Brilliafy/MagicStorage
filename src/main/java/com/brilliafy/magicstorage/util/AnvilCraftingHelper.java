@@ -209,20 +209,22 @@ public class AnvilCraftingHelper {
     /** Overload with custom error message (e.g. insufficient XP) */
     public static ItemStack buildDisplayStack(ItemStack leftInput, ItemStack rightInput, ItemStack anvilResult, int xpCost, String errorMessage) {
         ItemStack display = buildDisplayStack(leftInput, rightInput, anvilResult, xpCost);
-        // Add red error line to existing lore
         NBTTagCompound rootTag = display.getTagCompound();
         if (rootTag != null && rootTag.hasKey("display", 10)) {
             NBTTagCompound displayTag = rootTag.getCompoundTag("display");
             NBTTagList lore = displayTag.hasKey("Lore", 9) ? displayTag.getTagList("Lore", 8) : new NBTTagList();
-            // Insert error before the cost line (last line)
+            // Make the cost line red instead of yellow
             NBTTagList newLore = new NBTTagList();
-            for (int i = 0; i < lore.tagCount() - 1; i++) {
-                newLore.appendTag(lore.get(i));
+            for (int i = 0; i < lore.tagCount(); i++) {
+                String line = lore.getStringTagAt(i);
+                if (line.contains("Level cost:")) {
+                    newLore.appendTag(new NBTTagString(line.replace("\u00A7e", "\u00A7c")));
+                } else {
+                    newLore.appendTag(new NBTTagString(line));
+                }
             }
-            newLore.appendTag(new NBTTagString("\u00A7c" + errorMessage));
-            if (lore.tagCount() > 0) {
-                newLore.appendTag(lore.get(lore.tagCount() - 1)); // cost line
-            }
+            // Append red insufficient XP line after cost
+            newLore.appendTag(new NBTTagString("\u00A7c\u2716 Insufficient XP"));
             displayTag.setTag("Lore", newLore);
         }
         return display;
