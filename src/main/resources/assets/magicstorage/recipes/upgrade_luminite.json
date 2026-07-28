@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OXO",
+    "EIE",
+    "OXO"
+  ],
+  "key": {
+    "O": { "item": "minecraft:obsidian" },
+    "X": { "item": "minecraft:end_stone" },
+    "E": { "item": "minecraft:ender_eye" },
+    "I": { "item": "magicstorage:upgrade_blue_chlorophyte" }
+  },
+  "result": {
+    "item": "magicstorage:upgrade_luminite",
+    "count": 1
+  }
+}

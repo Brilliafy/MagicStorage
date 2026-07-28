@@ -1,0 +1,6 @@
+{
+  "parent": "magicstorage:block/storage_unit",
+  "textures": {
+    "all": "magicstorage:block/storage_unit_hellstone"
+  }
+}

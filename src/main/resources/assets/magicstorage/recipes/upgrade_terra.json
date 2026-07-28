@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DND",
+    "EIE",
+    "DND"
+  ],
+  "key": {
+    "D": { "item": "minecraft:dragon_breath" },
+    "N": { "item": "minecraft:nether_star" },
+    "E": { "item": "minecraft:end_rod" },
+    "I": { "item": "magicstorage:upgrade_luminite" }
+  },
+  "result": {
+    "item": "magicstorage:upgrade_terra",
+    "count": 1
+  }
+}

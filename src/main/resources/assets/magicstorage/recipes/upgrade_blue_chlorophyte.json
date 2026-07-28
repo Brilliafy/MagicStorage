@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EPE",
+    "PIP",
+    "EPE"
+  ],
+  "key": {
+    "E": { "item": "minecraft:emerald_block" },
+    "P": { "item": "minecraft:chorus_fruit_popped" },
+    "I": { "item": "magicstorage:upgrade_hallowed" }
+  },
+  "result": {
+    "item": "magicstorage:upgrade_blue_chlorophyte",
+    "count": 1
+  }
+}

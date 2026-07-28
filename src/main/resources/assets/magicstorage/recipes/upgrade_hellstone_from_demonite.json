@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "HGH",
+    "PIP",
+    "HGH"
+  ],
+  "key": {
+    "H": { "item": "magicstorage:hell_brick" },
+    "G": { "item": "minecraft:gold_block" },
+    "P": { "item": "minecraft:blaze_powder" },
+    "I": { "item": "magicstorage:upgrade_demonite" }
+  },
+  "result": {
+    "item": "magicstorage:upgrade_hellstone",
+    "count": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ILI",
+    "LCL",
+    "ILI"
+  ],
+  "key": {
+    "I": { "type": "forge:ore_dict", "ore": "logWood" },
+    "L": { "item": "minecraft:chest" },
+    "C": { "item": "magicstorage:storage_component" }
+  },
+  "result": {
+    "item": "magicstorage:storage_unit",
+    "data": 0,
+    "count": 1
+  }
+}

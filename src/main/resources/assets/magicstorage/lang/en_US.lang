@@ -1,0 +1,36 @@
+# Magic Storage - English
+itemGroup.magicstorage=Magic Storage
+
+# Blocks
+tile.magicstorage.storage_heart.name=Storage Heart
+tile.magicstorage.storage_access.name=Storage Access
+tile.magicstorage.crafting_access.name=Crafting Access Interface
+tile.magicstorage.remote_access.name=Remote Storage Access
+tile.magicstorage.hell_brick.name=Hell Bricks
+
+# Storage Unit variants — numeric suffixes match ItemBlockStorageUnit.getTranslationKey()
+tile.magicstorage.storage_unit_0.name=Basic Storage Unit
+tile.magicstorage.storage_unit_1.name=Crimtane Storage Unit
+tile.magicstorage.storage_unit_2.name=Demonite Storage Unit
+tile.magicstorage.storage_unit_3.name=Hellstone Storage Unit
+tile.magicstorage.storage_unit_4.name=Hallowed Storage Unit
+tile.magicstorage.storage_unit_5.name=Blue Chlorophyte Storage Unit
+tile.magicstorage.storage_unit_6.name=Luminite Storage Unit
+tile.magicstorage.storage_unit_7.name=Terra Storage Unit
+
+# Items
+item.magicstorage.storage_component.name=Storage Component
+item.magicstorage.upgrade_crimtane.name=Crimtane Storage Upgrade
+item.magicstorage.upgrade_hellstone.name=Hellstone Storage Upgrade
+item.magicstorage.upgrade_hallowed.name=Hallowed Storage Upgrade
+item.magicstorage.upgrade_blue_chlorophyte.name=Blue Chlorophyte Storage Upgrade
+item.magicstorage.upgrade_luminite.name=Luminite Storage Upgrade
+item.magicstorage.upgrade_terra.name=Terra Storage Upgrade
+# Portable access remotes
+item.magicstorage.portable_access_PreHM.name=Basic Portable Storage Access
+item.magicstorage.portable_access_HM.name=Advanced Portable Storage Access
+item.magicstorage.portable_access_Ultimate.name=Ultimate Portable Storage Access
+item.magicstorage.portable_crafting_access_PreHM.name=Basic Portable Crafting Access
+item.magicstorage.portable_crafting_access_HM.name=Advanced Portable Crafting Access (HM)
+item.magicstorage.portable_crafting_access_Ultimate.name=Ultimate Portable Crafting Access
+item.magicstorage.upgrade_demonite.name=Demonite Storage Upgrade

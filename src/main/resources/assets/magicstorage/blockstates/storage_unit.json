@@ -1,0 +1,51 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "magicstorage:storage_unit",
+    "transform": "forge:default-block"
+  },
+  "variants": {
+    "variant": {
+      "basic": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_basic"
+        }
+      },
+      "crimtane": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_crimtane"
+        }
+      },
+      "demonite": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_demonite"
+        }
+      },
+      "hellstone": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_hellstone"
+        }
+      },
+      "hallowed": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_hallowed"
+        }
+      },
+      "blue_chlorophyte": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_blue_chlorophyte"
+        }
+      },
+      "luminite": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_luminite"
+        }
+      },
+      "terra": {
+        "textures": {
+          "all": "magicstorage:block/storage_unit_terra"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " U ",
+    " S ",
+    "   "
+  ],
+  "key": {
+    "U": { "item": "magicstorage:upgrade_terra" },
+    "S": { "item": "magicstorage:storage_unit", "data": 6 }
+  },
+  "result": {
+    "item": "magicstorage:storage_unit",
+    "data": 7,
+    "count": 1
+  }
+}
