@@ -319,17 +319,6 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        // Refresh enchanting result every tick when ingredients present
-        if (!playerInv.player.world.isRemote) {
-            TileStorageHeart master = getTileMaster();
-            if (master != null && master.hasEnchantingTable()) {
-                ItemStack[] m = new ItemStack[9];
-                for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-                if (com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
-                    onCraftMatrixChanged(matrix);
-                }
-            }
-        }
     }
 
     @Override
