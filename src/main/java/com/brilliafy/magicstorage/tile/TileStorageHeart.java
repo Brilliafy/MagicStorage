@@ -485,12 +485,16 @@ public class TileStorageHeart extends TileEntity implements ITickable {
             if (te instanceof TileStorageUnit) {
                 TileStorageUnit unit = (TileStorageUnit) te;
                 remainder = unit.insertItem(remainder, simulate);
-                if (remainder.isEmpty()) return ItemStack.EMPTY;
+                if (remainder.isEmpty()) {
+                    if (!simulate) refreshOpenGUIs();
+                    return ItemStack.EMPTY;
+                }
             }
         }
         if (!remainder.isEmpty()) {
             remainder = net.minecraftforge.items.ItemHandlerHelper.insertItemStacked(inventory, remainder, simulate);
         }
+        if (!simulate) refreshOpenGUIs();
         return remainder;
     }
 
@@ -508,6 +512,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                         if (!simulate) {
                             s.shrink(toExtract);
                             unit.getInventory().setStackInSlot(i, s);
+                            refreshOpenGUIs();
                         }
                         return extracted;
                     }
