@@ -340,15 +340,32 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
     @Override
     public ItemStack slotClick(int slotId, int dragType, net.minecraft.inventory.ClickType clickTypeIn, EntityPlayer player) {
-        // Compute anvilResultLocked on client side (only set server-side by findMatchingRecipe)
+        // Compute lock flags on client side (only set server-side by findMatchingRecipe)
         if (slotId == 0 && player.world.isRemote && matrix != null) {
             anvilResultLocked = false;
+            enchantResultLocked = false;
             ItemStack[] m = new ItemStack[9];
             for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
+            // Anvil lock check
             if (!m[0].isEmpty() && !m[4].isEmpty()) {
                 com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], player);
                 if (ar != null && !com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(player, ar.cost)) {
                     anvilResultLocked = true;
+                }
+            }
+            // Enchant lock check
+            if (!m[0].isEmpty() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
+                int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
+                if (slot >= 0) {
+                    TileStorageHeart master = getTileMaster();
+                    if (master != null) {
+                        int power = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, player.world);
+                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
+                            com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], player, power, slot);
+                        if (er == null || !com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
+                            enchantResultLocked = true;
+                        }
+                    }
                 }
             }
         }
