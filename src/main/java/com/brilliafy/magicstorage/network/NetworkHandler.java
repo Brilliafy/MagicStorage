@@ -159,6 +159,11 @@ public class NetworkHandler {
                             result = heart.extractItem(
                                 s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, msg.stack),
                                 sizeRequested, false);
+                            // Refresh crafting result (enchanting power depends on network items)
+                            if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
+                                ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).onCraftMatrixChanged(
+                                    ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getCraftMatrix());
+                            }
                         } else {
                             result = unit.extractItem(
                                 s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, msg.stack),
@@ -249,6 +254,11 @@ public class NetworkHandler {
                                     int cursorCount = stackCarriedByMouse.getCount() - consumed;
                                     send = cursorCount > 0 ? net.minecraftforge.items.ItemHandlerHelper.copyStackWithSize(stackCarriedByMouse, cursorCount) : ItemStack.EMPTY;
                                 }
+                            }
+                            // Refresh crafting result (enchanting power depends on network items)
+                            if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
+                                ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).onCraftMatrixChanged(
+                                    ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getCraftMatrix());
                             }
                         } else {
                             // Unit path
