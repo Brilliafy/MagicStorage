@@ -344,7 +344,32 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             }
             return net.minecraft.item.ItemStack.EMPTY;
         }
-        return super.slotClick(slotId, dragType, clickTypeIn, player);
+
+        // Capture matrix state before super processes the click
+        ItemStack[] beforeMatrix = null;
+        if (slotId >= 1 && slotId <= 9 && matrix != null) {
+            beforeMatrix = new ItemStack[9];
+            for (int i = 0; i < 9; i++) beforeMatrix[i] = matrix.getStackInSlot(i).copy();
+        }
+
+        ItemStack result = super.slotClick(slotId, dragType, clickTypeIn, player);
+
+        // If a matrix slot changed (right-click to add items), force recipe re-check
+        if (beforeMatrix != null && matrix != null && !player.world.isRemote) {
+            boolean changed = false;
+            for (int i = 0; i < 9; i++) {
+                if (!net.minecraft.item.ItemStack.areItemStacksEqual(beforeMatrix[i], matrix.getStackInSlot(i))) {
+                    changed = true;
+                    break;
+                }
+            }
+            if (changed) {
+                onCraftMatrixChanged(matrix);
+                detectAndSendChanges();
+            }
+        }
+
+        return result;
     }
 
     public final class SlotCraftingNetwork extends SlotCrafting {
