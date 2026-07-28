@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagString;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,6 @@ public class AnvilCraftingHelper {
 
     /**
      * Quick check: does the vanilla anvil produce a result for these two items?
-     * Uses reflection on ContainerRepair — handles ALL cases vanilla supports.
      */
     public static boolean canCraft(ItemStack slot0, ItemStack slot4, EntityPlayer player) {
         if (slot0.isEmpty() || slot4.isEmpty()) return false;
@@ -149,11 +149,35 @@ public class AnvilCraftingHelper {
         return null;
     }
 
+    // ===================== Display / Tooltip =====================
+
     /**
-     * Build a display stack with "§e§l§nLevel cost: X" lore for tooltip.
-     * Same pattern as EnchantingCraftingHelper.buildDisplayStack.
+     * Get enchantments from an item — handles both normal enchants and StoredEnchantments (books).
      */
-    public static ItemStack buildDisplayStack(ItemStack anvilResult, int xpCost) {
+    private static Map<Enchantment, Integer> getAllEnchants(ItemStack stack) {
+        Map<Enchantment, Integer> enchants = new LinkedHashMap<>();
+        Map<Enchantment, Integer> normal = EnchantmentHelper.getEnchantments(stack);
+        if (!normal.isEmpty()) enchants.putAll(normal);
+        // Enchanted books store in StoredEnchantments
+        if (stack.getItem() == Items.ENCHANTED_BOOK && stack.hasTagCompound()) {
+            NBTTagList stored = stack.getTagCompound().getTagList("StoredEnchantments", 10);
+            for (int i = 0; i < stored.tagCount(); i++) {
+                NBTTagCompound tag = stored.getCompoundTagAt(i);
+                Enchantment ench = Enchantment.getEnchantmentByID(tag.getShort("id"));
+                if (ench != null) enchants.put(ench, (int) tag.getShort("lvl"));
+            }
+        }
+        return enchants;
+    }
+
+    /**
+     * Build a display stack with enchantment diff + "Level cost: X" lore for tooltip.
+     * @param leftInput  the original left item (before anvil)
+     * @param rightInput the original right item (before anvil)
+     * @param anvilResult the vanilla anvil result
+     * @param xpCost     the XP level cost
+     */
+    public static ItemStack buildDisplayStack(ItemStack leftInput, ItemStack rightInput, ItemStack anvilResult, int xpCost) {
         ItemStack display = anvilResult.copy();
         display.setCount(1);
         NBTTagCompound rootTag = display.hasTagCompound() ? display.getTagCompound().copy() : new NBTTagCompound();
@@ -161,7 +185,6 @@ public class AnvilCraftingHelper {
         // Ensure an ench tag exists so vanilla renders the item correctly
         NBTTagList enchList = rootTag.getTagList("ench", 10);
         if (enchList == null || enchList.tagCount() == 0) {
-            // For enchanted books, use StoredEnchantments instead
             if (display.getItem() == Items.ENCHANTED_BOOK) {
                 NBTTagList stored = rootTag.getTagList("StoredEnchantments", 10);
                 if (stored == null || stored.tagCount() == 0) {
@@ -182,8 +205,37 @@ public class AnvilCraftingHelper {
             }
         }
 
-        // Build lore
+        // Build lore: enchantment diff + cost
         NBTTagList lore = new NBTTagList();
+        Map<Enchantment, Integer> leftEnchants = getAllEnchants(leftInput);
+        Map<Enchantment, Integer> resultEnchants = getAllEnchants(display);
+
+        // Show new/changed enchantments
+        for (Map.Entry<Enchantment, Integer> entry : resultEnchants.entrySet()) {
+            Enchantment ench = entry.getKey();
+            int newLevel = entry.getValue();
+            int oldLevel = leftEnchants.getOrDefault(ench, 0);
+            String name = ench.getTranslatedName(newLevel);
+            if (oldLevel == 0) {
+                // New enchantment
+                lore.appendTag(new NBTTagString("\u00A77" + name + " \u00A7a\u2714"));  // green checkmark
+            } else if (newLevel > oldLevel) {
+                // Upgraded enchantment
+                lore.appendTag(new NBTTagString("\u00A77" + name + " \u00A7a\u2714"));  // green checkmark
+            }
+            // Equal level = no line shown (already has it)
+        }
+        // Show removed enchantments (in left but not in result)
+        for (Map.Entry<Enchantment, Integer> entry : leftEnchants.entrySet()) {
+            Enchantment ench = entry.getKey();
+            if (!resultEnchants.containsKey(ench)) {
+                String name = ench.getTranslatedName(entry.getValue());
+                lore.appendTag(new NBTTagString("\u00A77" + name + " \u00A7c\u2716"));  // red cross
+            }
+        }
+
+        // Separator + cost
+        lore.appendTag(new NBTTagString(""));
         lore.appendTag(new NBTTagString("\u00A7e\u00A7l\u00A7nLevel cost: " + xpCost));
 
         NBTTagCompound displayTag = rootTag.getCompoundTag("display");
@@ -197,9 +249,53 @@ public class AnvilCraftingHelper {
 
     // ===================== Consuming =====================
 
-    public static void consumeIngredients(ItemStack[] matrix) {
+    /**
+     * Consume ingredients for anvil craft.
+     * Left item: always 1 (the item being repaired/renamed/enchanted).
+     * Right item: for repair, calculates how many materials are needed based on durability.
+     *             For enchant/rename, consumes 1.
+     */
+    public static void consumeIngredients(ItemStack[] matrix, ItemStack leftInput, ItemStack rightInput) {
         if (!matrix[0].isEmpty()) matrix[0].shrink(1);
-        if (!matrix[4].isEmpty()) matrix[4].shrink(1);
+        if (matrix[4].isEmpty()) return;
+
+        // Check if this is a repair (same item or repairable material) vs enchant/rename
+        int materialsNeeded = calculateMaterialCount(leftInput, rightInput);
+        int available = matrix[4].getCount();
+        int toConsume = Math.min(materialsNeeded, available);
+        matrix[4].shrink(toConsume);
+    }
+
+    /**
+     * Calculate how many of the right item are needed for repair.
+     * Each material repairs 25% of max durability (vanilla behavior).
+     * For non-repair scenarios (enchant, rename), returns 1.
+     */
+    private static int calculateMaterialCount(ItemStack left, ItemStack right) {
+        if (left.isEmpty() || right.isEmpty()) return 1;
+
+        boolean isSameItem = left.getItem() == right.getItem();
+        boolean isRepairMaterial = !isSameItem && right.getItem().isRepairable() && left.getItem().isRepairable();
+
+        if (!isSameItem && !isRepairMaterial) {
+            // Enchant combining or name tag rename — consume 1
+            return 1;
+        }
+
+        // Repair: calculate based on durability
+        int maxDamage = left.getMaxDamage();
+        if (maxDamage <= 0) return 1;
+
+        int currentDamage = left.getItemDamage();
+        int damageToRepair = maxDamage - currentDamage;
+        if (damageToRepair <= 0) return 1; // Already full durability
+
+        // Each material repairs 25% of max durability (vanilla formula)
+        int repairPerMaterial = maxDamage / 4;
+        if (repairPerMaterial <= 0) repairPerMaterial = 1;
+
+        int needed = (damageToRepair + repairPerMaterial - 1) / repairPerMaterial; // ceiling division
+        return Math.max(needed, 1);
     }
 
     public static boolean hasEnoughXp(EntityPlayer player, int cost) {
