@@ -224,6 +224,7 @@ public class AnvilCraftingHelper {
                 }
             }
             // Append red insufficient XP line after cost
+            newLore.appendTag(new NBTTagString("")); // blank line before error
             newLore.appendTag(new NBTTagString("\u00A7c\u2716 Insufficient XP"));
             displayTag.setTag("Lore", newLore);
         }

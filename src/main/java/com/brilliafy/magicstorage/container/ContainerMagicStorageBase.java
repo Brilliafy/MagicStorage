@@ -394,6 +394,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         }
 
         @Override
+        public ItemStack decrStackSize(int amount) {
+            // When XP insufficient, don't take item from result slot
+            if (anvilResultLocked) return ItemStack.EMPTY;
+            return super.decrStackSize(amount);
+        }
+
+        @Override
         public ItemStack onTake(EntityPlayer playerIn, ItemStack stack) {
             TileStorageHeart master = getTileMaster();
             
