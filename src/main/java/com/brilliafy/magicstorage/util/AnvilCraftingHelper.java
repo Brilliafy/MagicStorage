@@ -102,6 +102,8 @@ public class AnvilCraftingHelper {
     public static boolean canCraft(ItemStack slot0, ItemStack slot4, EntityPlayer player) {
         if (slot0.isEmpty() || slot4.isEmpty()) return false;
         if (isAnvil(slot0) || isAnvil(slot4)) return false;
+        // Block nametag rename — we don't want this feature
+        if (slot4.getItem() == Items.NAME_TAG) return false;
         AnvilResult ar = computeResult(slot0, slot4, player);
         return ar != null;
     }
@@ -320,12 +322,6 @@ public class AnvilCraftingHelper {
                 new ItemStack(net.minecraft.init.Items.DIAMOND_PICKAXE),
                 new ItemStack(net.minecraft.init.Items.ENCHANTED_BOOK),
                 new ItemStack(net.minecraft.init.Items.DIAMOND_PICKAXE)));
-            ItemStack nameTag = new ItemStack(Items.NAME_TAG);
-            nameTag.setStackDisplayName("\u00A7fAny Name");
-            recipes.add(new AnvilRecipeDisplay(
-                new ItemStack(net.minecraft.init.Items.DIAMOND_SWORD),
-                nameTag,
-                new ItemStack(net.minecraft.init.Items.DIAMOND_SWORD)));
         } catch (Exception e) {}
         return recipes;
     }
