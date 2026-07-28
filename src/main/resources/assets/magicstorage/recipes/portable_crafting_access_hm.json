@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SNS",
+    "CPC",
+    "DRD"
+  ],
+  "key": {
+    "S": { "item": "minecraft:shulker_shell" },
+    "N": { "item": "minecraft:nether_star" },
+    "C": { "item": "minecraft:chorus_fruit_popped" },
+    "P": { "item": "magicstorage:portable_crafting_access", "data": 0 },
+    "D": { "item": "minecraft:diamond_block" },
+    "R": { "item": "magicstorage:portable_access", "data": 1 }
+  },
+  "result": {
+    "item": "magicstorage:portable_crafting_access",
+    "data": 1,
+    "count": 1
+  }
+}

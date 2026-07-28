@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " U ",
+    " S ",
+    "   "
+  ],
+  "key": {
+    "U": { "item": "magicstorage:upgrade_blue_chlorophyte" },
+    "S": { "item": "magicstorage:storage_unit", "data": 4 }
+  },
+  "result": {
+    "item": "magicstorage:storage_unit",
+    "data": 5,
+    "count": 1
+  }
+}

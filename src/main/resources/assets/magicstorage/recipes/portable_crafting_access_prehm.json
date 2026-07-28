@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DCD",
+    "EAE",
+    "GRG"
+  ],
+  "key": {
+    "D": { "item": "minecraft:diamond" },
+    "C": { "item": "minecraft:crafting_table" },
+    "E": { "item": "minecraft:ender_pearl" },
+    "A": { "item": "magicstorage:crafting_access" },
+    "G": { "item": "minecraft:gold_ingot" },
+    "R": { "item": "magicstorage:portable_access", "data": 0 }
+  },
+  "result": {
+    "item": "magicstorage:portable_crafting_access",
+    "data": 0,
+    "count": 1
+  }
+}

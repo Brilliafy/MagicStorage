@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " U ",
+    " S ",
+    "   "
+  ],
+  "key": {
+    "U": { "item": "magicstorage:upgrade_crimtane" },
+    "S": { "item": "magicstorage:storage_unit", "data": 0 }
+  },
+  "result": {
+    "item": "magicstorage:storage_unit",
+    "data": 1,
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NNN",
+    "NMN",
+    "NNN"
+  ],
+  "key": {
+    "N": { "item": "minecraft:netherbrick" },
+    "M": { "item": "minecraft:magma" }
+  },
+  "result": {
+    "item": "magicstorage:hell_brick",
+    "count": 8
+  }
+}

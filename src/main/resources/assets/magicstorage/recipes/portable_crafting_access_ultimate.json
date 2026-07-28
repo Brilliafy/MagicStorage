@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DBD",
+    "EPE",
+    "RMR"
+  ],
+  "key": {
+    "D": { "item": "minecraft:dragon_breath" },
+    "B": { "item": "minecraft:beacon" },
+    "E": { "item": "minecraft:end_crystal" },
+    "P": { "item": "magicstorage:portable_crafting_access", "data": 1 },
+    "R": { "item": "magicstorage:portable_access", "data": 2 },
+    "M": { "item": "minecraft:emerald_block" }
+  },
+  "result": {
+    "item": "magicstorage:portable_crafting_access",
+    "data": 2,
+    "count": 1
+  }
+}

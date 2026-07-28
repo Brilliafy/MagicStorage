@@ -1,0 +1,16 @@
+[
+{
+  "modid": "magicstorage",
+  "name": "Magic Storage",
+  "description": "A Terraria-inspired storage network mod for Minecraft 1.12.2 — an enhancement over Simple Storage Network with more features, more tiers, and quality-of-life improvements.\n\nCentralize all your items into a single Storage Heart, then access them from anywhere in your base through Storage Access terminals. No more running between dozens of chests!\n\nKEY FEATURES:\n- Storage Heart: The core of your network. Place storage units around it to expand capacity. Heart chunks stay loaded via ForgeChunkManager — your items are always accessible even across dimensions.\n- 8 Storage Unit Tiers: Basic (40), Crimtane (80), Demonite (80), Hellstone (120), Hallowed (160), Blue Chlorophyte (220), Luminite (300), Terra (600). Each upgradeable in-place.\n- Auto-Sort: Network contents are automatically sorted for fast retrieval.\n- Storage Access: Remote terminal to view, search, sort, and retrieve items from the entire network. Supports real-time text search, sort by name/mod/quantity, shift-click to move items, and JEI integration.\n- Crafting Access (Station System): Full 3x3 crafting grid with JEI recipe transfer and auto-refill from network. Place station block items in the Storage Heart's inventory to unlock:\n  • Vanilla Crafting — auto-refill from network\n  • Furnace Smelting — place fuel + smeltables, network pulls ingredients from storage\n  • Anvil Combining/Repairing — uses real vanilla anvil cost via reflection (supports modded enchantments)\n  • Enchanting Table — simulates vanilla enchanting using player xpSeed for deterministic results; shows enchantment hint and level cost in tooltip; supports modded bookshelves via Block.getEnchantPowerBonus reflection\n  • Brewing Stand — brew up to 3 potions at once using network ingredients; uses Forge BrewingRecipeRegistry for full modded potion support\n- Portable Access: Handheld remote to access your network on the go. Upgradeable.\n- Remote Access: Cross-dimensional crafting and inventory access from anywhere.\n- Sorting & Search: Sort by name, mod, or quantity with real-time search filtering and JEI integration.\n- Chunk Loading: Storage Heart force-loads its own chunk and all connected storage unit chunks via ForgeChunkManager — items are always accessible even in unloaded dimensions.\n- Mod Compatibility: Full JEI integration for all custom recipes (enchanting, anvil, smelting, brewing). Supports any Forge mod through BrewingRecipeRegistry and block property reflection.\n\nGrid Layouts:\n  ENCHANTING: [item] [lapis] [lapis] [lapis] — XP cost = lapis count (1-3)\n  ANVIL: [item] [. .] [second item]\n  FURNACE: [fuel] [smeltable]\n  BREWING: [blaze_powder] [ingredient] [. .] [bottles(1-3)]",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/Brilliafy/MagicStorage",
+  "updateUrl": "",
+  "authorList": ["brilliafy"],
+  "credits": "Inspired by Magic Storage from Terraria. Enhances and extends Simple Storage Network concepts.",
+  "logoFile": "assets/magicstorage/icon.png",
+  "screenshots": [],
+  "dependencies": ["forge", "jei"]
+}
+]

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DQD",
+    "QIQ",
+    "DQD"
+  ],
+  "key": {
+    "D": { "item": "minecraft:diamond" },
+    "Q": { "item": "minecraft:quartz", "data": 0 },
+    "I": { "item": "magicstorage:upgrade_hellstone" }
+  },
+  "result": {
+    "item": "magicstorage:upgrade_hallowed",
+    "count": 1
+  }
+}

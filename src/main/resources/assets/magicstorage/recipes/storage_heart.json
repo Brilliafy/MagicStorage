@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ERE",
+    "DSD",
+    "RRR"
+  ],
+  "key": {
+    "E": { "item": "minecraft:diamond" },
+    "R": { "item": "minecraft:redstone_block" },
+    "D": { "item": "minecraft:emerald" },
+    "S": { "item": "magicstorage:storage_component" }
+  },
+  "result": {
+    "item": "magicstorage:storage_heart",
+    "count": 1
+  }
+}
