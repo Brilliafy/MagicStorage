@@ -98,6 +98,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.EnchantingCraftingHelper.buildDisplayStackInsufficientXp(m[0], er.clue, er.xpCost, er.enchantLevel));
                     }
                     return;
+                } else {
+                    // Tier unavailable (not enough bookshelves for this slot)
+                    enchantResultLocked = true;
+                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.EnchantingCraftingHelper.buildDisplayStackUnavailableTier(m[0]));
+                    return;
                 }
             }
         }
