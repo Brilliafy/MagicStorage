@@ -104,7 +104,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerInv.player)) {
             com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
             if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
-                result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(ar.stack, ar.cost));
+                result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost));
                 return;
             }
         }
@@ -184,7 +184,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], player);
             if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(player, ar.cost)) {
                 if (!player.inventory.addItemStackToInventory(ar.stack)) player.dropItem(ar.stack, false);
-                com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m);
+                com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m, m[0], m[4]);
                 com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(player, ar.cost);
                 for (int i = 0; i < 9; i++) matrix.setInventorySlotContents(i, m[i]);
                 onCraftMatrixChanged(matrix);
@@ -354,12 +354,19 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
         @Override
         public ItemStack onTake(EntityPlayer playerIn, ItemStack stack) {
-            if (playerIn.world.isRemote) return stack;
-            
             TileStorageHeart master = getTileMaster();
             
             ItemStack[] m = new ItemStack[9];
             for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
+
+            // Client side: compute and return the real result (no display lore)
+            if (playerIn.world.isRemote) {
+                if (master != null && master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerIn)) {
+                    com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerIn);
+                    if (ar != null) return ar.stack.copy();
+                }
+                return stack;
+            }
             
             // For custom recipes: handle everything ourselves, skip super.onTake
             // (vanilla onTake would decrStackSize on ALL slots, double-consuming our ingredients)
@@ -407,7 +414,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerIn);
                     if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerIn, ar.cost)) {
                         stack.onCrafting(playerIn.world, playerIn, 1);
-                        com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m);
+                        com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m, m[0], m[4]);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(playerIn, ar.cost);
                         // Return the REAL result (no display lore) to cursor
                         ItemStack realResult = ar.stack.copy();
