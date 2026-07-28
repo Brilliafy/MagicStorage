@@ -450,20 +450,23 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         stack.onCrafting(playerIn.world, playerIn, 1);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m, m[0], m[4]);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(playerIn, ar.cost);
-                        // Return the REAL result (no display lore) to cursor
+                        // Modify the cursor item IN PLACE — vanilla ignores onTake return value
+                        // and keeps the item from decrStackSize (the display stack with lore)
                         ItemStack realResult = ar.stack.copy();
+                        stack.setTagCompound(realResult.getTagCompound());
+                        stack.setCount(1);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
-                        // Sync XP to client
+                        // Sync to client
                         if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
                             ((net.minecraft.entity.player.EntityPlayerMP) playerIn).connection.sendPacket(
-                                new net.minecraft.network.play.server.SPacketSetSlot(-1, -1, realResult));
+                                new net.minecraft.network.play.server.SPacketSetSlot(-1, -1, stack));
                             ((net.minecraft.entity.player.EntityPlayerMP) playerIn).connection.sendPacket(
                                 new net.minecraft.network.play.server.SPacketSetExperience(
                                     playerIn.experience, playerIn.experienceTotal, playerIn.experienceLevel));
                         }
-                        return realResult;
+                        return stack;
                     }
                     return ItemStack.EMPTY;
                 }
