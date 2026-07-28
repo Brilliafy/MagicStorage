@@ -194,37 +194,21 @@ public class AnvilCraftingHelper {
         // Only add fake ench if there are real enchants (to preserve existing glint)
         // Non-enchanted items stay glint-free
 
-        // Build lore: enchantment diff + cost
+        // Build lore: show ALL enchantments on the result + cost
         NBTTagList lore = new NBTTagList();
-        Map<Enchantment, Integer> leftEnchants = getAllEnchants(leftInput);
         Map<Enchantment, Integer> resultEnchants = getAllEnchants(display);
 
-        // Show new/changed enchantments
         for (Map.Entry<Enchantment, Integer> entry : resultEnchants.entrySet()) {
             Enchantment ench = entry.getKey();
-            int newLevel = entry.getValue();
-            int oldLevel = leftEnchants.getOrDefault(ench, 0);
-            String name = ench.getTranslatedName(newLevel);
-            if (oldLevel == 0) {
-                // New enchantment
-                lore.appendTag(new NBTTagString("\u00A77" + name + " \u00A7a\u2714"));  // green checkmark
-            } else if (newLevel > oldLevel) {
-                // Upgraded enchantment
-                lore.appendTag(new NBTTagString("\u00A77" + name + " \u00A7a\u2714"));  // green checkmark
-            }
-            // Equal level = no line shown (already has it)
-        }
-        // Show removed enchantments (in left but not in result)
-        for (Map.Entry<Enchantment, Integer> entry : leftEnchants.entrySet()) {
-            Enchantment ench = entry.getKey();
-            if (!resultEnchants.containsKey(ench)) {
-                String name = ench.getTranslatedName(entry.getValue());
-                lore.appendTag(new NBTTagString("\u00A77" + name + " \u00A7c\u2716"));  // red cross
-            }
+            int level = entry.getValue();
+            String name = ench.getTranslatedName(level);
+            lore.appendTag(new NBTTagString("\u00A77" + name));
         }
 
         // Separator + cost
-        lore.appendTag(new NBTTagString(""));
+        if (!resultEnchants.isEmpty()) {
+            lore.appendTag(new NBTTagString(""));
+        }
         lore.appendTag(new NBTTagString("\u00A7e\u00A7l\u00A7nLevel cost: " + xpCost));
 
         NBTTagCompound displayTag = rootTag.getCompoundTag("display");
