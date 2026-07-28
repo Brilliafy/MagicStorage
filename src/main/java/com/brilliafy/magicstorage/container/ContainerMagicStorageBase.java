@@ -389,12 +389,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         @Override
         public boolean canTakeStack(EntityPlayer playerIn) {
             if (anvilResultLocked) return false;
-            // Also check XP on client — anvilResultLocked is only set server-side
+            // Check XP on client — anvilResultLocked is only set server-side
             if (playerInv.player.world.isRemote) {
-                TileStorageHeart master = getTileMaster();
                 ItemStack[] m = new ItemStack[9];
                 for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-                if (master != null && master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerInv.player)) {
+                if (!m[0].isEmpty() && !m[4].isEmpty()) {
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
                     if (ar != null && !com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
                         return false;
