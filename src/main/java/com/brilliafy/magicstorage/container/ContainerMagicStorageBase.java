@@ -25,6 +25,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     protected boolean isSimple = false;
     protected boolean anvilResultLocked = false; // true when XP insufficient for anvil result
     protected boolean enchantResultLocked = false; // true when XP insufficient for enchant result
+    protected int lastEnchantPower = -1; // track bookshelf power changes
     protected List<ItemStack> cachedStacks = new ArrayList<>();
     protected List<ItemStack> cachedCraftableStacks = new ArrayList<>();
 
@@ -314,6 +315,27 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     @Override
     public boolean canMergeSlot(ItemStack stack, Slot slot) {
         return slot.inventory != this.result && super.canMergeSlot(stack, slot);
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        // Detect bookshelf power changes to refresh enchanting result
+        if (!playerInv.player.world.isRemote) {
+            TileStorageHeart master = getTileMaster();
+            if (master != null && master.hasEnchantingTable()) {
+                int currentPower = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, playerInv.player.world);
+                if (currentPower != lastEnchantPower) {
+                    lastEnchantPower = currentPower;
+                    // Check if matrix has enchanting ingredients
+                    ItemStack[] m = new ItemStack[9];
+                    for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
+                    if (com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
+                        onCraftMatrixChanged(matrix);
+                    }
+                }
+            }
+        }
     }
 
     @Override
