@@ -61,7 +61,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
     @Override
     public void onCraftMatrixChanged(IInventory inventoryIn) {
-        findMatchingRecipe(matrix);
+        // Only run recipe matching on the SERVER — the client doesn't have
+        // the heart's station inventory synced yet, so hasEnchantingTable()
+        // etc. return false and the result shows EMPTY.  The server sends
+        // the correct result back via detectAndSendChanges().
+        if (!playerInv.player.world.isRemote) {
+            findMatchingRecipe(matrix);
+        }
     }
 
     protected void findMatchingRecipe(InventoryCrafting craftMatrix) {
@@ -348,7 +354,8 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
         ItemStack result = super.slotClick(slotId, dragType, clickTypeIn, player);
 
-        // If a matrix slot changed (right-click to add items), force sync to client
+        // If a matrix slot changed (right-click to add items), force recipe re-check
+        // and send result to client immediately
         if (beforeMatrix != null && matrix != null && !player.world.isRemote) {
             boolean changed = false;
             for (int i = 0; i < 9; i++) {
@@ -358,7 +365,14 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 }
             }
             if (changed) {
-                detectAndSendChanges();
+                onCraftMatrixChanged(matrix);
+                // Send result directly to client — don't rely on detectAndSendChanges
+                // which may not detect the change in time
+                if (player instanceof EntityPlayerMP && this.result != null) {
+                    ItemStack resultStack = this.result.getStackInSlot(0);
+                    ((EntityPlayerMP) player).connection.sendPacket(
+                        new net.minecraft.network.play.server.SPacketSetSlot(this.windowId, 0, resultStack));
+                }
             }
         }
 
