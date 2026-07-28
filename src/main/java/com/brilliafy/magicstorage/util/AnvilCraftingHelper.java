@@ -240,10 +240,13 @@ public class AnvilCraftingHelper {
      *             For enchant, consumes 1.
      */
     public static void consumeIngredients(ItemStack[] matrix, ItemStack leftInput, ItemStack rightInput) {
-        if (!matrix[0].isEmpty()) matrix[0].shrink(1);
-        if (matrix[4].isEmpty()) return;
+        if (matrix[0].isEmpty() || matrix[4].isEmpty()) return;
 
+        // Calculate material count BEFORE shrinking left item
+        // (leftInput is same reference as matrix[0], so shrinking first empties it)
         int materialsNeeded = calculateMaterialCount(leftInput, rightInput);
+
+        matrix[0].shrink(1);
         int available = matrix[4].getCount();
         int toConsume = Math.min(materialsNeeded, available);
         matrix[4].shrink(toConsume);
