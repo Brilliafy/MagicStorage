@@ -175,7 +175,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 smelted.setCount(Math.min(count, smelted.getMaxStackSize()));
                 if (!player.inventory.addItemStackToInventory(smelted)) player.dropItem(smelted, false);
                 com.brilliafy.magicstorage.util.SmeltingCraftingHelper.consumeIngredients(m);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, net.minecraft.util.SoundCategory.PLAYERS, 2.0F, 1.0F);
+                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_FIRE_AMBIENT, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
                 detectAndSendChanges();
