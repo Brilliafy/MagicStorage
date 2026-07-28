@@ -100,12 +100,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             ItemStack smelted = com.brilliafy.magicstorage.util.SmeltingCraftingHelper.computeResult(m);
             if (!smelted.isEmpty()) { result.setInventorySlotContents(0, smelted); return; }
         }
-        // 3. Anvil — with XP cost check
-        if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4])) {
+        // 3. Anvil — delegate to vanilla ContainerRepair via reflection
+        if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerInv.player)) {
             com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] Anvil craft: hasAnvil=" + master.hasAnvil() + " canCraft=" + com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4]) + " found=" + (ar != null) + " cost=" + (ar != null ? ar.cost : -1));
             if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
-                result.setInventorySlotContents(0, ar.stack);
+                result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(ar.stack, ar.cost));
                 return;
             }
         }
@@ -181,7 +180,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             }
         }
         
-        if (tile.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4])) {
+        if (tile.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], player)) {
             com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], player);
             if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(player, ar.cost)) {
                 if (!player.inventory.addItemStackToInventory(ar.stack)) player.dropItem(ar.stack, false);
@@ -404,16 +403,26 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     detectAndSendChanges();
                     return stack;
                 }
-                if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4])) {
+                if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerIn)) {
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerIn);
                     if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerIn, ar.cost)) {
                         stack.onCrafting(playerIn.world, playerIn, 1);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m);
                         com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(playerIn, ar.cost);
+                        // Return the REAL result (no display lore) to cursor
+                        ItemStack realResult = ar.stack.copy();
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
-                        return stack;
+                        // Sync XP to client
+                        if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
+                            ((net.minecraft.entity.player.EntityPlayerMP) playerIn).connection.sendPacket(
+                                new net.minecraft.network.play.server.SPacketSetSlot(-1, -1, realResult));
+                            ((net.minecraft.entity.player.EntityPlayerMP) playerIn).connection.sendPacket(
+                                new net.minecraft.network.play.server.SPacketSetExperience(
+                                    playerIn.experience, playerIn.experienceTotal, playerIn.experienceLevel));
+                        }
+                        return realResult;
                     }
                     return ItemStack.EMPTY;
                 }
