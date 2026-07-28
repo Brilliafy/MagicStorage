@@ -175,7 +175,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 smelted.setCount(Math.min(count, smelted.getMaxStackSize()));
                 if (!player.inventory.addItemStackToInventory(smelted)) player.dropItem(smelted, false);
                 com.brilliafy.magicstorage.util.SmeltingCraftingHelper.consumeIngredients(m);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
+                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, net.minecraft.util.SoundCategory.PLAYERS, 2.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
                 detectAndSendChanges();
@@ -437,7 +437,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             ItemStack[] m = new ItemStack[9];
             for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
 
-            // Client side: compute and return the real result (no display lore)
+            // Client side: for anvil, compute real result; for others, let server send via SPacketSetSlot
             if (playerIn.world.isRemote) {
                 if (master != null && master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerIn)) {
                     com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerIn);
@@ -445,13 +445,12 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         if (com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerIn, ar.cost)) {
                             return ar.stack.copy();
                         }
-                        // XP insufficient — clear the cursor (vanilla already put display stack there via decrStackSize)
                         playerIn.inventory.setItemStack(ItemStack.EMPTY);
                         return ItemStack.EMPTY;
                     }
                 }
-                playerIn.inventory.setItemStack(ItemStack.EMPTY);
-                return ItemStack.EMPTY;
+                // For furnace/enchanting/brewing: return stack as-is, server sends real result
+                return stack;
             }
             
             // For custom recipes: handle everything ourselves, skip super.onTake
