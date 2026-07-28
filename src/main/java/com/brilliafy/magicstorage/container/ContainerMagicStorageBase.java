@@ -458,7 +458,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
         @Override
         public boolean canTakeStack(EntityPlayer playerIn) {
-            if (anvilResultLocked) return false;
+            if (anvilResultLocked || enchantResultLocked) return false;
             // Check XP on client — anvilResultLocked is only set server-side
             if (playerInv.player.world.isRemote) {
                 TileStorageHeart master = getTileMaster();
@@ -475,7 +475,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
         @Override
         public ItemStack decrStackSize(int amount) {
-            if (anvilResultLocked) return ItemStack.EMPTY;
+            if (anvilResultLocked || enchantResultLocked) return ItemStack.EMPTY;
             return super.decrStackSize(amount);
         }
 
