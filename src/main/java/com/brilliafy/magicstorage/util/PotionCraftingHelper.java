@@ -30,24 +30,19 @@ public class PotionCraftingHelper {
                                     ItemStack bottle3, ItemStack bottle4, ItemStack bottle5) {
         // Must have blaze powder (fuel)
         if (blaze.isEmpty() || blaze.getItem() != Items.BLAZE_POWDER) {
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] Brew canCraft: no blaze");
             return false;
         }
         // Must have ingredient
         if (ingredient.isEmpty()) {
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] Brew canCraft: no ingredient");
             return false;
         }
         // Must have at least one potion bottle
         List<ItemStack> bottles = getBottles(bottle3, bottle4, bottle5);
         if (bottles.isEmpty()) {
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] Brew canCraft: no bottles");
             return false;
         }
 
-        // BrewingRecipeRegistry.getOutput() checks all registered IBrewingRecipe
         ItemStack testResult = BrewingRecipeRegistry.getOutput(bottles.get(0), ingredient);
-        com.brilliafy.magicstorage.MagicStorage.LOGGER.info("[MagicStorage] Brew canCraft: bottle=" + bottles.get(0).getDisplayName() + " ing=" + ingredient.getDisplayName() + " result=" + (testResult.isEmpty() ? "EMPTY" : testResult.getDisplayName()));
         return !testResult.isEmpty() && isAnyPotion(testResult);
     }
 
