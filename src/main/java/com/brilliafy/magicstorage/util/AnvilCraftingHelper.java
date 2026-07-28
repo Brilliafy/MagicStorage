@@ -148,6 +148,13 @@ public class AnvilCraftingHelper {
                 if (left.hasDisplayName()) {
                     resultStack.setStackDisplayName(left.getDisplayName());
                 }
+                // Strip any lore from the result — our display stack adds its own
+                NBTTagCompound tag = resultStack.getTagCompound();
+                if (tag != null && tag.hasKey("display", 10)) {
+                    NBTTagCompound display = tag.getCompoundTag("display");
+                    display.removeTag("Lore");
+                    if (display.getSize() == 0) tag.removeTag("display");
+                }
                 return new AnvilResult(resultStack, cost);
             }
         } catch (Exception e) {
@@ -193,20 +200,23 @@ public class AnvilCraftingHelper {
             display.setStackDisplayName(leftInput.getDisplayName());
         }
 
-        // Build lore: show ALL enchantments on the result + cost
+        // Build lore: show enchantments + cost
+        // For enchanted books, native tooltip already shows StoredEnchantments,
+        // so we skip enchant lines to avoid double display
         NBTTagList lore = new NBTTagList();
-        Map<Enchantment, Integer> resultEnchants = getAllEnchants(display);
+        boolean isEnchantedBook = display.getItem() == Items.ENCHANTED_BOOK;
 
-        for (Map.Entry<Enchantment, Integer> entry : resultEnchants.entrySet()) {
-            Enchantment ench = entry.getKey();
-            int level = entry.getValue();
-            String name = ench.getTranslatedName(level);
-            lore.appendTag(new NBTTagString("\u00A77" + name));
-        }
-
-        // Separator + cost
-        if (!resultEnchants.isEmpty()) {
-            lore.appendTag(new NBTTagString(""));
+        if (!isEnchantedBook) {
+            Map<Enchantment, Integer> resultEnchants = getAllEnchants(display);
+            for (Map.Entry<Enchantment, Integer> entry : resultEnchants.entrySet()) {
+                Enchantment ench = entry.getKey();
+                int level = entry.getValue();
+                String name = ench.getTranslatedName(level);
+                lore.appendTag(new NBTTagString("\u00A77" + name));
+            }
+            if (!resultEnchants.isEmpty()) {
+                lore.appendTag(new NBTTagString(""));
+            }
         }
         lore.appendTag(new NBTTagString("\u00A7e\u00A7l\u00A7nLevel cost: " + xpCost));
 
@@ -248,7 +258,8 @@ public class AnvilCraftingHelper {
 
         boolean isSameItem = left.getItem() == right.getItem();
         // Check if right item is a valid repair material for left item
-        boolean isRepairMaterial = !isSameItem && right.getItem().getIsRepairable(left, right);
+        // Must call getIsRepairable on the LEFT item (ItemSword checks this.material.getRepairItemStack())
+        boolean isRepairMaterial = !isSameItem && left.getItem().getIsRepairable(left, right);
 
         if (!isSameItem && !isRepairMaterial) {
             // Enchant combining — consume 1
