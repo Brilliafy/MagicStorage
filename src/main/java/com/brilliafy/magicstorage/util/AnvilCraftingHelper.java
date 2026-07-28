@@ -129,6 +129,8 @@ public class AnvilCraftingHelper {
 
             int cost = maximumCostField.getInt(repair);
             int matCost = materialCostField != null ? materialCostField.getInt(repair) : 1;
+                // materialCost is only set by the repair branch; enchant/rename defaults to 0
+                if (matCost <= 0) matCost = 1;
 
             ItemStack resultStack = ItemStack.EMPTY;
             InventoryCraftResult stackResult = (InventoryCraftResult) stackResultField.get(repair);
