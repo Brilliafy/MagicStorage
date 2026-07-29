@@ -17,29 +17,6 @@ A Terraria-inspired and simple storage network solution mod for Minecraft 1.12.2
 5. Open the access terminal. Items placed in storage units become accessible from every access point by placing **Remote Access**.
 6. (Optional) Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
 
-## Demos
-
-![Stations](docs/use/stations.gif)
-*Place stations into the Storage Heart to unlock features in the Crafting Access.*
-
-![Smelting](docs/use/smelting.gif)
-*Smelt logs into charcoal using the furnace station.*
-
-![Brewing](docs/use/brewing.gif)
-*Brew splash potions and use redstone to make them long lasting.*
-
-![Enchanting](docs/use/enchanting.gif)
-*Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
-
-![Repair and Combine](docs/use/repair_combine_insufficient.gif)
-*Repair two iron swords, combine them, and see the insufficient XP warning.*
-
-![Remotes](docs/use/remotes.gif)
-*Bind and use portable remote access items.*
-
-![Unit Upgrades](docs/use/unit_upgrades.gif)
-*Upgrade 6 storage units with upgrade items.*
-
 ## Blocks & Items
 
 ### Storage Component
@@ -188,6 +165,29 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 - **softAutoSortEnabled**: (default: true) When enabled, items are automatically moved into storage units that already contain matching items with available space. **Thus, it is safe and does not move items to new slots!**  only consolidates into existing ones to save storage space.
 - **softAutoSortIntervalSeconds**: (default: 60, range: 10-3600) How often in seconds the soft auto-sort runs to consolidate items across storage units.
+
+## Demos
+
+![Stations](docs/use/stations.gif)
+*Place stations into the Storage Heart to unlock features in the Crafting Access.*
+
+![Smelting](docs/use/smelting.gif)
+*Smelt logs into charcoal using the furnace station.*
+
+![Brewing](docs/use/brewing.gif)
+*Brew splash potions and use redstone to make them long lasting.*
+
+![Enchanting](docs/use/enchanting.gif)
+*Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
+
+![Repair and Combine](docs/use/repair_combine_insufficient.gif)
+*Repair two iron swords, combine them, and see the insufficient XP warning.*
+
+![Remotes](docs/use/remotes.gif)
+*Bind and use portable remote access items.*
+
+![Unit Upgrades](docs/use/unit_upgrades.gif)
+*Upgrade 6 storage units with upgrade items.*
 
 ## Notes
 
