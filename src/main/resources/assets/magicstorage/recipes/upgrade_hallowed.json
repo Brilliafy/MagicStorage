@@ -6,7 +6,7 @@
     "DQD"
   ],
   "key": {
-    "D": { "item": "minecraft:diamond" },
+    "D": { "item": "minecraft:emerald" },
     "Q": { "item": "minecraft:quartz", "data": 0 },
     "I": { "item": "magicstorage:upgrade_hellstone" }
   },
