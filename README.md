@@ -120,64 +120,56 @@ Shift+right-click a storage unit to see its usage. Right-click to open and manag
 Shift+right-click a storage unit while holding an upgrade to apply it. The upgrade is consumed and the unit gains more slots.
 
 ### Crimtane Upgrade
-* **Upgrades From:** Basic Unit
-* **Ingredients:** Iron Ingot, Iron Block, Nether Wart Block, Redstone
 ![Crimtane Upgrade](docs/images/crimson_upgrade.png)
 
 ### Demonite Upgrade
-* **Upgrades From:** Basic Unit
-* **Ingredients:** Iron Ingot, Iron Block, Purpur Block, Redstone
 
 ### Hellstone Upgrade
-* **Upgrades From:** Crimtane or Demonite Unit
-* **Ingredients:** Hell Brick, Gold Block, Blaze Powder, Upgrade
 ![Hellstone Upgrade](docs/images/hellstone_upgrade.png)
 
 ### Hallowed Upgrade
-* **Upgrades From:** Hellstone Unit
-* **Ingredients:** Emerald, Quartz, Hellstone Upgrade
 ![Hallowed Upgrade](docs/images/hallowed_upgrade.png)
 
 ### Blue Chlorophyte Upgrade
-* **Upgrades From:** Hallowed Unit
-* **Ingredients:** Lapis Block, Diamond, Hallowed Upgrade
 ![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png)
 
 ### Luminite Upgrade
-* **Upgrades From:** Blue Chlorophyte Unit
-* **Ingredients:** Obsidian, End Stone, Ender Eye, Blue Chlorophyte Upgrade
 ![Luminite Upgrade](docs/images/luminite_upgrade.png)
 
 ### Terra Upgrade
-* **Upgrades From:** Luminite Unit
-* **Ingredients:** Dragon Breath, Nether Star, End Rod, Luminite Upgrade
 ![Terra Upgrade](docs/images/terra_upgrade.png)
 
 ## Portable Access Items (3 Tiers)
 
 Access your network from anywhere. Right-click to open. Two variants: Storage Access (browse + insert/extract) and Crafting Access (with crafting grid and station support).
 
-### PreHM (Basic)
+### PreHM Storage Access
 * **Range:** 200 blocks
 * **Cross-Dimension:** No
+![Simple Remote Storage Access](docs/images/simple_remote_storage_access.png)
 
-### HM (Advanced)
+### PreHM Crafting Access
+* **Range:** 200 blocks
+* **Cross-Dimension:** No
+![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
+
+### HM Storage Access
 * **Range:** Unlimited
 * **Cross-Dimension:** No
 
-### Ultimate
+### HM Crafting Access
+* **Range:** Unlimited
+* **Cross-Dimension:** No
+![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
+
+### Ultimate Storage Access
 * **Range:** Unlimited
 * **Cross-Dimension:** Yes
-
-**Storage Access Portables:**
-
-![Simple Remote Storage Access](docs/images/simple_remote_storage_access.png)
 ![Ultimate Storage Access Remote](docs/images/ultimate_storage_access_remote.png)
 
-**Crafting Access Portables:**
-
-![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
-![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
+### Ultimate Crafting Access
+* **Range:** Unlimited
+* **Cross-Dimension:** Yes
 ![Ultimate Remote Crafting Access](docs/images/ultimate_remote_crafting_access.png)
 
 ## JEI Integration
