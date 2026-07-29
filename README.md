@@ -1,3 +1,7 @@
+[![Support my work](https://img.shields.io/badge/Support_my_work-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/S2X12424XK)
+[![Modrinth](https://img.shields.io/badge/Modrinth-00AF5C?style=for-the-badge&logo=modrinth&logoColor=white)]()
+[![CurseForge](https://img.shields.io/badge/CurseForge-F44336?style=for-the-badge&logo=curseforge&logoColor=white)]()
+
 # Magic Storage
 
 A Terraria-inspired storage network mod for Minecraft 1.12.2. Centralize all your items into a single Storage Heart, access them from any Storage Access terminal, use the Crafting Access to craft with your entire network inventory.
@@ -10,31 +14,46 @@ A Terraria-inspired storage network mod for Minecraft 1.12.2. Centralize all you
 2. Craft a **Storage Heart** and place it.
 3. Craft a **Basic Storage Unit** and place it adjacent to the Storage Heart.
 4. Craft a **Storage Access** or **Crafting Access** and place it anywhere connected to the heart.
-5. Open the access terminal. Items placed in storage units become accessible from every access point.
-6. Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
+5. Open the access terminal. Items placed in storage units become accessible from every access point by placing **Remote Access**.
+6. (Optional) Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
 
 ## Demos
 
 ![Stations](docs/use/stations.gif)
 *Place stations into the Storage Heart to unlock features in the Crafting Access.*
 
+
+
 ![Smelting](docs/use/smelting.gif)
 *Smelt logs into charcoal using the furnace station.*
+
+
 
 ![Brewing](docs/use/brewing.gif)
 *Brew splash potions and use redstone to make them long lasting.*
 
+
+
 ![Enchanting](docs/use/enchanting.gif)
 *Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
+
+
 
 ![Repair and Combine](docs/use/repair_combine_insufficient.gif)
 *Repair two iron swords, combine them, and see the insufficient XP warning.*
 
+
+
 ![Remotes](docs/use/remotes.gif)
 *Bind and use portable remote access items.*
 
+
+
 ![Unit Upgrades](docs/use/unit_upgrades.gif)
 *Upgrade 6 storage units with upgrade items.*
+
+
+
 
 ## Blocks & Items
 
@@ -56,11 +75,11 @@ Right-click to open a terminal. Browse all items in the network, search by name,
 ### Crafting Access
 A crafting table that uses your network inventory. Place a crafting table in the Storage Heart to enable the basic 3x3 crafting grid. Place additional crafting stations in the heart to unlock more features:
 
-- **Crafting Table**: 3x3 vanilla crafting grid. Items auto-fill from the network.
-- **Furnace**: Smelt items directly from the crafting grid. Place fuel in the grid too.
-- **Enchanting Table**: Enchant items using the grid. Place the item in slot 1, lapis lazuli in slots 4/5/6 (any position). Bookshelf power is calculated from bookshelf items in your network storage.
-- **Anvil**: Combine enchantments, repair items, and rename. Place the target item in slot 1, the material in slot 5. Uses real vanilla anvil logic including XP costs. Shows the final result before you commit.
-- **Brewing Stand**: Brew potions. Place blaze powder in slot 1, the ingredient in slot 2, potion bottles in slots 4/5/6.
+- **Crafting Table**: <u>REQUIRED</u> in order to operate the Crafting Access.
+- **Furnace**: Smelt items directly from the crafting grid. Place fuel in the middle slot (currently supports coal or charcoal) and smeltable items in the rest of the slots.
+- **Enchanting Table**: Enchant items using the grid. Place the item in slot 1, lapis lazuli in slots 4/5/6 (any position). Bookshelf power is calculated from bookshelf items in your network storage. Works with modded table enchants and modded bookshelves.
+- **Anvil**: Combine enchantments or repair items. Place the target item in slot 1, the material or other item in slot 5. Uses real vanilla anvil logic including XP costs. Shows the final result before you commit.
+- **Brewing Stand**: Brew potions. Place blaze powder in slot 1, the ingredient in slot 2, potion bottles in slots 4/5/6. Has 5% chance of consuming the blaze powder.
 
 ![Crafting Access](docs/images/crafting_access.png)
 
@@ -70,28 +89,51 @@ Links portable access items to the Storage Heart. Place it adjacent to the heart
 ![Remote Access](docs/images/remote_access.png)
 
 ### Hell Bricks
-Decorative building block. Not part of the storage network.
+Material building block. Puts entities on fire that are standing on it if without fire resistance.
 
 ![Hell Bricks](docs/images/hell_bricks.png)
 
 ## Storage Units (8 Tiers)
 
-Place adjacent to the Storage Heart. Each tier has more capacity:
+Place adjacent to the Storage Heart. Each tier has more capacity
 
-| Tier | Slots | Upgrade From |
-|------|-------|-------------|
-| Basic | 40 | Craft directly |
-| Crimtane | 80 | Basic + Crimtane Upgrade |
-| Demonite | 80 | Basic + Demonite Upgrade |
-| Hellstone | 120 | Crimtane or Demonite + Hellstone Upgrade |
-| Hallowed | 160 | Hellstone + Hallowed Upgrade |
-| Blue Chlorophyte | 220 | Hallowed + Blue Chlorophyte Upgrade |
-| Luminite | 300 | Blue Chlorophyte + Luminite Upgrade |
-| Terra | 600 | Luminite + Terra Upgrade |
+Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit to upgrade inplace.
 
-Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit.
+### Basic Unit
+* **Slots:** `40`
+![Basic Unit](docs/images/basic_unit.png)
 
-![Basic Unit](docs/images/basic_unit.png) ![Crimtane Unit](docs/images/crimson_unit.png) ![Demonite Unit](docs/images/demonite_unit.png) ![Hellstone Unit](docs/images/hellstone_unit.png) ![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png) ![Luminite Unit](docs/images/luminite_unit.png) ![Terra Unit](docs/images/terra_unit.png)
+
+### Crimtane Unit
+* **Slots:** `80`
+![Crimtane Unit](docs/images/crimson_unit.png) 
+
+
+### Demonite Unit
+* **Slots:** `80`
+![Demonite Unit](docs/images/demonite_unit.png) 
+
+
+### Basic Unit
+* **Slots:** `120`
+![Hellstone Unit](docs/images/hellstone_unit.png) 
+
+
+### Blue Chlorophyte Unit
+* **Slots:** `220`
+![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png) 
+
+
+### Luminite Unit
+* **Slots:** `300`
+![Luminite Unit](docs/images/luminite_unit.png) 
+
+
+### Terra Unit
+* **Slots:** `600`
+![Terra Unit](docs/images/terra_unit.png)
+
+
 
 ## Upgrades
 
@@ -107,7 +149,11 @@ Shift+right-click a storage unit while holding an upgrade to apply it. The upgra
 | Luminite | Blue Chlorophyte | Obsidian, End Stone, Ender Eye, Blue Chlorophyte Upgrade |
 | Terra | Luminite | Dragon Breath, Nether Star, End Rod, Luminite Upgrade |
 
-![Crimtane Upgrade](docs/images/crimson_upgrade.png) ![Hellstone Upgrade](docs/images/hellstone_upgrade.png) ![Hallowed Upgrade](docs/images/hallowed_upgrade.png) ![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png) ![Luminite Upgrade](docs/images/luminite_upgrade.png) ![Terra Upgrade](docs/images/terra_upgrade.png)
+### Crimtane Upgrade
+![Crimtane Upgrade](docs/images/crimson_upgrade.png)
+
+### 
+![Hellstone Upgrade](docs/images/hellstone_upgrade.png) ![Hallowed Upgrade](docs/images/hallowed_upgrade.png) ![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png) ![Luminite Upgrade](docs/images/luminite_upgrade.png) ![Terra Upgrade](docs/images/terra_upgrade.png)
 
 ## Portable Access Items (3 Tiers)
 
@@ -152,3 +198,6 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 ## Compatibility
 
 **WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
+
+## Credits & Third-Party Code
+* **[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar — Portions of [mention feature/code area] were adapted from this project under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
