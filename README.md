@@ -214,7 +214,7 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 ## Notes
 
-- In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access.
+- In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access. Also added hotkeying/shift+click support in access inventories and various other fixes.
 - Station items (furnace, anvil, brewing stand, etc.) must be IN the Storage Heart's inventory, not placed in the world.
 - Bookshelf power for enchanting is calculated from bookshelf ITEMS in your network storage units, not from blocks placed in the world.
 - The Crafting Access detects stations in real-time. Add or remove stations from the heart's inventory and the grid updates immediately.
