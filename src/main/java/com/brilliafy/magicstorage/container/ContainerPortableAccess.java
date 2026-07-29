@@ -27,7 +27,12 @@ public class ContainerPortableAccess extends ContainerMagicStorageBase {
         this.playerInv = playerInv;
         this.result = new InventoryCraftResult();
         this.matrix = new InventoryCraftingNetwork(this, 3, 3);
-        this.isSimple = remoteStack.getMetadata() == 0;
+        // isSimple based on item type (storage access vs crafting access), NOT metadata (tier)
+        if (remoteStack.getItem() instanceof com.brilliafy.magicstorage.item.ItemPortableAccess) {
+            this.isSimple = !((com.brilliafy.magicstorage.item.ItemPortableAccess) remoteStack.getItem()).isCraftingAccess();
+        } else {
+            this.isSimple = remoteStack.getMetadata() == 0;
+        }
         if (!isSimple) {
             bindGrid();
             bindPlayerInvo(playerInv);
