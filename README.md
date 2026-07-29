@@ -84,6 +84,8 @@ Shift+right-click a storage unit to see its usage. Right-click to open and manag
 ### Hallowed Unit
 **Slots:** `160`
 
+![Hallowed Unit](docs/images/hallowed_unit.png)
+
 ### Blue Chlorophyte Unit
 **Slots:** `220`
 
@@ -214,7 +216,7 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 ## Notes
 
-- In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access. Also added hotkeying/shift+click support in access inventories and various other fixes.
+- In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access, and provides soft auto-sort which is enabled by default. Also includes added hotkeying/shift+click support in access inventories and various other fixes.
 - Station items (furnace, anvil, brewing stand, etc.) must be IN the Storage Heart's inventory, not placed in the world.
 - Bookshelf power for enchanting is calculated from bookshelf ITEMS in your network storage units, not from blocks placed in the world.
 - The Crafting Access detects stations in real-time. Add or remove stations from the heart's inventory and the grid updates immediately.
@@ -222,10 +224,23 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 - If storage units are broken, if they are a part of a network, they move their items to units that are closest to the storage heart. If for any reason the network doesnt have enough space, it will move as many items as it can and the rest will drop upon breaking.
 - Upgrading units in-place expands their storage (preserves their items)
 - Storage units supports hoppers for automation
-
+- The crafting access mirrors actual Enchanting / Brewing / Anvil mechanics, so other behavior-changing or content-adding mods are compatible!
 ## Compatibility
 
 **WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
+
+## FAQ
+**Q:** I found a bug or my game crashed. Where should I report it?
+**A:** Please open an issue on our **[GitHub Issue Tracker](https://github.com/Brilliafy/MagicStorage/issues)** with your full log / crash log and Forge version so it can be investigated and fixed!
+
+**Q:** Can I use this mod in my modpack ?
+**A:** Yes, you are free to include it in any modpack without asking for permission! Standard open-source credit (linking back to this CurseForge/GitHub page) is required and appreciated.
+
+**Q:** Are you planning on expanding support to different versions / different mod loaders ?
+**A:** Right now, my main focus is polishing and maintaining the 1.12.2 Forge release! However, if there’s enough interest from the community (and as time permits), porting to newer versions or alternative loaders like Fabric/NeoForge is definitely on my radar. Feedback, support on Ko-fi, and community interest help me decide where to focus future development!
+
+**Q:** Are you planning to add station support for other mods ?
+**A:** Currently, the mod focuses on supporting core vanilla stations (Crafting, Furnace, Anvil, Enchanting, Brewing). While I don't have immediate plans for specific modded stations, extending support is definitely a possibility down the road based on community interest and free time! If there's a specific mod's station you'd love to see integrated, feel free to open a feature request on GitHub.
 
 ## Credits & Third-Party Assets
 
