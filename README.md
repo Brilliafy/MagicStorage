@@ -63,18 +63,22 @@ Shift+right-click a storage unit to see its usage. Right-click to open and manag
 
 ### Basic Unit
 **Slots:** `40`
+
 ![Basic Unit](docs/images/basic_unit.png)
 
 ### Crimtane Unit
 **Slots:** `80`
+
 ![Crimtane Unit](docs/images/crimson_unit.png)
 
 ### Demonite Unit
 **Slots:** `80`
+
 ![Demonite Unit](docs/images/demonite_unit.png)
 
 ### Hellstone Unit
 **Slots:**  `120`
+
 ![Hellstone Unit](docs/images/hellstone_unit.png)
 
 ### Hallowed Unit
@@ -82,14 +86,17 @@ Shift+right-click a storage unit to see its usage. Right-click to open and manag
 
 ### Blue Chlorophyte Unit
 **Slots:** `220`
+
 ![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png)
 
 ### Luminite Unit
 **Slots:** `300`
+
 ![Luminite Unit](docs/images/luminite_unit.png)
 
 ### Terra Unit
 **Slots:** `600`
+
 ![Terra Unit](docs/images/terra_unit.png)
 
 ## Upgrades
@@ -124,6 +131,7 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 ### Simple Remote Storage Access
 **Range:** 200 blocks
 **Cross-Dimension:** No
+
 ![Simple Remote Storage Access](docs/images/simple_remote_storage_access.png)
 
 
@@ -135,6 +143,7 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 ### Ultimate Remote Storage Access
 **Range:** Unlimited
 **Cross-Dimension:** Yes
+
 ![Ultimate Storage Access Remote](docs/images/ultimate_storage_access_remote.png)
 
 
@@ -143,16 +152,19 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 
 ### Simple Remote Crafting Access
 ![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
+
 **Range:** 200 blocks
 **Cross-Dimension:** No
 
 ### Advanced Remote Crafting Access
 ![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
+
 **Range:** Unlimited
 **Cross-Dimension:** No
 
 ### Ultimate Crafting Access
 ![Ultimate Remote Crafting Access](docs/images/ultimate_remote_crafting_access.png)
+
 **Range:** Unlimited
 **Cross-Dimension:** Yes
 
