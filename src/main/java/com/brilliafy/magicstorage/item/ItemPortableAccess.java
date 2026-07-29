@@ -23,6 +23,8 @@ public class ItemPortableAccess extends Item {
 
     private final boolean isCrafting;
 
+    public boolean isCraftingAccess() { return isCrafting; }
+
     public ItemPortableAccess(boolean isCrafting) {
         this.isCrafting = isCrafting;
         setMaxStackSize(1);
