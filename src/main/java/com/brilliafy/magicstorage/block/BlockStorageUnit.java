@@ -102,7 +102,18 @@ public class BlockStorageUnit extends Block implements ITileEntityProvider {
                     if (unit.canUpgradeTo(newTier)) {
                         unit.setTier(newTier);
                         if (!playerIn.isCreative()) {
-                            held.shrink(1);
+                            // Consume upgrade from whichever hand it's in
+                            if (hand == net.minecraft.util.EnumHand.MAIN_HAND) {
+                                playerIn.inventory.mainInventory.get(playerIn.inventory.currentItem).shrink(1);
+                                if (playerIn.inventory.mainInventory.get(playerIn.inventory.currentItem).getCount() <= 0) {
+                                    playerIn.inventory.mainInventory.set(playerIn.inventory.currentItem, net.minecraft.item.ItemStack.EMPTY);
+                                }
+                            } else {
+                                playerIn.inventory.offHandInventory.get(0).shrink(1);
+                                if (playerIn.inventory.offHandInventory.get(0).getCount() <= 0) {
+                                    playerIn.inventory.offHandInventory.set(0, net.minecraft.item.ItemStack.EMPTY);
+                                }
+                            }
                             playerIn.inventory.markDirty();
                             if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
                                 ((net.minecraft.entity.player.EntityPlayerMP) playerIn).sendContainerToPlayer(playerIn.inventoryContainer);
