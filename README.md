@@ -100,6 +100,7 @@ Shift+right-click a storage unit while holding an upgrade to apply it. The upgra
 ![Crimtane Upgrade](docs/images/crimson_upgrade.png)
 
 ### Demonite Upgrade
+![Demonite Upgrade](docs/images/demonite_upgrade.png)
 
 ### Hellstone Upgrade
 ![Hellstone Upgrade](docs/images/hellstone_upgrade.png)
@@ -141,19 +142,19 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 ## Portable Crafting Access Remotes (3 Tiers)
 
 ### Simple Remote Crafting Access
+![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
 **Range:** 200 blocks
 **Cross-Dimension:** No
-![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
 
 ### Advanced Remote Crafting Access
+![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
 **Range:** Unlimited
 **Cross-Dimension:** No
-![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
 
 ### Ultimate Crafting Access
+![Ultimate Remote Crafting Access](docs/images/ultimate_remote_crafting_access.png)
 **Range:** Unlimited
 **Cross-Dimension:** Yes
-![Ultimate Remote Crafting Access](docs/images/ultimate_remote_crafting_access.png)
 
 ## JEI Integration
 
@@ -205,4 +206,4 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 **WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864*client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
 
 ## Credits & Third-Party Code
-**[Storage Network](https://github.com/Lothrazar/Storage-Network)*by Lothrazar — Portions of [mention feature/code area] were adapted from this project under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
+**[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar — Portions of [mention feature/code area] were adapted from this project under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
