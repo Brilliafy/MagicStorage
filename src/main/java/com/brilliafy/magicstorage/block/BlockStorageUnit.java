@@ -93,40 +93,6 @@ public class BlockStorageUnit extends Block implements ITileEntityProvider {
         TileStorageUnit unit = (TileStorageUnit) te;
         
         if (playerIn.isSneaking()) {
-            // Shift-rightclick: check for upgrade item first, else show info
-            ItemStack held = playerIn.getHeldItem(hand);
-            if (!held.isEmpty() && held.getItem() instanceof com.brilliafy.magicstorage.item.ItemUpgrade) {
-                if (!worldIn.isRemote) {
-                    com.brilliafy.magicstorage.item.ItemUpgrade upgrade = (com.brilliafy.magicstorage.item.ItemUpgrade) held.getItem();
-                    int newTier = upgrade.getTargetTier();
-                    if (unit.canUpgradeTo(newTier)) {
-                        unit.setTier(newTier);
-                        if (!playerIn.isCreative()) {
-                            // Consume upgrade from whichever hand it's in
-                            if (hand == net.minecraft.util.EnumHand.MAIN_HAND) {
-                                playerIn.inventory.mainInventory.get(playerIn.inventory.currentItem).shrink(1);
-                                if (playerIn.inventory.mainInventory.get(playerIn.inventory.currentItem).getCount() <= 0) {
-                                    playerIn.inventory.mainInventory.set(playerIn.inventory.currentItem, net.minecraft.item.ItemStack.EMPTY);
-                                }
-                            } else {
-                                playerIn.inventory.offHandInventory.get(0).shrink(1);
-                                if (playerIn.inventory.offHandInventory.get(0).getCount() <= 0) {
-                                    playerIn.inventory.offHandInventory.set(0, net.minecraft.item.ItemStack.EMPTY);
-                                }
-                            }
-                            playerIn.inventory.markDirty();
-                            if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
-                                ((net.minecraft.entity.player.EntityPlayerMP) playerIn).sendContainerToPlayer(playerIn.inventoryContainer);
-                            }
-                        }
-                        worldIn.playSound(null, pos, net.minecraft.init.SoundEvents.ITEM_ARMOR_EQUIP_IRON, net.minecraft.util.SoundCategory.BLOCKS, 1.0F, 1.0F);
-                        playerIn.sendMessage(new net.minecraft.util.text.TextComponentString("Upgraded to " + unit.getTierName()));
-                    } else {
-                        playerIn.sendMessage(new net.minecraft.util.text.TextComponentString("Cannot upgrade further"));
-                    }
-                }
-                return true;
-            }
             if (!worldIn.isRemote) {
                 int slots = unit.getSlotCount();
                 int filled = 0;
