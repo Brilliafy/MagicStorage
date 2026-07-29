@@ -101,7 +101,13 @@ public class BlockStorageUnit extends Block implements ITileEntityProvider {
                     int newTier = upgrade.getTargetTier();
                     if (unit.canUpgradeTo(newTier)) {
                         unit.setTier(newTier);
-                        if (!playerIn.isCreative()) held.shrink(1);
+                        if (!playerIn.isCreative()) {
+                            held.shrink(1);
+                            playerIn.inventory.markDirty();
+                            if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
+                                ((net.minecraft.entity.player.EntityPlayerMP) playerIn).sendContainerToPlayer(playerIn.inventoryContainer);
+                            }
+                        }
                         worldIn.playSound(null, pos, net.minecraft.init.SoundEvents.ITEM_ARMOR_EQUIP_IRON, net.minecraft.util.SoundCategory.BLOCKS, 1.0F, 1.0F);
                         playerIn.sendMessage(new net.minecraft.util.text.TextComponentString("Upgraded to " + unit.getTierName()));
                     } else {
