@@ -2,6 +2,8 @@
 
 A Terraria-inspired storage network mod for Minecraft 1.12.2. Centralize all your items into a single Storage Heart, access them from any Storage Access terminal, use the Crafting Access to craft with your entire network inventory.
 
+![Magic Storage](docs/images/wallpaper.png)
+
 ## Quick Start
 
 1. Craft a **Storage Component** (the base crafting material).
@@ -10,6 +12,29 @@ A Terraria-inspired storage network mod for Minecraft 1.12.2. Centralize all you
 4. Craft a **Storage Access** or **Crafting Access** and place it anywhere connected to the heart.
 5. Open the access terminal. Items placed in storage units become accessible from every access point.
 6. Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
+
+## Demos
+
+![Stations](docs/use/stations.gif)
+*Place stations into the Storage Heart to unlock features in the Crafting Access.*
+
+![Smelting](docs/use/smelting.gif)
+*Smelt logs into charcoal using the furnace station.*
+
+![Brewing](docs/use/brewing.gif)
+*Brew splash potions and use redstone to make them long lasting.*
+
+![Enchanting](docs/use/enchanting.gif)
+*Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
+
+![Repair and Combine](docs/use/repair_combine_insufficient.gif)
+*Repair two iron swords, combine them, and see the insufficient XP warning.*
+
+![Remotes](docs/use/remotes.gif)
+*Bind and use portable remote access items.*
+
+![Unit Upgrades](docs/use/unit_upgrades.gif)
+*Upgrade 6 storage units with upgrade items.*
 
 ## Blocks & Items
 
@@ -44,11 +69,6 @@ Links portable access items to the Storage Heart. Place it adjacent to the heart
 
 ![Remote Access](docs/images/remote_access.png)
 
-### Remote Storage Access (Block)
-Place adjacent to the heart. Used to link portable items.
-
-![Remote Access Block](docs/images/remote_access.png)
-
 ### Hell Bricks
 Decorative building block. Not part of the storage network.
 
@@ -71,13 +91,7 @@ Place adjacent to the Storage Heart. Each tier has more capacity:
 
 Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit.
 
-![Basic Unit](docs/images/basic_unit.png)
-![Crimson Unit](docs/images/crimson_unit.png)
-![Demonite Unit](docs/images/demonite_unit.png)
-![Hellstone Unit](docs/images/hellstone_unit.png)
-![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png)
-![Luminite Unit](docs/images/luminite_unit.png)
-![Terra Unit](docs/images/terra_unit.png)
+![Basic Unit](docs/images/basic_unit.png) ![Crimtane Unit](docs/images/crimson_unit.png) ![Demonite Unit](docs/images/demonite_unit.png) ![Hellstone Unit](docs/images/hellstone_unit.png) ![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png) ![Luminite Unit](docs/images/luminite_unit.png) ![Terra Unit](docs/images/terra_unit.png)
 
 ## Upgrades
 
@@ -93,12 +107,7 @@ Shift+right-click a storage unit while holding an upgrade to apply it. The upgra
 | Luminite | Blue Chlorophyte | Obsidian, End Stone, Ender Eye, Blue Chlorophyte Upgrade |
 | Terra | Luminite | Dragon Breath, Nether Star, End Rod, Luminite Upgrade |
 
-![Crimson Upgrade](docs/images/crimson_upgrade.png)
-![Demonite Upgrade](docs/images/demonite_unit.png)
-![Hallowed Upgrade](docs/images/hallowed_upgrade.png)
-![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png)
-![Luminite Upgrade](docs/images/luminite_upgrade.png)
-![Terra Upgrade](docs/images/terra_upgrade.png)
+![Crimtane Upgrade](docs/images/crimson_upgrade.png) ![Hellstone Upgrade](docs/images/hellstone_upgrade.png) ![Hallowed Upgrade](docs/images/hallowed_upgrade.png) ![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png) ![Luminite Upgrade](docs/images/luminite_upgrade.png) ![Terra Upgrade](docs/images/terra_upgrade.png)
 
 ## Portable Access Items (3 Tiers)
 
@@ -139,3 +148,7 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 - Bookshelf power for enchanting is calculated from bookshelf ITEMS in your network storage units, not from blocks placed in the world.
 - The Crafting Access detects stations in real-time. Add or remove stations from the heart's inventory and the grid updates immediately.
 - Items in the crafting grid return to the network when you close the GUI.
+
+## Compatibility
+
+**WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
