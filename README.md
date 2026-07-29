@@ -225,7 +225,7 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 ## Compatibility
 
-**WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864*client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
+**WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
 
 ## Credits & Third-Party Code
 **[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar — Portions of [mention feature/code area] were adapted from this project under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
