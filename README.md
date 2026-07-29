@@ -140,6 +140,9 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 **Cross-Dimension:** No
 
 
+![Simple Remote Storage Access](docs/images/advanced_remote_storage_access.png)
+
+
 ### Ultimate Remote Storage Access
 **Range:** Unlimited
 **Cross-Dimension:** Yes
