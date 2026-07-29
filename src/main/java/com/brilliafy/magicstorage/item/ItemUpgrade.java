@@ -103,6 +103,15 @@ public class ItemUpgrade extends Item {
         worldIn.playSound(null, pos, net.minecraft.init.SoundEvents.ITEM_ARMOR_EQUIP_IRON, net.minecraft.util.SoundCategory.BLOCKS, 1.0F, 1.0F);
 
         // Consume upgrade item
+        if (!player.isCreative()) {
+            ItemStack held = player.getHeldItem(hand);
+            held.shrink(1);
+            player.inventory.markDirty();
+            if (player instanceof net.minecraft.entity.player.EntityPlayerMP) {
+                ((net.minecraft.entity.player.EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
+            }
+        }
+
         int finalSlots = (newTe instanceof TileStorageUnit) ? ((TileStorageUnit) newTe).getSlotCount() : unit.getSlotCount();
 
         player.sendMessage(new net.minecraft.util.text.TextComponentString(
