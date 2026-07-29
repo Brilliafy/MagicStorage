@@ -62,34 +62,34 @@ Place adjacent to the Storage Heart. Each tier has more capacity.
 Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit to upgrade in place.
 
 ### Basic Unit
-**Slots:*`40`
+**Slots:** `40`
 ![Basic Unit](docs/images/basic_unit.png)
 
 ### Crimtane Unit
-**Slots:*`80`
+**Slots:** `80`
 ![Crimtane Unit](docs/images/crimson_unit.png)
 
 ### Demonite Unit
-**Slots:*`80`
+**Slots:** `80`
 ![Demonite Unit](docs/images/demonite_unit.png)
 
 ### Hellstone Unit
-**Slots:*`120`
+**Slots:**  `120`
 ![Hellstone Unit](docs/images/hellstone_unit.png)
 
 ### Hallowed Unit
-**Slots:*`160`
+**Slots:** `160`
 
 ### Blue Chlorophyte Unit
-**Slots:*`220`
+**Slots:** `220`
 ![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png)
 
 ### Luminite Unit
-**Slots:*`300`
+**Slots:** `300`
 ![Luminite Unit](docs/images/luminite_unit.png)
 
 ### Terra Unit
-**Slots:*`600`
+**Slots:** `600`
 ![Terra Unit](docs/images/terra_unit.png)
 
 ## Upgrades
@@ -121,19 +121,19 @@ Shift+right-click a storage unit while holding an upgrade to apply it. The upgra
 Access your network from anywhere. Right-click to open. Two variants: Storage Access (browse + insert/extract) and Crafting Access (with crafting grid and station support).
 
 ### Simple Remote Storage Access
-**Range:*200 blocks
-**Cross-Dimension:*No
+**Range:** 200 blocks
+**Cross-Dimension:** No
 ![Simple Remote Storage Access](docs/images/simple_remote_storage_access.png)
 
 
 ### Advanced Remote Storage Access
-**Range:*Unlimited
-**Cross-Dimension:*No
+**Range:** Unlimited
+**Cross-Dimension:** No
 
 
 ### Ultimate Remote Storage Access
-**Range:*Unlimited
-**Cross-Dimension:*Yes
+**Range:** Unlimited
+**Cross-Dimension:** Yes
 ![Ultimate Storage Access Remote](docs/images/ultimate_storage_access_remote.png)
 
 
@@ -141,18 +141,18 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 ## Portable Crafting Access Remotes (3 Tiers)
 
 ### Simple Remote Crafting Access
-**Range:*200 blocks
-**Cross-Dimension:*No
+**Range:** 200 blocks
+**Cross-Dimension:** No
 ![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
 
 ### Advanced Remote Crafting Access
-**Range:*Unlimited
-**Cross-Dimension:*No
+**Range:** Unlimited
+**Cross-Dimension:** No
 ![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
 
 ### Ultimate Crafting Access
-**Range:*Unlimited
-**Cross-Dimension:*Yes
+**Range:** Unlimited
+**Cross-Dimension:** Yes
 ![Ultimate Remote Crafting Access](docs/images/ultimate_remote_crafting_access.png)
 
 ## JEI Integration
