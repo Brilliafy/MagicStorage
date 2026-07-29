@@ -1,3 +1,10 @@
+/*
+ * Portions of this file contain code adapted from Storage Network
+ * by Lothrazar (https://github.com/Lothrazar/Storage-Network).
+ *
+ * Copyright (c) Lothrazar
+ * Licensed under the MIT License.
+ */
 package com.brilliafy.magicstorage.network;
 
 import com.brilliafy.magicstorage.gui.IStorageContainer;
