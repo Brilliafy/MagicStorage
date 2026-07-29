@@ -227,5 +227,12 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 **WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
 
-## Credits & Third-Party Code
-**[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar — Portions of [mention feature/code area] were adapted from this project under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
+## Credits & Third-Party Assets
+
+This project is a Minecraft port inspired by the original Terraria mod and utilizes the following third-party components:
+
+* **[Magic Storage (Terraria)](https://github.com/blushiemagic/MagicStorage)** by blushiemagic, Original mod concept, mechanics, and sprite/texture assets used under the [MIT License](https://github.com/blushiemagic/MagicStorage/blob/master/LICENSE.txt).
+* **[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar, Network storage logic adapted under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
+
+### License
+This mod is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. Portions of code and visual assets incorporated from third-party repositories remain under their respective MIT copyright notices.
