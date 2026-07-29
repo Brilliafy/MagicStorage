@@ -22,38 +22,23 @@ A Terraria-inspired storage network mod for Minecraft 1.12.2. Centralize all you
 ![Stations](docs/use/stations.gif)
 *Place stations into the Storage Heart to unlock features in the Crafting Access.*
 
-
-
 ![Smelting](docs/use/smelting.gif)
 *Smelt logs into charcoal using the furnace station.*
-
-
 
 ![Brewing](docs/use/brewing.gif)
 *Brew splash potions and use redstone to make them long lasting.*
 
-
-
 ![Enchanting](docs/use/enchanting.gif)
 *Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
-
-
 
 ![Repair and Combine](docs/use/repair_combine_insufficient.gif)
 *Repair two iron swords, combine them, and see the insufficient XP warning.*
 
-
-
 ![Remotes](docs/use/remotes.gif)
 *Bind and use portable remote access items.*
 
-
-
 ![Unit Upgrades](docs/use/unit_upgrades.gif)
 *Upgrade 6 storage units with upgrade items.*
-
-
-
 
 ## Blocks & Items
 
@@ -95,75 +80,94 @@ Material building block. Puts entities on fire that are standing on it if withou
 
 ## Storage Units (8 Tiers)
 
-Place adjacent to the Storage Heart. Each tier has more capacity
+Place adjacent to the Storage Heart. Each tier has more capacity.
 
-Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit to upgrade inplace.
+Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit to upgrade in place.
 
 ### Basic Unit
 * **Slots:** `40`
 ![Basic Unit](docs/images/basic_unit.png)
 
-
 ### Crimtane Unit
 * **Slots:** `80`
-![Crimtane Unit](docs/images/crimson_unit.png) 
-
+![Crimtane Unit](docs/images/crimson_unit.png)
 
 ### Demonite Unit
 * **Slots:** `80`
-![Demonite Unit](docs/images/demonite_unit.png) 
+![Demonite Unit](docs/images/demonite_unit.png)
 
-
-### Basic Unit
+### Hellstone Unit
 * **Slots:** `120`
-![Hellstone Unit](docs/images/hellstone_unit.png) 
+![Hellstone Unit](docs/images/hellstone_unit.png)
 
+### Hallowed Unit
+* **Slots:** `160`
 
 ### Blue Chlorophyte Unit
 * **Slots:** `220`
-![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png) 
-
+![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png)
 
 ### Luminite Unit
 * **Slots:** `300`
-![Luminite Unit](docs/images/luminite_unit.png) 
-
+![Luminite Unit](docs/images/luminite_unit.png)
 
 ### Terra Unit
 * **Slots:** `600`
 ![Terra Unit](docs/images/terra_unit.png)
 
-
-
 ## Upgrades
 
 Shift+right-click a storage unit while holding an upgrade to apply it. The upgrade is consumed and the unit gains more slots.
 
-| Upgrade | Upgrades From | Ingredients |
-|---------|--------------|-------------|
-| Crimtane | Basic | Iron Ingot, Iron Block, Nether Wart Block, Redstone |
-| Demonite | Basic | Iron Ingot, Iron Block, Purpur Block, Redstone |
-| Hellstone | Crimtane or Demonite | Hell Brick, Gold Block, Blaze Powder, Upgrade |
-| Hallowed | Hellstone | Emerald, Quartz, Hellstone Upgrade |
-| Blue Chlorophyte | Hallowed | Lapis Block, Diamond, Hallowed Upgrade |
-| Luminite | Blue Chlorophyte | Obsidian, End Stone, Ender Eye, Blue Chlorophyte Upgrade |
-| Terra | Luminite | Dragon Breath, Nether Star, End Rod, Luminite Upgrade |
-
 ### Crimtane Upgrade
+* **Upgrades From:** Basic Unit
+* **Ingredients:** Iron Ingot, Iron Block, Nether Wart Block, Redstone
 ![Crimtane Upgrade](docs/images/crimson_upgrade.png)
 
-### 
-![Hellstone Upgrade](docs/images/hellstone_upgrade.png) ![Hallowed Upgrade](docs/images/hallowed_upgrade.png) ![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png) ![Luminite Upgrade](docs/images/luminite_upgrade.png) ![Terra Upgrade](docs/images/terra_upgrade.png)
+### Demonite Upgrade
+* **Upgrades From:** Basic Unit
+* **Ingredients:** Iron Ingot, Iron Block, Purpur Block, Redstone
+
+### Hellstone Upgrade
+* **Upgrades From:** Crimtane or Demonite Unit
+* **Ingredients:** Hell Brick, Gold Block, Blaze Powder, Upgrade
+![Hellstone Upgrade](docs/images/hellstone_upgrade.png)
+
+### Hallowed Upgrade
+* **Upgrades From:** Hellstone Unit
+* **Ingredients:** Emerald, Quartz, Hellstone Upgrade
+![Hallowed Upgrade](docs/images/hallowed_upgrade.png)
+
+### Blue Chlorophyte Upgrade
+* **Upgrades From:** Hallowed Unit
+* **Ingredients:** Lapis Block, Diamond, Hallowed Upgrade
+![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png)
+
+### Luminite Upgrade
+* **Upgrades From:** Blue Chlorophyte Unit
+* **Ingredients:** Obsidian, End Stone, Ender Eye, Blue Chlorophyte Upgrade
+![Luminite Upgrade](docs/images/luminite_upgrade.png)
+
+### Terra Upgrade
+* **Upgrades From:** Luminite Unit
+* **Ingredients:** Dragon Breath, Nether Star, End Rod, Luminite Upgrade
+![Terra Upgrade](docs/images/terra_upgrade.png)
 
 ## Portable Access Items (3 Tiers)
 
 Access your network from anywhere. Right-click to open. Two variants: Storage Access (browse + insert/extract) and Crafting Access (with crafting grid and station support).
 
-| Tier | Range | Cross-Dimension |
-|------|-------|----------------|
-| PreHM (Basic) | 200 blocks | No |
-| HM (Advanced) | Unlimited | No |
-| Ultimate | Unlimited | Yes |
+### PreHM (Basic)
+* **Range:** 200 blocks
+* **Cross-Dimension:** No
+
+### HM (Advanced)
+* **Range:** Unlimited
+* **Cross-Dimension:** No
+
+### Ultimate
+* **Range:** Unlimited
+* **Cross-Dimension:** Yes
 
 **Storage Access Portables:**
 
