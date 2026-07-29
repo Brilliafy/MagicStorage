@@ -672,3 +672,9 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
+
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+Third-Party Components:
+- Storage-Network (https://github.com/Lothrazar/Storage-Network) 
+  Copyright (c) Lothrazar, used under the MIT License.
