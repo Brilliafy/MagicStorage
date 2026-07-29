@@ -6,8 +6,8 @@
     "EPE"
   ],
   "key": {
-    "E": { "item": "minecraft:emerald_block" },
-    "P": { "item": "minecraft:chorus_fruit_popped" },
+    "E": { "item": "minecraft:lapis_block" },
+    "P": { "item": "minecraft:diamond" },
     "I": { "item": "magicstorage:upgrade_hallowed" }
   },
   "result": {
