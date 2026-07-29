@@ -10,10 +10,10 @@ A Terraria-inspired and simple storage network solution mod for Minecraft 1.12.2
 
 ## Quick Start
 
-1. Craft a **Storage Component*(the base crafting material).
-2. Craft a **Storage Heart*and place it.
-3. Craft a **Basic Storage Unit*and place it adjacent to the Storage Heart.
-4. Craft a **Storage Access*or **Crafting Access*and place it anywhere connected to the heart.
+1. Craft a **Storage Component** (the base crafting material).
+2. Craft a **Storage Heart** and place it.
+3. Craft a **Basic Storage Unit** and place it adjacent to the Storage Heart.
+4. Craft a **Storage Access** or **Crafting Access** and place it anywhere connected to the heart.
 5. Open the access terminal. Items placed in storage units become accessible from every access point by placing **Remote Access**.
 6. (Optional) Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
 
