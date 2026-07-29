@@ -185,24 +185,31 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 ## Demos
 
 ![Stations](docs/use/stations.gif)
+
 *Place stations into the Storage Heart to unlock features in the Crafting Access.*
 
 ![Smelting](docs/use/smelting.gif)
+
 *Smelt logs into charcoal using the furnace station.*
 
 ![Brewing](docs/use/brewing.gif)
+
 *Brew splash potions and use redstone to make them long lasting.*
 
 ![Enchanting](docs/use/enchanting.gif)
+
 *Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
 
 ![Repair and Combine](docs/use/repair_combine_insufficient.gif)
+
 *Repair two iron swords, combine them, and see the insufficient XP warning.*
 
 ![Remotes](docs/use/remotes.gif)
+
 *Bind and use portable remote access items.*
 
 ![Unit Upgrades](docs/use/unit_upgrades.gif)
+
 *Upgrade 6 storage units with upgrade items.*
 
 ## Notes
