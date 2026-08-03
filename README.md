@@ -14,7 +14,7 @@ A Terraria-inspired and simple storage network solution mod for Minecraft 1.12.2
 2. Craft a **Storage Heart** and place it.
 3. Craft a **Basic Storage Unit** and place it adjacent to the Storage Heart.
 4. Craft a **Storage Access** or **Crafting Access** and place it anywhere connected to the heart.
-5. Open the access terminal. Items placed in storage units become accessible from every access point by placing **Remote Access**.
+5. Open the access terminal. Items placed in storage units become accessible from every access point by placing **Remote Access**. To use the **Crafting Access**, put a crafting table inside the storage heart.
 6. (Optional) Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
 
 ## Blocks & Items
@@ -37,18 +37,23 @@ Right-click to open a terminal. Browse all items in the network, search by name,
 ### Crafting Access
 A crafting table that uses your network inventory. Place a crafting table in the Storage Heart to enable the basic 3x3 crafting grid. Place additional crafting stations in the heart to unlock more features:
 
+#### Vanilla Stations
 - **Crafting Table**: <u>REQUIRED</u> in order to operate the Crafting Access.
 - **Furnace**: Smelt items directly from the crafting grid. Place fuel in the middle slot (currently supports coal or charcoal) and smeltable items in the rest of the slots.
 - **Enchanting Table**: Enchant items using the grid. Place the item in slot 1, lapis lazuli in slots 4/5/6 (any position). Bookshelf power is calculated from bookshelf items in your network storage. Works with modded table enchants and modded bookshelves.
 - **Anvil**: Combine enchantments or repair items. Place the target item in slot 1, the material or other item in slot 5. Uses real vanilla anvil logic including XP costs. Shows the final result before you commit.
 - **Brewing Stand**: Brew potions. Place blaze powder in slot 1, the ingredient in slot 2, potion bottles in slots 4/5/6. Has 5% chance of consuming the blaze powder.
-- **Rustic Condenser & Retorts** *(Optional)*: Place 3 Retorts and 1 Condenser (Simple or Advanced) in the Heart to unlock alchemy crafting. Advanced stations also grant access to simple alchemy recipes. Coal has a 20% consumption chance per craft; Water Buckets have a 12.5% consumption chance (leaving behind an empty bucket).
-- **Rustic Brewing Barrel** *(Optional)*: Craft wines and elixirs directly in the interface. Wine quality is determined deterministically using the Storage Heart's coordinates and total craft count. Multi-bottle batch brewing scales Blaze Powder consumption at N * 6.25% (1 bottle = 6.25%, 8 bottles = 50%).
-- **Rustic Crushing Tub** *(Optional)*: Crush fruits into juices directly in the network with authentic crushing sounds.
-- **Disenchanter Table** *(Optional)*: Place a Disenchantment Table in the Heart. Put the item to disenchant in the center slot (Slot 5) and a Book in the top-right slot (Slot 3) to extract enchantments into an Enchanted Book. Fully supports Voiding and Bulk Disenchantment Tables.
-- **Bountiful Baubles Reforger** *(Optional)*: Place a Reforger in the Heart and place a Bauble in the bottom-right slot (Slot 9) to reforge modifiers. Displays required XP levels and enforces experience requirements.
-- **Quality Tools Reforging Station** *(Optional)*: Place a Reforging Station in the Heart, the tool or armor in the center slot (Slot 5), and repair material in the bottom-right slot (Slot 9) to reforge quality.
-- **Reskillable Requirements** *(Optional)*: Automatically checks player skill levels for stations placed inside the Storage Heart. For Rustic Alchemy, requires meeting skill levels for both the Condenser and the Retort. Displays a red `✖ Insufficient Skill Level` tooltip when locked.
+
+#### Modded Stations (So Far)
+- **Rustic Condenser & Retorts**: Place 3 Retorts and 1 Condenser (Simple or Advanced) in the Heart to unlock alchemy crafting. Advanced stations also grant access to simple alchemy recipes. Coal has a 20% consumption chance per craft; Water Buckets have a 12.5% consumption chance (leaving behind an empty bucket).
+- **Rustic Brewing Barrel**: Craft wines and elixirs directly in the interface. Multi-bottle batch brewing scales Blaze Powder consumption at N * 6.25% (1 bottle = 6.25%, 8 bottles = 50%).
+- **Rustic Crushing Tub**: Crush fruits into juices directly in the network with authentic crushing sounds. Place 4 rustic fruit on the top left slot 1, and one bottle on the middle slot 5 to make a juice.
+- **Disenchanter Table**: Place a Disenchantment Table in the Heart. Put the item to disenchant in the center slot (Slot 5) and a Book in the top-right slot (Slot 3) to extract enchantments into an Enchanted Book. Fully supports Voiding and Bulk Disenchantment Tables. Follows Disenchantment Table logic, so your item will break upon 0 durability!
+- **Bountiful Baubles Reforger**: Place a Reforger in the Heart and place a Bauble in the bottom-right slot (Slot 9) to reforge modifiers. Displays required XP levels and enforces experience requirements.
+- **Quality Tools Reforging Station**: Place a Reforging Station in the Heart, the tool or armor in the center slot (Slot 5), and repair material in the bottom-right slot (Slot 9) to reforge quality.
+
+#### Other Mod Support
+- **Reskillable Requirements**: Automatically checks player skill levels for stations placed inside the Storage Heart. For Rustic Alchemy, accessing the recipes requires meeting skill levels for both the Condenser and the Retort. Displays a red `✖ Insufficient Skill Level` tooltip when locked.
 
 ![Crafting Access](docs/images/crafting_access.png)
 
@@ -182,7 +187,7 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 
 ## JEI Integration
 
-All recipes are accessible via JEI, besides for dynamic crafting using stations. In such case, JEI shows recipe categories for each crafting station: Anvil, Brewing, Enchanting, Smelting. The Crafting Access acts as a catalyst for all categories.
+All recipes of the mod items are accessible via JEI, besides for dynamic crafting using stations. In such case, JEI shows recipe categories for each crafting station. The Crafting Access acts as a catalyst for all categories.
 
 ## Configuration
 
@@ -221,6 +226,9 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 *Upgrade 6 storage units with upgrade items.*
 
+![Optional_Mods](docs/use/demo.gif)
+
+*Brew Rustic mod juices with template modifier, or no modifier. Brew a rustic mod simple elixir potion, or advanced potion. Crunch into rustic mod juice, disenchant, reforge your modifier using XP, reforge item quality.
 ## Notes
 
 - In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access, and provides soft auto-sort which is enabled by default. Also includes added hotkeying/shift+click support in access inventories and various other fixes.
@@ -231,7 +239,8 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 - If storage units are broken, if they are a part of a network, they move their items to units that are closest to the storage heart. If for any reason the network doesnt have enough space, it will move as many items as it can and the rest will drop upon breaking.
 - Upgrading units in-place expands their storage (preserves their items)
 - Storage units supports hoppers for automation
-- The crafting access mirrors actual Enchanting / Brewing / Anvil mechanics, so other behavior-changing or content-adding mods are compatible!
+- The crafting access mirrors actual real station mechanics, so other behavior-changing or content-adding mods are compatible!
+
 ## Compatibility
 
 **WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
