@@ -231,7 +231,7 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 ![Optional_Mods](docs/use/demo.gif)
 
-*Brew Rustic mod juices with template modifier, or no modifier. Brew a rustic mod simple elixir potion, or advanced potion. Crunch into rustic mod juice, disenchant, reforge your modifier using XP, reforge item quality.*
+*Brew Rustic mod juices with template modifier, or no modifier. Brew a rustic mod simple elixir potion, or advanced elixir potion. Crunch into rustic mod juice, disenchant, reforge your modifier using XP, reforge item quality.*
 
 ## Notes
 
