@@ -24,7 +24,12 @@ public class ContainerStorageHeart extends Container {
         for (int row = 0; row < 2; row++) {
             for (int col = 0; col < 10; col++) {
                 addSlotToContainer(new SlotItemHandler(inv, index++,
-                    8 + col * 18, 18 + row * 18));
+                    8 + col * 18, 18 + row * 18) {
+                    @Override
+                    public boolean isItemValid(ItemStack stack) {
+                        return TileStorageHeart.isAllowedStation(stack);
+                    }
+                });
             }
         }
 

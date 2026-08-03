@@ -27,6 +27,13 @@ public class TileCraftingAccess extends TileEntity implements ITickable {
         new Station("brewing_stand", Blocks.BREWING_STAND),
         new Station("anvil", Blocks.ANVIL),
         new Station("enchanting_table", Blocks.ENCHANTING_TABLE),
+        new Station("rustic_simple_condenser", Block.getBlockFromName("rustic:condenser")),
+        new Station("rustic_advanced_condenser", Block.getBlockFromName("rustic:condenser_advanced")),
+        new Station("rustic_brewing_barrel", Block.getBlockFromName("rustic:brewing_barrel")),
+        new Station("rustic_crushing_tub", Block.getBlockFromName("rustic:crushing_tub")),
+        new Station("disenchanter_table", Block.getBlockFromName("disenchanter:disenchantmenttable")),
+        new Station("bountiful_reforger", Block.getBlockFromName("bountifulbaubles:reforger")),
+        new Station("quality_reforger", Block.getBlockFromName("qualitytools:reforging_station")),
     };
 
     @Nullable
@@ -88,6 +95,13 @@ public class TileCraftingAccess extends TileEntity implements ITickable {
                 if (heart.hasBrewingStand()) foundStations.add("brewing_stand");
                 if (heart.hasAnvil()) foundStations.add("anvil");
                 if (heart.hasEnchantingTable()) foundStations.add("enchanting_table");
+                if (heart.hasRusticSimpleCondenser()) foundStations.add("rustic_simple_condenser");
+                if (heart.hasRusticAdvancedCondenser()) foundStations.add("rustic_advanced_condenser");
+                if (heart.hasRusticBrewingBarrel()) foundStations.add("rustic_brewing_barrel");
+                if (heart.hasRusticCrushingTub()) foundStations.add("rustic_crushing_tub");
+                if (heart.hasDisenchanterTable()) foundStations.add("disenchanter_table");
+                if (heart.hasBountifulBaublesReforger()) foundStations.add("bountiful_reforger");
+                if (heart.hasQualityToolsReforger()) foundStations.add("quality_reforger");
             }
         }
     }
