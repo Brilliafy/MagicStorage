@@ -29,7 +29,38 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     private int tickCounter = 0;
     private int contentsDirtyTick = -1;
 
-    private final ItemStackHandler inventory = new ItemStackHandler(20);
+    public static boolean isAllowedStation(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        net.minecraft.item.Item item = stack.getItem();
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.CRAFTING_TABLE)) return true;
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.FURNACE)) return true;
+        if (item == net.minecraft.init.Items.BREWING_STAND || item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.BREWING_STAND)) return true;
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ANVIL)) return true;
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ENCHANTING_TABLE)) return true;
+        if (item.getRegistryName() != null) {
+            String reg = item.getRegistryName().toString();
+            if ("rustic:condenser".equals(reg) || "rustic:condenser_advanced".equals(reg) ||
+                "rustic:retort".equals(reg) || "rustic:retort_advanced".equals(reg) ||
+                "rustic:brewing_barrel".equals(reg) || "rustic:crushing_tub".equals(reg) ||
+                "disenchanter:disenchantmenttable".equals(reg) ||
+                "bountifulbaubles:reforger".equals(reg) ||
+                "qualitytools:reforging_station".equals(reg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private final ItemStackHandler inventory = new ItemStackHandler(20) {
+        @Override
+        public boolean isItemValid(int slot, @javax.annotation.Nonnull ItemStack stack) {
+            return isAllowedStation(stack);
+        }
+        @Override
+        protected void onContentsChanged(int slot) {
+            TileStorageHeart.this.markDirty();
+        }
+    };
 
     public ItemStackHandler getInventory() { return inventory; }
 
@@ -77,6 +108,125 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && "minecraft:crafting_table".equals(stack.getItem().getRegistryName().toString())) return true;
+        }
+        return false;
+    }
+
+    public boolean hasRusticSimpleCondenser() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        int retorts = 0;
+        int condensers = 0;
+        int advRetorts = 0;
+        int advCondensers = 0;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                String regName = stack.getItem().getRegistryName().toString();
+                if ("rustic:retort".equals(regName)) retorts += stack.getCount();
+                else if ("rustic:condenser".equals(regName)) condensers += stack.getCount();
+                else if ("rustic:retort_advanced".equals(regName)) advRetorts += stack.getCount();
+                else if ("rustic:condenser_advanced".equals(regName)) advCondensers += stack.getCount();
+            }
+        }
+        boolean hasBasic = retorts >= 3 && condensers >= 1;
+        boolean hasAdv = advRetorts >= 3 && advCondensers >= 1;
+        return hasBasic || hasAdv;
+    }
+
+    public boolean hasRusticAdvancedCondenser() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        int retorts = 0;
+        int condensers = 0;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                String regName = stack.getItem().getRegistryName().toString();
+                if ("rustic:retort_advanced".equals(regName)) retorts += stack.getCount();
+                else if ("rustic:condenser_advanced".equals(regName)) condensers += stack.getCount();
+            }
+        }
+        return retorts >= 3 && condensers >= 1;
+    }
+
+    public boolean hasRusticBrewingBarrel() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("rustic:brewing_barrel".equals(stack.getItem().getRegistryName().toString())) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasRusticCrushingTub() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("rustic:crushing_tub".equals(stack.getItem().getRegistryName().toString())) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDisenchanterTable() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("disenchanter:disenchantmenttable".equals(stack.getItem().getRegistryName().toString())) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isDisenchanterVoiding() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("disenchanter:disenchantmenttable".equals(stack.getItem().getRegistryName().toString())) {
+                    int meta = stack.getMetadata();
+                    if ((meta & 4) != 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isDisenchanterBulk() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("disenchanter:disenchantmenttable".equals(stack.getItem().getRegistryName().toString())) {
+                    int meta = stack.getMetadata();
+                    if ((meta & 2) != 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasBountifulBaublesReforger() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("bountifulbaubles")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("bountifulbaubles:reforger".equals(stack.getItem().getRegistryName().toString())) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasQualityToolsReforger() {
+        if (!net.minecraftforge.fml.common.Loader.isModLoaded("qualitytools")) return false;
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
+                if ("qualitytools:reforging_station".equals(stack.getItem().getRegistryName().toString())) return true;
+            }
         }
         return false;
     }
@@ -527,10 +677,15 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         return connectedUnits.isEmpty() ? null : connectedUnits.iterator().next();
     }
 
+    private int brewingCraftCounter = 0;
+    public int getBrewingCraftCounter() { return brewingCraftCounter; }
+    public void incrementBrewingCraftCounter() { brewingCraftCounter++; markDirty(); }
+
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         compound.setTag("Inventory", inventory.serializeNBT());
+        compound.setInteger("brewingCraftCounter", brewingCraftCounter);
         NBTTagList units = new NBTTagList();
         for (BlockPos p : connectedUnits) {
             NBTTagCompound c = new NBTTagCompound();
@@ -552,6 +707,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
         if (compound.hasKey("Inventory")) inventory.deserializeNBT(compound.getCompoundTag("Inventory"));
+        if (compound.hasKey("brewingCraftCounter")) brewingCraftCounter = compound.getInteger("brewingCraftCounter");
         connectedUnits.clear();
         NBTTagList units = compound.getTagList("ConnectedUnits", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < units.tagCount(); i++) {
