@@ -1,80 +1,38 @@
 # Magic Storage v1.0.21 Changelog
 
-## 🚀 Overview
-Version **1.0.21** introduces optional integration with 5 major 1.12.2 mods (**Rustic**, **Disenchanter**, **Bountiful Baubles**, **Quality Tools**, and **Reskillable**). All mod integrations are **100% optional** — if a mod is not present in your modpack, Magic Storage operates seamlessly without requiring any additional dependencies or causing crashes.
+## Overview
+Magic Storage version 1.0.21 brings optional compatibility for five popular 1.12.2 mods: Rustic, Disenchanter, Bountiful Baubles, Quality Tools, and Reskillable. All new features work automatically if the corresponding mod is installed. If a mod is not in your modpack, Magic Storage functions normally without requiring extra dependencies or causing issues.
 
 ---
 
-## ✨ Features & Mod Support
+## Mod Support Details
 
-### 🧪 1. Rustic Integration
-- **Advanced & Simple Condenser Alchemy**:
-  - Insert Condensers (`rustic:condenser`, `rustic:condenser_advanced`) and Retorts (`rustic:retort`, `rustic:retort_advanced`) into the Storage Heart to unlock alchemy crafting directly in the Crafting Interface.
-  - Requires **3 Retorts + 1 Condenser** (or Advanced equivalents) in the heart. Advanced stations also grant access to simple alchemy recipes.
-  - **Ingredient Consumption Probabilities**:
-    - Coal fuel has a **20.0%** chance to be consumed per craft.
-    - Water buckets have a **12.5%** chance to be consumed per craft (leaving behind an empty bucket when consumed).
-- **Brewing Barrel & Deterministic Quality**:
-  - Quality calculations for wines and brews are seeded deterministically using a combination of the Storage Heart's world coordinates (`toLong()`) and a persistent craft counter.
-  - Re-rolling quality by removing/re-adding items in the crafting matrix is impossible; players must complete a craft to advance the roll counter.
-  - **Batch Brewing & Blaze Powder Consumption**:
-    - Blaze powder fuel consumption probability scales dynamically with bottle count: **N * 6.25%** (e.g., 1 bottle = 6.25%, 4 bottles = 25.0%, 8 bottles = 50.0%).
-    - Crafting with N bottles advances the brewing counter by 1 and produces N brewed bottles in a single craft with the exact same quality calculation.
-- **Crushing Tub**:
-  - Support for crushing recipes (e.g. crushing grapes/berries into juices).
-  - Plays the authentic block crushing sound (`SoundEvents.BLOCK_SLIME_FALL`).
+### Rustic Support
+- Alchemy Condensers and Retorts: Place 3 Retorts and 1 Condenser (either Simple or Advanced) inside your Storage Heart to craft alchemy potions directly from your Crafting Interface. Having Advanced stations in your Heart allows you to craft both Simple and Advanced alchemy recipes.
+- Alchemy Item Consumption: When performing alchemy, Coal fuel has a 20% chance to be consumed, while Water Buckets have a 12.5% chance to be consumed (leaving an empty bucket behind).
+- Brewing Barrel: Craft wines and elixirs right inside the Crafting Interface. Wine quality is determined by your Storage Heart's location and total brews completed, preventing players from re-rolling quality by taking items out and putting them back in.
+- Multi-Bottle Brewing: Brewing multiple bottles of juice at once crafts them all in a single action while advancing your brew count by one. Fuel consumption scales dynamically with the number of bottles (each bottle adds a 6.25% chance to consume Blaze Powder).
+- Crushing Tub: Crushing recipes (such as turning grapes into juice) are fully supported with authentic crushing sounds.
 
----
+### Disenchanter Support
+- Disenchantment Table: Place a Disenchantment Table inside your Storage Heart to access disenchanting directly from the Crafting Interface.
+- How to Use: Put the item you want to disenchant in the middle slot (Slot 5) and an unenchanted Book in the middle-left slot (Slot 3) to extract enchantments onto an Enchanted Book in the output slot.
+- Table Upgrades: Fully supports Voiding Disenchantment Tables (which consume the original item completely) and Bulk Disenchantment Tables (which extract all enchantments into a single book).
 
-### 📜 2. Disenchanter Support
-- Place a **Disenchantment Table** (`disenchanter:disenchantmenttable`) inside the Storage Heart to enable disenchanting recipes in the Crafting Interface.
-- **Recipe Layout**: Place the item to be disenchanted in **Slot 5** (center slot) and an unenchanted **Book** in **Slot 3** (center-left) to extract enchantments into an **Enchanted Book** (Slot 0).
-- **Table Attributes & Variant Support**:
-  - **Standard Table**: Disenchants the top enchantment into a book while damaging the source item.
-  - **Voiding Table**: Consumes the item in Slot 5 completely.
-  - **Bulk Disenchanting Table**: Extracts **ALL** enchantments from the item into the book at once.
+### Bountiful Baubles Reforging
+- Reforger Station: Insert a Reforger into your Storage Heart to reforge Baubles directly in the Crafting Interface.
+- How to Use: Place your Bauble in the bottom-right slot (Slot 9) to reforge its modifiers.
+- Experience Costs: The required experience level is shown in the output tooltip. If you do not have enough experience, the output slot locks safely and displays an Insufficient XP warning. Reforging consumes the Bauble in Slot 9 upon completing the craft.
 
----
+### Quality Tools Reforging
+- Reforging Station: Insert a Reforging Station into your Storage Heart to reforge tools, weapons, and armor.
+- How to Use: Place the tool or armor in the center slot (Slot 5) and its repair material in the bottom-right slot (Slot 9).
+- Crafting: Consumes the tool in Slot 5 and one repair material in Slot 9, applying a new quality modifier to your item.
 
-### 🛡️ 3. Bountiful Baubles Reforging
-- Insert a **Reforger** (`bountifulbaubles:reforger`) into the Storage Heart to reforge Baubles in **Slot 9** (bottom-right).
-- **Deterministic Quality**: Seeded by Heart position and craft counter to prevent client-side re-rolling.
-- **XP Cost & Locking**:
-  - Displays the required level cost in the item tooltip.
-  - If the player has insufficient XP, the result displays `✖ Insufficient XP` in red bold text and locks slot interactions.
-  - Correctly consumes the input bauble in Slot 9 upon crafting and syncs newly applied potion/attribute modifiers to the player's held cursor stack.
+### Reskillable Requirements
+- Skill Checks: If you have Reskillable installed, crafting stations inside your Storage Heart will check your character's skill levels before allowing you to craft recipes from that station.
+- Multi-Station Requirements: For Rustic Alchemy, you must meet the skill requirements for both the Condenser and the Retort to craft alchemy potions.
+- Clear Feedback: If your skill level is too low, the output item remains visible in the Crafting Interface with a clear red Insufficient Skill Level message in its tooltip, and the output slot is locked so you cannot take or hotkey the item.
 
----
-
-### 🔨 4. Quality Tools Reforging
-- Insert a **Reforging Station** (`qualitytools:reforging_station`) into the Storage Heart to reforge tools, weapons, and armor.
-- **Recipe Layout**: Place the item to be reforged in **Slot 5** (center) and its matching repair material in **Slot 9** (bottom-right).
-- Consumes the input tool/armor in Slot 5 and 1 material in Slot 9 upon crafting.
-- Synchronizes newly assigned quality tags (`qualitytools:luck`, `qualitytools:rusty`, etc.) in-place to prevent cursor desync or item dropping when closing the container GUI.
-
----
-
-### 🎓 5. Reskillable Integration
-- **Dynamic Skill Requirement Enforcement**:
-  - Queries Reskillable's live `LevelLockHandler.canPlayerUseItem` registry dynamically to support custom user configurations and block requirement changes.
-  - If a player does not meet the skill level required to use a station placed in the Storage Heart, the crafting output displays:
-    ```
-    ✖    Insufficient Skill Level
-    ```
-  - **Dual Station Verification**: For Rustic Alchemy, **BOTH** the Condenser and the Retort skill requirements must be satisfied for the recipe to be craftable.
-- **Seamless UI & Anti-Desync Locking**:
-  - Result slot clicks, shift-clicking, and hotkeying are blocked on both client and server sides.
-  - `canTakeStack` and `decrStackSize` inspect the result item NBT lore locally on the client to prevent ghost items or cursor desyncs.
-- **Strictly Optional Loading**:
-  - Utilizes a private static bridge class (`ReskillableBridge`) to isolate Reskillable API calls. The JVM ClassLoader will never attempt to load Reskillable classes if the mod is not present, guaranteeing 0 crash risk.
-
----
-
-### 🏰 6. Storage Heart Whitelist & Safety
-- The Storage Heart inventory now strictly enforces an allowed item whitelist. Only supported crafting stations can be inserted into the Heart:
-  - **Vanilla**: Crafting Table, Furnace, Brewing Stand, Anvil, Enchanting Table
-  - **Rustic**: Condenser, Advanced Condenser, Retort, Advanced Retort, Brewing Barrel, Crushing Tub
-  - **Disenchanter**: Disenchantment Table
-  - **Bountiful Baubles**: Reforger
-  - **Quality Tools**: Reforging Station
-- Non-station items are blocked from drag-and-drop, shift-clicking, and hotkey insertion into the Storage Heart.
+### Storage Heart Station Whitelist
+- Restructured Inventory: The Storage Heart now only accepts supported crafting stations (such as Crafting Tables, Furnaces, Anvils, Brewing Stands, Condensers, Retorts, Disenchantment Tables, and Reforging Stations). Other non-station items can no longer be placed inside the Heart.
