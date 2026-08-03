@@ -25,7 +25,7 @@ Iron ingots, chests, and redstone. Used in nearly every recipe.
 ![Storage Component](docs/images/storage_component.png)
 
 ### Storage Heart
-The core of your network. It has a 20-slot inventory for placing supported crafting stations (such as crafting tables, furnaces, anvils, enchanting tables, brewing stands, condensers, retorts, disenchantment tables, and reforging stations). The Heart strictly enforces a whitelist—only allowed station items can be placed inside. The heart chunk-loads itself so remote access works across dimensions. Break it to disconnect the network.
+The core of your network. It has a 20-slot inventory for placing supported crafting stations (such as crafting tables, furnaces, anvils, enchanting tables, brewing stands, condensers, retorts, disenchantment tables, and reforging stations). The Heart strictly enforces a whitelist only allowed station items can be placed inside. The heart chunk-loads itself so remote access works across dimensions. Break it to disconnect the network.
 
 ![Storage Heart](docs/images/storage_heart.png)
 
