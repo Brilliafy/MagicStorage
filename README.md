@@ -25,7 +25,7 @@ Iron ingots, chests, and redstone. Used in nearly every recipe.
 ![Storage Component](docs/images/storage_component.png)
 
 ### Storage Heart
-The core of your network. It has a 20-slot inventory for placing crafting stations (brewing stand, furnace, anvil, enchanting table, crafting table). The heart chunk-loads itself so remote access works across dimensions. Break it to disconnect the network.
+The core of your network. It has a 20-slot inventory for placing supported crafting stations (such as crafting tables, furnaces, anvils, enchanting tables, brewing stands, condensers, retorts, disenchantment tables, and reforging stations). The Heart strictly enforces a whitelist—only allowed station items can be placed inside. The heart chunk-loads itself so remote access works across dimensions. Break it to disconnect the network.
 
 ![Storage Heart](docs/images/storage_heart.png)
 
@@ -42,6 +42,13 @@ A crafting table that uses your network inventory. Place a crafting table in the
 - **Enchanting Table**: Enchant items using the grid. Place the item in slot 1, lapis lazuli in slots 4/5/6 (any position). Bookshelf power is calculated from bookshelf items in your network storage. Works with modded table enchants and modded bookshelves.
 - **Anvil**: Combine enchantments or repair items. Place the target item in slot 1, the material or other item in slot 5. Uses real vanilla anvil logic including XP costs. Shows the final result before you commit.
 - **Brewing Stand**: Brew potions. Place blaze powder in slot 1, the ingredient in slot 2, potion bottles in slots 4/5/6. Has 5% chance of consuming the blaze powder.
+- **Rustic Condenser & Retorts** *(Optional)*: Place 3 Retorts and 1 Condenser (Simple or Advanced) in the Heart to unlock alchemy crafting. Advanced stations also grant access to simple alchemy recipes. Coal has a 20% consumption chance per craft; Water Buckets have a 12.5% consumption chance (leaving behind an empty bucket).
+- **Rustic Brewing Barrel** *(Optional)*: Craft wines and elixirs directly in the interface. Wine quality is determined deterministically using the Storage Heart's coordinates and total craft count. Multi-bottle batch brewing scales Blaze Powder consumption at N * 6.25% (1 bottle = 6.25%, 8 bottles = 50%).
+- **Rustic Crushing Tub** *(Optional)*: Crush fruits into juices directly in the network with authentic crushing sounds.
+- **Disenchanter Table** *(Optional)*: Place a Disenchantment Table in the Heart. Put the item to disenchant in the center slot (Slot 5) and a Book in the top-right slot (Slot 3) to extract enchantments into an Enchanted Book. Fully supports Voiding and Bulk Disenchantment Tables.
+- **Bountiful Baubles Reforger** *(Optional)*: Place a Reforger in the Heart and place a Bauble in the bottom-right slot (Slot 9) to reforge modifiers. Displays required XP levels and enforces experience requirements.
+- **Quality Tools Reforging Station** *(Optional)*: Place a Reforging Station in the Heart, the tool or armor in the center slot (Slot 5), and repair material in the bottom-right slot (Slot 9) to reforge quality.
+- **Reskillable Requirements** *(Optional)*: Automatically checks player skill levels for stations placed inside the Storage Heart. For Rustic Alchemy, requires meeting skill levels for both the Condenser and the Retort. Displays a red `✖ Insufficient Skill Level` tooltip when locked.
 
 ![Crafting Access](docs/images/crafting_access.png)
 
@@ -240,7 +247,7 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 **A:** Right now, my main focus is polishing and maintaining the 1.12.2 Forge release! However, if there’s enough interest from the community (and as time permits), porting to newer versions or alternative loaders like Fabric/NeoForge is definitely on my radar. Feedback, support on Ko-fi, and community interest help me decide where to focus future development!
 
 **Q:** Are you planning to add station support for other mods ?
-**A:** Currently, the mod focuses on supporting core vanilla stations (Crafting, Furnace, Anvil, Enchanting, Brewing). While I don't have immediate plans for specific modded stations, extending support is definitely a possibility down the road based on community interest and free time! If there's a specific mod's station you'd love to see integrated, feel free to open a feature request on GitHub.
+**A:** Optional station support is now available for **Rustic**, **Disenchanter**, **Bountiful Baubles**, **Quality Tools**, and **Reskillable**! If you have additional modded stations you'd love to see integrated, feel free to open a feature request on GitHub.
 
 ## Credits & Third-Party Assets
 
