@@ -16,7 +16,7 @@ Magic Storage version 1.0.21 brings optional compatibility for five popular 1.12
 
 ### Disenchanter Support
 - Disenchantment Table: Place a Disenchantment Table inside your Storage Heart to access disenchanting directly from the Crafting Interface.
-- How to Use: Put the item you want to disenchant in the middle slot (Slot 5) and an unenchanted Book in the middle-left slot (Slot 3) to extract enchantments onto an Enchanted Book in the output slot.
+- How to Use: Put the item you want to disenchant in the center slot (Slot 5) and an unenchanted Book in the top-right slot (Slot 3) to extract enchantments onto an Enchanted Book in the output slot.
 - Table Upgrades: Fully supports Voiding Disenchantment Tables (which consume the original item completely) and Bulk Disenchantment Tables (which extract all enchantments into a single book).
 
 ### Bountiful Baubles Reforging
