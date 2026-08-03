@@ -228,7 +228,8 @@ The config file is at `.minecraft/config/magicstorage.cfg`.
 
 ![Optional_Mods](docs/use/demo.gif)
 
-*Brew Rustic mod juices with template modifier, or no modifier. Brew a rustic mod simple elixir potion, or advanced potion. Crunch into rustic mod juice, disenchant, reforge your modifier using XP, reforge item quality.
+*Brew Rustic mod juices with template modifier, or no modifier. Brew a rustic mod simple elixir potion, or advanced potion. Crunch into rustic mod juice, disenchant, reforge your modifier using XP, reforge item quality.*
+
 ## Notes
 
 - In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access, and provides soft auto-sort which is enabled by default. Also includes added hotkeying/shift+click support in access inventories and various other fixes.
