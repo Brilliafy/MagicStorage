@@ -18,6 +18,8 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         NetworkRegistry.INSTANCE.registerGuiHandler(MagicStorage.instance, new GuiHandler());
+        com.brilliafy.magicstorage.client.KeyInputHandler.initKeyBindings();
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new com.brilliafy.magicstorage.client.KeyInputHandler());
     }
 
     @Override

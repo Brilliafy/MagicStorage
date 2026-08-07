@@ -101,6 +101,15 @@ public class AnvilCraftingHelper {
         return ar != null;
     }
 
+    public static boolean isAnvilGrid(ItemStack[] m) {
+        if (m == null || m.length < 9) return false;
+        if (m[0].isEmpty() || m[4].isEmpty()) return false;
+        for (int i = 0; i < 9; i++) {
+            if (i != 0 && i != 4 && !m[i].isEmpty()) return false;
+        }
+        return true;
+    }
+
     /**
      * Compute result, XP cost, AND material cost via vanilla ContainerRepair reflection.
      * materialCost is the exact number of right-item units vanilla consumes.
@@ -138,7 +147,7 @@ public class AnvilCraftingHelper {
                 resultStack = stackResult.getStackInSlot(0).copy();
             }
 
-            if (!resultStack.isEmpty() && cost > 0) {
+            if (!resultStack.isEmpty() && cost >= 0) {
                 if (left.hasDisplayName()) {
                     resultStack.setStackDisplayName(left.getDisplayName());
                 }

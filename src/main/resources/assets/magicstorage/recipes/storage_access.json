@@ -9,7 +9,7 @@
     "I": { "item": "minecraft:iron_ingot" },
     "D": { "item": "minecraft:diamond" },
     "S": { "item": "magicstorage:storage_component" },
-    "C": { "item": "minecraft:chest" }
+    "C": { "type": "forge:ore_dict", "ore": "chestWood" }
   },
   "result": {
     "item": "magicstorage:storage_access",
