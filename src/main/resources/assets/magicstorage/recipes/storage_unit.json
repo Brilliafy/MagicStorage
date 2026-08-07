@@ -7,7 +7,7 @@
   ],
   "key": {
     "I": { "type": "forge:ore_dict", "ore": "logWood" },
-    "L": { "item": "minecraft:chest" },
+    "L": { "type": "forge:ore_dict", "ore": "chestWood" },
     "C": { "item": "magicstorage:storage_component" }
   },
   "result": {

@@ -99,8 +99,8 @@ public class ItemUpgrade extends Item {
             }
         }
 
-        // Play equip sound
-        worldIn.playSound(null, pos, net.minecraft.init.SoundEvents.ITEM_ARMOR_EQUIP_IRON, net.minecraft.util.SoundCategory.BLOCKS, 1.0F, 1.0F);
+        // Play equip sound (Ender eye placement sound)
+        worldIn.playSound(null, pos, net.minecraft.init.SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, net.minecraft.util.SoundCategory.BLOCKS, 1.0F, 1.0F);
 
         // Consume upgrade item
         if (!player.isCreative()) {

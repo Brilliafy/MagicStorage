@@ -17,16 +17,20 @@ import java.util.Map;
  */
 public class SmeltingCraftingHelper {
 
-    public static boolean isFuel(ItemStack stack) {
-        if (stack.isEmpty()) return false;
-        // Explicit charcoal check
-        if (stack.getItem() == net.minecraft.init.Items.COAL && stack.getMetadata() == 1) return true;
+    public static int getSingleBurnTime(ItemStack stack) {
+        if (stack.isEmpty()) return 0;
         try {
-            int burnTime = net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(stack);
-            return burnTime > 0;
+            ItemStack single = stack.copy();
+            single.setCount(1);
+            return net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(single);
         } catch (Exception e) {
-            return stack.getItem() == net.minecraft.init.Items.COAL;
+            if (stack.getItem() == net.minecraft.init.Items.COAL) return 1600;
+            return 0;
         }
+    }
+
+    public static boolean isFuel(ItemStack stack) {
+        return getSingleBurnTime(stack) > 0;
     }
 
     public static boolean isSmeltable(ItemStack stack) {
@@ -35,13 +39,7 @@ public class SmeltingCraftingHelper {
             ItemStack result = FurnaceRecipes.instance().getSmeltingResult(stack);
             return !result.isEmpty();
         } catch (Exception e) {
-            try {
-                java.lang.reflect.Method m = FurnaceRecipes.class.getMethod("getSmeltingResult", ItemStack.class);
-                ItemStack result = (ItemStack) m.invoke(FurnaceRecipes.instance(), stack);
-                return !result.isEmpty();
-            } catch (Exception e2) {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -50,52 +48,89 @@ public class SmeltingCraftingHelper {
         try {
             ItemStack result = FurnaceRecipes.instance().getSmeltingResult(stack);
             if (!result.isEmpty()) {
-                result = result.copy();
-                result.setCount(stack.getCount());
-                return result;
+                return result.copy();
             }
         } catch (Exception e) {}
         return ItemStack.EMPTY;
     }
 
     public static boolean canCraft(ItemStack[] matrix) {
-        if (matrix.length < 9) return false;
-        if (!isFuel(matrix[4])) return false;
-        boolean hasSmeltable = false;
+        if (matrix == null || matrix.length < 9) return false;
+        ItemStack fuelStack = matrix[4];
+        int singleBurnTime = getSingleBurnTime(fuelStack);
+        if (singleBurnTime <= 0) return false;
+
+        int totalBurnTime = singleBurnTime * fuelStack.getCount();
+        int maxSmeltable = totalBurnTime / 200; // Floor(BurnTime / 200)
+        if (maxSmeltable <= 0) return false;
+
+        int totalInputs = 0;
+        ItemStack firstInput = ItemStack.EMPTY;
         for (int i = 0; i < 9; i++) {
             if (i == 4) continue;
-            if (!matrix[i].isEmpty()) {
-                if (isSmeltable(matrix[i])) hasSmeltable = true;
-                else return false;
+            ItemStack slot = matrix[i];
+            if (!slot.isEmpty()) {
+                if (!isSmeltable(slot)) return false;
+                if (firstInput.isEmpty()) {
+                    firstInput = slot;
+                } else if (!net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(firstInput, slot)) {
+                    // All input items MUST be of the EXACT SAME kind!
+                    return false;
+                }
+                totalInputs += 1; // Exactly 1 input per filled input slot
             }
         }
-        return hasSmeltable;
+
+        if (totalInputs == 0) return false;
+        if (totalInputs > maxSmeltable) return false; // More items than fuel can smelt -> NOTHING!
+
+        return true;
     }
 
     public static ItemStack computeResult(ItemStack[] matrix) {
         if (!canCraft(matrix)) return ItemStack.EMPTY;
-        ItemStack firstResult = ItemStack.EMPTY;
-        int slotCount = 0;
+        ItemStack firstInput = ItemStack.EMPTY;
+        int totalInputs = 0;
         for (int i = 0; i < 9; i++) {
             if (i == 4) continue;
             ItemStack slot = matrix[i];
             if (slot.isEmpty()) continue;
-            ItemStack smelted = getSmeltedResult(slot);
-            if (smelted.isEmpty()) return ItemStack.EMPTY;
-            if (firstResult.isEmpty()) {
-                firstResult = smelted.copy();
-                slotCount++;
-            } else if (net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(firstResult, smelted)) {
-                slotCount++;
-            }
+            if (firstInput.isEmpty()) firstInput = slot;
+            totalInputs += 1;
         }
-        if (firstResult.isEmpty()) return ItemStack.EMPTY;
-        firstResult.setCount(Math.min(slotCount, firstResult.getMaxStackSize()));
-        return firstResult;
+        if (firstInput.isEmpty()) return ItemStack.EMPTY;
+        ItemStack smelted = getSmeltedResult(firstInput);
+        if (smelted.isEmpty()) return ItemStack.EMPTY;
+
+        int baseOutput = smelted.getCount() > 0 ? smelted.getCount() : 1;
+        smelted.setCount(Math.min(totalInputs * baseOutput, smelted.getMaxStackSize()));
+        return smelted;
     }
 
-    public static void consumeIngredients(ItemStack[] matrix) {
-        if (!matrix[4].isEmpty()) matrix[4].shrink(1);
+    public static void consumeIngredients(ItemStack[] matrix, java.util.Random rng) {
+        if (!canCraft(matrix)) return;
+        ItemStack fuelStack = matrix[4];
+        int singleBurnTime = getSingleBurnTime(fuelStack);
+        int totalInputs = 0;
+        for (int i = 0; i < 9; i++) {
+            if (i == 4) continue;
+            if (!matrix[i].isEmpty()) {
+                totalInputs += 1;
+            }
+        }
+
+        if (singleBurnTime > 0 && totalInputs > 0) {
+            float fuelUnitsNeeded = (float) totalInputs * 200.0f / (float) singleBurnTime;
+            int wholeFuelsToConsume = (int) Math.floor(fuelUnitsNeeded);
+            float chance = fuelUnitsNeeded - wholeFuelsToConsume;
+            if (rng != null && rng.nextFloat() < chance) {
+                wholeFuelsToConsume += 1;
+            }
+            if (wholeFuelsToConsume > 0) {
+                fuelStack.shrink(Math.min(wholeFuelsToConsume, fuelStack.getCount()));
+            }
+        }
+
         for (int i = 0; i < 9; i++) {
             if (i == 4) continue;
             if (!matrix[i].isEmpty()) matrix[i].shrink(1);

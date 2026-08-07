@@ -41,7 +41,17 @@ public class JeiHooks {
     }
 
     @Optional.Method(modid = "jei")
+    public static boolean isJeiKeybind(int keyCode) {
+        if (!jeiLoaded) return false;
+        try {
+            return mezz.jei.config.KeyBindings.showRecipe.isActiveAndMatches(keyCode) ||
+                   mezz.jei.config.KeyBindings.showUses.isActiveAndMatches(keyCode);
+        } catch (Throwable e) { return false; }
+    }
+
+    @Optional.Method(modid = "jei")
     public static void testJeiKeybind(int keyCode, ItemStack stackUnderMouse) {
+        if (stackUnderMouse.isEmpty()) return;
         final boolean showRecipe = mezz.jei.config.KeyBindings.showRecipe.isActiveAndMatches(keyCode);
         final boolean showUses = mezz.jei.config.KeyBindings.showUses.isActiveAndMatches(keyCode);
         if (showRecipe || showUses) {

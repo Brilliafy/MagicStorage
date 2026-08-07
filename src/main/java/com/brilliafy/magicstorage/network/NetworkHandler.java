@@ -33,6 +33,7 @@ public class NetworkHandler {
         INSTANCE.registerMessage(InsertMessage.Handler.class, InsertMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(SortMessage.Handler.class, SortMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(ClearRecipeMessage.Handler.class, ClearRecipeMessage.class, packetId++, Side.SERVER);
+        INSTANCE.registerMessage(OpenRemoteKeyMessage.Handler.class, OpenRemoteKeyMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(StackRefreshClientMessage.Handler.class, StackRefreshClientMessage.class, packetId++, Side.CLIENT);
         INSTANCE.registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, packetId++, Side.CLIENT);
         INSTANCE.registerMessage(StackResponseClientMessage.Handler.class, StackResponseClientMessage.class, packetId++, Side.CLIENT);
@@ -369,13 +370,14 @@ public class NetworkHandler {
                         for (int i = 0; i < matrix.getSizeInventory(); i++) {
                             net.minecraft.item.ItemStack s = matrix.getStackInSlot(i);
                             if (!s.isEmpty()) {
-                                if (heart != null) {
-                                    net.minecraft.item.ItemStack rem = heart.insertItem(s, false);
-                                    if (!rem.isEmpty()) player.dropItem(rem, false);
-                                } else {
-                                    player.dropItem(s, false);
-                                }
                                 matrix.setInventorySlotContents(i, net.minecraft.item.ItemStack.EMPTY);
+                                net.minecraft.item.ItemStack rem = heart != null ? heart.insertItem(s, false) : s;
+                                if (!rem.isEmpty()) {
+                                    boolean added = player.inventory.addItemStackToInventory(rem);
+                                    if (!added || !rem.isEmpty()) {
+                                        player.dropItem(rem, false);
+                                    }
+                                }
                             }
                         }
                         container.onCraftMatrixChanged(matrix);

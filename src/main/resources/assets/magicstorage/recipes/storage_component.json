@@ -7,7 +7,7 @@
   ],
   "key": {
     "I": { "item": "minecraft:iron_ingot" },
-    "C": { "item": "minecraft:chest" },
+    "C": { "type": "forge:ore_dict", "ore": "chestWood" },
     "R": { "item": "minecraft:redstone" }
   },
   "result": {
