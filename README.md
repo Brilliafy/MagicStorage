@@ -185,6 +185,7 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 - **Quality Tools Reforging Station**: Place a Reforging Station in the Heart, the tool or armor in the center slot (Slot 5), and repair material in the bottom-right slot (Slot 9) to reforge quality.
 
 #### Other Mod Support
+- **JEI (Just Enough Items)**: Full recipe transfer (`+` button) support in Crafting Access and Remote Crafting terminals. Includes bidirectional search synchronization—typing into JEI's search box automatically updates the Magic Storage terminal filter in real time (and vice versa). Pressing JEI recipe (`R`) and use (`U`) keybinds while hovering over any network item opens JEI recipe windows seamlessly.
 - **Reskillable Requirements**: Automatically checks player skill levels for stations placed inside the Storage Heart. For Rustic Alchemy, accessing the recipes requires meeting skill levels for both the Condenser and the Retort. Displays a red `✖ Insufficient Skill Level` tooltip when locked.
 
 
