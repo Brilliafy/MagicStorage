@@ -30,7 +30,7 @@ public class MagicRecipeTransferHandler<C extends Container & com.brilliafy.magi
     public IRecipeTransferError transferRecipe(Container container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
         if (doTransfer) {
             NBTTagCompound nbt = recipeToTag(container, recipeLayout);
-            com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(new RecipeMessage(nbt));
+            com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(new RecipeMessage(nbt, maxTransfer));
         }
         return null;
     }

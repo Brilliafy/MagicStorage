@@ -47,5 +47,8 @@ public class MagicStorageJEIPlugin implements IModPlugin {
         registry.addRecipeCatalyst(new ItemStack(ModBlocksRef.CRAFTING_ACCESS), EnchantingRecipeCategory.UID);
         registry.addRecipes(EnchantingRecipeCategory.generateAllRecipes(), EnchantingRecipeCategory.UID);
 
+        // GUI handlers so JEI recognises hovered stacks in Storage Access / Crafting Access
+        registry.addAdvancedGuiHandlers(new StorageGuiHandler(), new CraftingAccessGuiHandler());
+
     }
 }

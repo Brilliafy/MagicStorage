@@ -80,18 +80,17 @@ public class ItemPortableAccess extends Item {
         ItemStack stack = player.getHeldItem(hand);
         if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         int meta = Math.min(stack.getMetadata(), 2);
-        if (!stack.hasTagCompound() || !stack.getTagCompound().getBoolean("bound")) {
-            player.sendMessage(new TextComponentString("Remote not linked. Sneak+click on a Remote Access block to link."));
-            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
-        }
         int slot = hand == EnumHand.OFF_HAND ? player.inventory.getSizeInventory() - 1 : player.inventory.currentItem;
         if (tryOpenGui(world, player, stack, slot, meta))
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         return new ActionResult<>(EnumActionResult.PASS, stack);
     }
 
-    private boolean tryOpenGui(World world, EntityPlayer player, ItemStack remote, int slot, int meta) {
-        if (!remote.hasTagCompound()) return false;
+    public boolean tryOpenGui(World world, EntityPlayer player, ItemStack remote, int slot, int meta) {
+        if (!remote.hasTagCompound() || !remote.getTagCompound().getBoolean("bound")) {
+            player.sendMessage(new TextComponentString("Remote not linked. Sneak+click on a Remote Access block to link."));
+            return false;
+        }
         int x = remote.getTagCompound().getInteger("x");
         int y = remote.getTagCompound().getInteger("y");
         int z = remote.getTagCompound().getInteger("z");
