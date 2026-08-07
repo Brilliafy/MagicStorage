@@ -34,3 +34,21 @@ item.magicstorage.portable_crafting_access_PreHM.name=Basic Portable Crafting Ac
 item.magicstorage.portable_crafting_access_HM.name=Advanced Portable Crafting Access
 item.magicstorage.portable_crafting_access_Ultimate.name=Ultimate Portable Crafting Access
 item.magicstorage.upgrade_demonite.name=Demonite Storage Upgrade
+
+# Keybindings
+key.magicstorage.open_remote=Open Remote
+key.category.magicstorage=Magic Storage
+
+# GUI & Tooltips
+gui.storagenetwork.tooltip_clear=Clear Search
+gui.storagenetwork.shift=Hold Shift for Filter Options
+gui.storagenetwork.fil.tooltip_0=Filter: All Items
+gui.storagenetwork.req.tooltip_0=Sort: Quantity
+gui.storagenetwork.req.tooltip_1=Sort: Name
+gui.storagenetwork.req.tooltip_2=Sort: Mod
+gui.storagenetwork.fil.tooltip_keep_on=Search: Keep Text On Clear
+gui.storagenetwork.fil.tooltip_keep_off=Search: Reset Text On Clear
+gui.storagenetwork.sort.down=Sort Order: Descending
+gui.storagenetwork.sort.up=Sort Order: Ascending
+gui.storagenetwork.fil.tooltip_jei_on=JEI Sync: Enabled
+gui.storagenetwork.fil.tooltip_jei_off=JEI Sync: Disabled

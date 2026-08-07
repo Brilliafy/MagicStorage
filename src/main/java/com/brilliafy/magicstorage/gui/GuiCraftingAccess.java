@@ -100,7 +100,7 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         searchBar.setEnableBackgroundDrawing(false);
         searchBar.setVisible(true);
         searchBar.setTextColor(16777215);
-        searchBar.setFocused(true);
+        searchBar.setFocused(false);
         searchBar.setText(SearchSettings.getSearch());
         directionBtn = new GuiStorageButton(0, guiLeft + 7, searchBar.y - 3, "");
         addButton(directionBtn);
@@ -272,13 +272,20 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
             drawHoveringText(lis, mouseX, mouseY);
         }
         if (clearTextBtn != null && clearTextBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.tooltip_clear")), mouseX, mouseY);
-        if (sortBtn != null && sortBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.req.tooltip_" + getSort())), mouseX, mouseY);
+        if (sortBtn != null && sortBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.req.tooltip_" + getSort().ordinal())), mouseX, mouseY);
         if (keepBtn != null && keepBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format(SearchSettings.isSearchKept() ? "gui.storagenetwork.fil.tooltip_keep_on" : "gui.storagenetwork.fil.tooltip_keep_off")), mouseX, mouseY);
-        if (directionBtn != null && directionBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.sort")), mouseX, mouseY);
+        if (directionBtn != null && directionBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format(getDownwards() ? "gui.storagenetwork.sort.down" : "gui.storagenetwork.sort.up")), mouseX, mouseY);
         if (jeiBtn != null && jeiBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format(SearchSettings.isJeiSearchSynced() ? "gui.storagenetwork.fil.tooltip_jei_on" : "gui.storagenetwork.fil.tooltip_jei_off")), mouseX, mouseY);
     }
 
-    @Override public void onGuiClosed() { super.onGuiClosed(); Keyboard.enableRepeatEvents(false); }
+    @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
+        Keyboard.enableRepeatEvents(false);
+        if (!SearchSettings.isSearchKept()) {
+            SearchSettings.setSearch("");
+        }
+    }
 
     @Override
     public void actionPerformed(GuiButton button) throws IOException {
@@ -328,6 +335,11 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
 
     @Override
     public void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (!stackUnderMouse.isEmpty() && com.brilliafy.magicstorage.jei.JeiHooks.isJeiKeybind(keyCode)) {
+            try { com.brilliafy.magicstorage.jei.JeiHooks.testJeiKeybind(keyCode, stackUnderMouse); } catch (Throwable ignored) {}
+            return;
+        }
+
         // Read the private hoveredSlot field from GuiContainer
         net.minecraft.inventory.Slot hoveredSlot = null;
         try {
@@ -355,14 +367,24 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
             if (searchBar.isFocused() && searchBar.textboxKeyTyped(typedChar, keyCode)) {
                 SearchSettings.setSearch(searchBar.getText());
                 return;
-            } else if (!stackUnderMouse.isEmpty()) {
-                try { JeiHooks.testJeiKeybind(keyCode, stackUnderMouse); } catch (Throwable e) {}
             }
             super.keyTyped(typedChar, keyCode);  // calls checkHotbarKeys ONCE internally
         }
     }
 
-    @Override public void updateScreen() { super.updateScreen(); if (searchBar != null) searchBar.updateCursorCounter(); }
+    public ItemStack getStackUnderMouse() { return stackUnderMouse; }
+
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        if (searchBar != null) searchBar.updateCursorCounter();
+        if (SearchSettings.isJeiSearchSynced() && com.brilliafy.magicstorage.jei.JeiHooks.isJeiLoaded()) {
+            String jeiText = com.brilliafy.magicstorage.jei.JeiHooks.getFilterText();
+            if (jeiText != null && searchBar != null && !jeiText.equals(searchBar.getText())) {
+                searchBar.setText(jeiText);
+            }
+        }
+    }
 
     @Override
     public void handleMouseInput() throws IOException {

@@ -113,6 +113,16 @@ public class TileCraftingAccess extends TileEntity implements ITickable {
             TileEntity te = world.getTileEntity(heartPos);
             if (te instanceof TileStorageHeart) return (TileStorageHeart) te;
         }
+        if (world != null) {
+            for (EnumFacing dir : EnumFacing.VALUES) {
+                TileEntity te = world.getTileEntity(pos.offset(dir));
+                if (te instanceof TileStorageHeart) {
+                    heartPos = te.getPos();
+                    markDirty();
+                    return (TileStorageHeart) te;
+                }
+            }
+        }
         return null;
     }
 

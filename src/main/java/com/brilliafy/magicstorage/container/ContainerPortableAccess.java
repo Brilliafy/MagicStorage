@@ -68,7 +68,14 @@ public class ContainerPortableAccess extends ContainerMagicStorageBase {
 
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
-        return playerIn.getHeldItemMainhand() == remoteStack || playerIn.getHeldItemOffhand() == remoteStack;
+        if (!playerIn.isEntityAlive()) return false;
+        if (remoteStack.isEmpty()) return false;
+        if (playerIn.getHeldItemMainhand() == remoteStack || playerIn.getHeldItemOffhand() == remoteStack) return true;
+        if (remoteSlot >= 0 && remoteSlot < playerIn.inventory.getSizeInventory()) {
+            ItemStack stackInSlot = playerIn.inventory.getStackInSlot(remoteSlot);
+            if (!stackInSlot.isEmpty() && stackInSlot.getItem() == remoteStack.getItem()) return true;
+        }
+        return playerIn.inventory.hasItemStack(remoteStack);
     }
 
     @Override

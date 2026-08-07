@@ -2,6 +2,7 @@ package com.brilliafy.magicstorage.tile;
 
 import com.brilliafy.magicstorage.MagicStorage;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -71,9 +72,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public boolean hasBrewingStand() {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                // Compare by registry name — Item.getItemFromBlock and Block.getBlockFromItem
-                // both fail for brewing stands in some Forge versions
+            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null) {
                 if ("minecraft:brewing_stand".equals(stack.getItem().getRegistryName().toString())) return true;
             }
         }
@@ -83,7 +82,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public boolean hasAnvil() {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && "minecraft:anvil".equals(stack.getItem().getRegistryName().toString())) return true;
+            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:anvil".equals(stack.getItem().getRegistryName().toString())) return true;
         }
         return false;
     }
@@ -91,7 +90,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public boolean hasFurnace() {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && "minecraft:furnace".equals(stack.getItem().getRegistryName().toString())) return true;
+            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:furnace".equals(stack.getItem().getRegistryName().toString())) return true;
         }
         return false;
     }
@@ -99,7 +98,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public boolean hasEnchantingTable() {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && "minecraft:enchanting_table".equals(stack.getItem().getRegistryName().toString())) return true;
+            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:enchanting_table".equals(stack.getItem().getRegistryName().toString())) return true;
         }
         return false;
     }
@@ -107,7 +106,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public boolean hasCraftingTable() {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && "minecraft:crafting_table".equals(stack.getItem().getRegistryName().toString())) return true;
+            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:crafting_table".equals(stack.getItem().getRegistryName().toString())) return true;
         }
         return false;
     }
@@ -458,8 +457,37 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public int getConnectedUnits() { return connectedUnits.size(); }
     public Set<BlockPos> getConnectedUnitPositions() { return Collections.unmodifiableSet(connectedUnits); }
 
+    private static class ItemStackKey {
+        final Item item;
+        final int metadata;
+        final NBTTagCompound nbt;
+
+        ItemStackKey(ItemStack stack) {
+            this.item = stack.getItem();
+            this.metadata = stack.getMetadata();
+            this.nbt = stack.hasTagCompound() ? stack.getTagCompound() : null;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ItemStackKey)) return false;
+            ItemStackKey other = (ItemStackKey) o;
+            if (this.item != other.item || this.metadata != other.metadata) return false;
+            return java.util.Objects.equals(this.nbt, other.nbt);
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = System.identityHashCode(item);
+            hash = 31 * hash + metadata;
+            if (nbt != null) hash = 31 * hash + nbt.hashCode();
+            return hash;
+        }
+    }
+
     public List<ItemStack> getAllItems() {
-        Map<ItemStack, Integer> merged = new LinkedHashMap<>();
+        Map<ItemStackKey, ItemStack> merged = new LinkedHashMap<>();
         for (BlockPos p : connectedUnits) {
             TileEntity te = world.getTileEntity(p);
             if (te instanceof TileStorageUnit) {
@@ -467,26 +495,18 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 for (int i = 0; i < unit.getSlotCount(); i++) {
                     ItemStack s = unit.getInventory().getStackInSlot(i);
                     if (!s.isEmpty()) {
-                        boolean found = false;
-                        for (Map.Entry<ItemStack, Integer> entry : merged.entrySet()) {
-                            if (net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(entry.getKey(), s)) {
-                                entry.setValue(entry.getValue() + s.getCount());
-                                found = true;
-                                break;
-                            }
+                        ItemStackKey key = new ItemStackKey(s);
+                        ItemStack existing = merged.get(key);
+                        if (existing != null) {
+                            existing.grow(s.getCount());
+                        } else {
+                            merged.put(key, s.copy());
                         }
-                        if (!found) merged.put(s.copy(), s.getCount());
                     }
                 }
             }
         }
-        List<ItemStack> result = new ArrayList<>();
-        for (Map.Entry<ItemStack, Integer> entry : merged.entrySet()) {
-            ItemStack stack = entry.getKey();
-            stack.setCount(entry.getValue());
-            result.add(stack);
-        }
-        return result;
+        return new ArrayList<>(merged.values());
     }
 
     public void autosort() {
@@ -625,7 +645,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 }
             }
         }
-        refreshOpenGUIs();
+        markContentsDirty();
     }
 
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
@@ -636,7 +656,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 TileStorageUnit unit = (TileStorageUnit) te;
                 remainder = unit.insertItem(remainder, simulate);
                 if (remainder.isEmpty()) {
-                    if (!simulate) refreshOpenGUIs();
+                    if (!simulate) markContentsDirty();
                     return ItemStack.EMPTY;
                 }
             }
@@ -644,7 +664,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         if (!remainder.isEmpty()) {
             remainder = net.minecraftforge.items.ItemHandlerHelper.insertItemStacked(inventory, remainder, simulate);
         }
-        if (!simulate) refreshOpenGUIs();
+        if (!simulate) markContentsDirty();
         return remainder;
     }
 
@@ -662,7 +682,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                         if (!simulate) {
                             s.shrink(toExtract);
                             unit.getInventory().setStackInSlot(i, s);
-                            refreshOpenGUIs();
+                            markContentsDirty();
                         }
                         return extracted;
                     }

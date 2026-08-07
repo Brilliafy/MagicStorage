@@ -69,29 +69,30 @@ public class EnchantingCraftingHelper {
     // ============================================================
 
     public static int getPowerFromItems(List<ItemStack> networkItems, World world) {
+        if (networkItems == null || world == null) return 0;
         float power = 0;
         for (ItemStack stack : networkItems) {
-            if (stack.isEmpty()) continue;
+            if (stack == null || stack.isEmpty() || stack.getItem() == null) continue;
             Block block = Block.getBlockFromItem(stack.getItem());
             if (block == null || block == Blocks.AIR) continue;
             try {
-                float bonus = 1.0f;
-                if (blockEnchantPowerBonusMethod != null) {
-                    bonus = (float) blockEnchantPowerBonusMethod.invoke(block, world, BlockPos.ORIGIN);
-                } else if (block == Blocks.BOOKSHELF) {
+                float bonus = 0.0f;
+                if (block == Blocks.BOOKSHELF) {
                     bonus = 1.0f;
+                } else if (blockEnchantPowerBonusMethod != null) {
+                    bonus = (float) blockEnchantPowerBonusMethod.invoke(block, world, BlockPos.ORIGIN);
                 } else {
                     continue;
                 }
                 if (bonus > 0) power += bonus * stack.getCount();
-            } catch (Exception ignored) {}
+            } catch (Throwable ignored) {}
         }
         return (int) power;
     }
 
     public static int getPowerFromHeart(
             com.brilliafy.magicstorage.tile.TileStorageHeart heart, World world) {
-        if (heart == null) return 0;
+        if (heart == null || world == null) return 0;
         return getPowerFromItems(heart.getAllItems(), world);
     }
 
@@ -101,44 +102,49 @@ public class EnchantingCraftingHelper {
 
     public static EnchantResult simulateEnchant(ItemStack item, EntityPlayer player,
                                                  int power, int slot) {
-        if (item.isEmpty() || !item.isItemEnchantable()) return null;
+        if (item == null || item.isEmpty() || player == null || player.world == null || !item.isItemEnchantable()) return null;
 
-        int xpSeed = player.getXPSeed();
-        Random rng = new Random();
-        rng.setSeed(xpSeed);
+        try {
+            int xpSeed = player.getXPSeed();
+            Random rng = new Random();
+            rng.setSeed(xpSeed);
 
-        // --- Levels for all 3 slots (same RNG seed, matching vanilla) ---
-        int[] levels = new int[3];
-        for (int i = 0; i < 3; i++) {
-            levels[i] = EnchantmentHelper.calcItemStackEnchantability(rng, i, power, item);
-            if (levels[i] < i + 1) levels[i] = 0;
+            // --- Levels for all 3 slots (same RNG seed, matching vanilla) ---
+            int[] levels = new int[3];
+            for (int i = 0; i < 3; i++) {
+                levels[i] = EnchantmentHelper.calcItemStackEnchantability(rng, i, power, item);
+                if (levels[i] < i + 1) levels[i] = 0;
 
-            if (forgeLevelSetMethod != null) {
-                try {
-                    levels[i] = (int) forgeLevelSetMethod.invoke(null,
-                        player.world, BlockPos.ORIGIN, i, power, item, levels[i]);
-                } catch (Exception ignored) {}
+                if (forgeLevelSetMethod != null) {
+                    try {
+                        levels[i] = (int) forgeLevelSetMethod.invoke(null,
+                            player.world, BlockPos.ORIGIN, i, power, item, levels[i]);
+                    } catch (Throwable ignored) {}
+                }
             }
+
+            if (slot < 0 || slot >= 3) return null;
+            int enchantLevel = levels[slot];
+            if (enchantLevel <= 0) return null;
+
+            // --- Enchantment list for this slot ---
+            rng.setSeed(xpSeed + slot);
+            List<EnchantmentData> list = EnchantmentHelper.buildEnchantmentList(
+                rng, item, enchantLevel, false);
+            if (list == null || list.isEmpty()) return null;
+
+            if (item.getItem() == Items.BOOK && list.size() > 1) {
+                list.remove(rng.nextInt(list.size()));
+            }
+
+            EnchantmentData clue = list.get(0);
+            int xpCost = slot + 1;  // Vanilla: each slot costs slot+1 levels (1, 2, or 3)
+            ItemStack displayStack = buildDisplayStack(item, clue, xpCost, enchantLevel);
+
+            return new EnchantResult(enchantLevel, xpCost, list, clue, displayStack, xpSeed);
+        } catch (Throwable t) {
+            return null;
         }
-
-        int enchantLevel = levels[slot];
-        if (enchantLevel <= 0) return null;
-
-        // --- Enchantment list for this slot ---
-        rng.setSeed(xpSeed + slot);
-        List<EnchantmentData> list = EnchantmentHelper.buildEnchantmentList(
-            rng, item, enchantLevel, false);
-        if (list == null || list.isEmpty()) return null;
-
-        if (item.getItem() == Items.BOOK && list.size() > 1) {
-            list.remove(rng.nextInt(list.size()));
-        }
-
-        EnchantmentData clue = list.get(0);
-        int xpCost = slot + 1;  // Vanilla: each slot costs slot+1 levels (1, 2, or 3)
-        ItemStack displayStack = buildDisplayStack(item, clue, xpCost, enchantLevel);
-
-        return new EnchantResult(enchantLevel, xpCost, list, clue, displayStack, xpSeed);
     }
 
     // ============================================================

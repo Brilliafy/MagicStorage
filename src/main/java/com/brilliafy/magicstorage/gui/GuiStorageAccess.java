@@ -1,6 +1,7 @@
 package com.brilliafy.magicstorage.gui;
 
 import com.brilliafy.magicstorage.container.ContainerStorageAccess;
+import com.brilliafy.magicstorage.jei.SearchSettings;
 import com.brilliafy.magicstorage.network.NetworkHandler;
 import com.brilliafy.magicstorage.reference.ModInfo;
 import net.minecraft.client.gui.GuiTextField;
@@ -44,7 +45,7 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
         searchBar.setEnableBackgroundDrawing(false);
         searchBar.setVisible(true);
         searchBar.setTextColor(16777215);
-        searchBar.setFocused(true);
+        searchBar.setFocused(false);
         // Request items from server (mouseButton=-1 signals refresh)
         com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(
             new com.brilliafy.magicstorage.network.NetworkHandler.RequestMessage(-1, net.minecraft.item.ItemStack.EMPTY, false, false));
@@ -163,8 +164,14 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
             searchBar.width, fontRenderer.FONT_HEIGHT, mouseX, mouseY);
     }
 
+    public ItemStack getStackUnderMouse() { return stackUnderMouse; }
+
     @Override
     public void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (!stackUnderMouse.isEmpty() && com.brilliafy.magicstorage.jei.JeiHooks.isJeiKeybind(keyCode)) {
+            try { com.brilliafy.magicstorage.jei.JeiHooks.testJeiKeybind(keyCode, stackUnderMouse); } catch (Throwable ignored) {}
+            return;
+        }
         if (!checkHotbarKeys(keyCode)) {
             Keyboard.enableRepeatEvents(true);
             if (searchBar.isFocused() && searchBar.textboxKeyTyped(typedChar, keyCode))
@@ -173,8 +180,26 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
         super.keyTyped(typedChar, keyCode);
     }
 
-    @Override public void onGuiClosed() { super.onGuiClosed(); Keyboard.enableRepeatEvents(false); }
-    @Override public void updateScreen() { super.updateScreen(); if (searchBar != null) searchBar.updateCursorCounter(); }
+    @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
+        Keyboard.enableRepeatEvents(false);
+        if (!SearchSettings.isSearchKept()) {
+            SearchSettings.setSearch("");
+        }
+    }
+
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        if (searchBar != null) searchBar.updateCursorCounter();
+        if (SearchSettings.isJeiSearchSynced() && com.brilliafy.magicstorage.jei.JeiHooks.isJeiLoaded()) {
+            String jeiText = com.brilliafy.magicstorage.jei.JeiHooks.getFilterText();
+            if (jeiText != null && searchBar != null && !jeiText.equals(searchBar.getText())) {
+                searchBar.setText(jeiText);
+            }
+        }
+    }
 
     @Override
     public void handleMouseInput() throws IOException {

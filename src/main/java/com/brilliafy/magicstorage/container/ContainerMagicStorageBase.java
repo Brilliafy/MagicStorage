@@ -45,6 +45,8 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     public abstract void slotChanged();
     public abstract boolean isRequest();
 
+    protected boolean isShiftCrafting = false;
+
     // SSN slot layout: 0=craftResult, 1-9=craftMatrix, 10-36=playerInv, 37-45=hotbar
     protected void bindPlayerInvo(final InventoryPlayer playerInv) {
         for (int i = 0; i < 3; ++i)
@@ -53,7 +55,6 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         for (int j = 0; j < 9; ++j)
             this.addSlotToContainer(new Slot(playerInv, j, 8 + j * 18, 232));
     }
-
 
     protected void bindGrid() {
         // 0 = craft result at SSN position x=101, y=128
@@ -82,139 +83,149 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         TileStorageHeart master = getTileMaster();
         if (master == null) { result.setInventorySlotContents(0, ItemStack.EMPTY); return; }
 
-        ItemStack[] m = new ItemStack[9];
-        for (int i = 0; i < 9; i++) m[i] = craftMatrix.getStackInSlot(i);
+        try {
+            ItemStack[] m = new ItemStack[9];
+            for (int i = 0; i < 9; i++) m[i] = craftMatrix.getStackInSlot(i);
 
-        // 1. Enchanting Table
-        if (master.hasEnchantingTable() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
-            int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
-            if (slot >= 0) {
-                int power = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, playerInv.player.world);
-                com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
-                    com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], playerInv.player, power, slot);
-                if (er != null) {
-                    int reqXp = Math.max(er.xpCost, er.enchantLevel);
-                    if (com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(playerInv.player, reqXp)) {
-                        result.setInventorySlotContents(0, er.displayStack);
-                    } else {
-                        anvilResultLocked = true;
-                        result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.EnchantingCraftingHelper.buildDisplayStackInsufficientXp(m[0], er.clue, er.xpCost, er.enchantLevel));
+            // 1. Enchanting Table
+            if (master.hasEnchantingTable() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
+                int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
+                if (slot >= 0) {
+                    int power = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(master, playerInv.player.world);
+                    com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
+                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], playerInv.player, power, slot);
+                    if (er != null) {
+                        int reqXp = Math.max(er.xpCost, er.enchantLevel);
+                        if (com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(playerInv.player, reqXp)) {
+                            result.setInventorySlotContents(0, er.displayStack);
+                        } else {
+                            anvilResultLocked = true;
+                            result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.EnchantingCraftingHelper.buildDisplayStackInsufficientXp(m[0], er.clue, er.xpCost, er.enchantLevel));
+                        }
+                        checkAndApplyReskillableLock(playerInv.player, Blocks.ENCHANTING_TABLE);
+                        return;
                     }
-                    checkAndApplyReskillableLock(playerInv.player, Blocks.ENCHANTING_TABLE);
+                }
+            }
+            // 2. Furnace
+            if (master.hasFurnace() && com.brilliafy.magicstorage.util.SmeltingCraftingHelper.canCraft(m)) {
+                ItemStack smelted = com.brilliafy.magicstorage.util.SmeltingCraftingHelper.computeResult(m);
+                if (!smelted.isEmpty()) {
+                    result.setInventorySlotContents(0, smelted);
+                    checkAndApplyReskillableLock(playerInv.player, Blocks.FURNACE);
                     return;
                 }
             }
-        }
-        // 2. Furnace
-        if (master.hasFurnace() && com.brilliafy.magicstorage.util.SmeltingCraftingHelper.canCraft(m)) {
-            ItemStack smelted = com.brilliafy.magicstorage.util.SmeltingCraftingHelper.computeResult(m);
-            if (!smelted.isEmpty()) {
-                result.setInventorySlotContents(0, smelted);
-                checkAndApplyReskillableLock(playerInv.player, Blocks.FURNACE);
-                return;
-            }
-        }
-        // 3. Anvil — delegate to vanilla ContainerRepair via reflection
-        anvilResultLocked = false;
-        if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerInv.player)) {
-            com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
-            if (ar != null) {
-                if (com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
-                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost));
-                } else {
-                    // Show result with red "Insufficient XP" tooltip, block taking
-                    anvilResultLocked = true;
-                    result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost, "insufficient"));
-                }
-                checkAndApplyReskillableLock(playerInv.player, Blocks.ANVIL);
-                return;
-            }
-        }
-        // 4. Brewing
-        if (master.hasBrewingStand() && com.brilliafy.magicstorage.util.PotionCraftingHelper.canCraft(m[0], m[1], m[3], m[4], m[5])) {
-            List<ItemStack> results = com.brilliafy.magicstorage.util.PotionCraftingHelper.computeResult(m);
-            if (!results.isEmpty()) {
-                result.setInventorySlotContents(0, results.get(0));
-                checkAndApplyReskillableLock(playerInv.player, Blocks.BREWING_STAND);
-                return;
-            }
-        }
-        // 5. Rustic Advanced Condenser
-        if (master.hasRusticAdvancedCondenser() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftAdvancedCondenser(m)) {
-            ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeAdvancedCondenserResult(m);
-            if (!res.isEmpty()) {
-                result.setInventorySlotContents(0, res);
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:condenser_advanced"), Block.getBlockFromName("rustic:retort_advanced"));
-                return;
-            }
-        }
-        if (master.hasRusticSimpleCondenser() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftSimpleCondenser(m)) {
-            ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeSimpleCondenserResult(m);
-            if (!res.isEmpty()) {
-                result.setInventorySlotContents(0, res);
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:condenser"), Block.getBlockFromName("rustic:retort"));
-                return;
-            }
-        }
-        if (master.hasRusticBrewingBarrel() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftBrewing(m, master)) {
-            ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeBrewingResult(m, master);
-            if (!res.isEmpty()) {
-                result.setInventorySlotContents(0, res);
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:brewing_barrel"));
-                return;
-            }
-        }
-        if (master.hasRusticCrushingTub() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftCrushing(m)) {
-            ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeCrushingResult(m);
-            if (!res.isEmpty()) {
-                result.setInventorySlotContents(0, res);
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:crushing_tub"));
-                return;
-            }
-        }
-        // Disenchanter
-        if (master.hasDisenchanterTable() && com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.canCraft(m[4], m[2])) {
-            boolean isVoiding = master.isDisenchanterVoiding();
-            boolean isBulk = master.isDisenchanterBulk();
-            ItemStack res = com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.computeResult(m[4], m[2], isVoiding, isBulk);
-            if (!res.isEmpty()) {
-                result.setInventorySlotContents(0, res);
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("disenchanter:disenchantmenttable"));
-                return;
-            }
-        }
-        // Bountiful Baubles Reforge
-        bountifulBaublesResultLocked = false;
-        if (master.hasBountifulBaublesReforger() && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8])) {
-            com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.BaubleReforgeResult bbr =
-                com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], playerInv.player, master);
-            if (bbr != null) {
-                result.setInventorySlotContents(0, bbr.displayStack);
-                if (!bbr.hasEnoughXp) {
-                    bountifulBaublesResultLocked = true;
-                }
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("bountifulbaubles:reforger"));
-                return;
-            }
-        }
-        // Quality Tools Reforge
-        if (master.hasQualityToolsReforger() && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.canCraft(m[4], m[8])) {
-            ItemStack res = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], master);
-            if (!res.isEmpty()) {
-                result.setInventorySlotContents(0, res);
-                checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("qualitytools:reforging_station"));
-                return;
-            }
-        }
-        for (IRecipe recipe : CraftingManager.REGISTRY) {
-            if (recipe.matches(craftMatrix, playerInv.player.world)) {
-                ItemStack output = recipe.getCraftingResult(craftMatrix);
-                if (!output.isEmpty()) {
-                    result.setInventorySlotContents(0, output);
-                    checkAndApplyReskillableLock(playerInv.player, Blocks.CRAFTING_TABLE);
+            // 3. Anvil — delegate to vanilla ContainerRepair via reflection
+            anvilResultLocked = false;
+            if (master.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.isAnvilGrid(m) && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerInv.player)) {
+                com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], playerInv.player);
+                if (ar != null) {
+                    if (com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(playerInv.player, ar.cost)) {
+                        result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost));
+                    } else {
+                        // Show result with red "Insufficient XP" tooltip, block taking
+                        anvilResultLocked = true;
+                        result.setInventorySlotContents(0, com.brilliafy.magicstorage.util.AnvilCraftingHelper.buildDisplayStack(m[0], m[4], ar.stack, ar.cost, "insufficient"));
+                    }
+                    checkAndApplyReskillableLock(playerInv.player, Blocks.ANVIL);
                     return;
                 }
             }
+            // 4. Brewing
+            if (master.hasBrewingStand() && com.brilliafy.magicstorage.util.PotionCraftingHelper.canCraft(m[0], m[1], m[3], m[4], m[5])) {
+                List<ItemStack> results = com.brilliafy.magicstorage.util.PotionCraftingHelper.computeResult(m);
+                if (!results.isEmpty()) {
+                    result.setInventorySlotContents(0, results.get(0));
+                    checkAndApplyReskillableLock(playerInv.player, Blocks.BREWING_STAND);
+                    return;
+                }
+            }
+            // 5. Rustic Advanced Alchemy
+            if (master.hasRusticAdvancedCondenser() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftAdvancedCondenser(m)) {
+                ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeAdvancedCondenserResult(m);
+                if (!res.isEmpty()) {
+                    result.setInventorySlotContents(0, res);
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:condenser_advanced"), Block.getBlockFromName("rustic:retort_advanced"));
+                    return;
+                }
+            }
+            // 6. Rustic Simple Alchemy
+            if (master.hasRusticSimpleCondenser() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftSimpleCondenser(m)) {
+                ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeSimpleCondenserResult(m);
+                if (!res.isEmpty()) {
+                    result.setInventorySlotContents(0, res);
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:condenser"), Block.getBlockFromName("rustic:retort"));
+                    return;
+                }
+            }
+            // 7. Rustic Brewing Barrel
+            if (master.hasRusticBrewingBarrel() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftBrewing(m, master)) {
+                ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeBrewingResult(m, master);
+                if (!res.isEmpty()) {
+                    result.setInventorySlotContents(0, res);
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:brewing_barrel"));
+                    return;
+                }
+            }
+            // 8. Rustic Crushing Tub
+            if (master.hasRusticCrushingTub() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftCrushing(m)) {
+                ItemStack res = com.brilliafy.magicstorage.util.RusticCraftingHelper.computeCrushingResult(m);
+                if (!res.isEmpty()) {
+                    result.setInventorySlotContents(0, res);
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("rustic:crushing_tub"));
+                    return;
+                }
+            }
+            // 9. Disenchanter
+            if (master.hasDisenchanterTable() && com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.canCraft(m[4], m[2])) {
+                boolean isVoiding = master.isDisenchanterVoiding();
+                boolean isBulk = master.isDisenchanterBulk();
+                ItemStack res = com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.computeResult(m[4], m[2], isVoiding, isBulk);
+                if (!res.isEmpty()) {
+                    result.setInventorySlotContents(0, res);
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("disenchanter:disenchantmenttable"));
+                    return;
+                }
+            }
+            // 10. Bountiful Baubles Reforge
+            bountifulBaublesResultLocked = false;
+            if (master.hasBountifulBaublesReforger() && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8])) {
+                com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.BaubleReforgeResult bbr =
+                    com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], playerInv.player, master);
+                if (bbr != null) {
+                    result.setInventorySlotContents(0, bbr.displayStack);
+                    if (!bbr.hasEnoughXp) {
+                        bountifulBaublesResultLocked = true;
+                    }
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("bountifulbaubles:reforger"));
+                    return;
+                }
+            }
+            // 11. Quality Tools Reforge
+            if (master.hasQualityToolsReforger() && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.canCraft(m[4], m[8])) {
+                ItemStack res = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], master);
+                if (!res.isEmpty()) {
+                    result.setInventorySlotContents(0, res);
+                    checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("qualitytools:reforging_station"));
+                    return;
+                }
+            }
+
+            // 12. Normal Crafting Table recipes
+            IRecipe recipe = CraftingManager.findMatchingRecipe(craftMatrix, playerInv.player.world);
+            if (recipe != null) {
+                if (recipe.matches(craftMatrix, playerInv.player.world)) {
+                    ItemStack output = recipe.getCraftingResult(craftMatrix);
+                    if (!output.isEmpty()) {
+                        result.setInventorySlotContents(0, output);
+                        checkAndApplyReskillableLock(playerInv.player, Blocks.CRAFTING_TABLE);
+                        return;
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            com.brilliafy.magicstorage.MagicStorage.LOGGER.error("Error matching recipe in ContainerMagicStorageBase", t);
         }
         result.setInventorySlotContents(0, ItemStack.EMPTY);
     }
@@ -237,66 +248,66 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         return true;
     }
 
-    protected void craftShift(EntityPlayer player, TileStorageHeart tile) {
-        if (tile == null || matrix == null || result == null) return;
-        if (result.getStackInSlot(0).isEmpty()) return;
-        if (anvilResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) return;
+    private boolean canPlayerInventoryAccept(EntityPlayer player, ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        int needed = stack.getCount();
+        for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
+            ItemStack invStack = player.inventory.mainInventory.get(i);
+            if (invStack.isEmpty()) {
+                return true;
+            } else if (ItemHandlerHelper.canItemStacksStack(invStack, stack)) {
+                int space = invStack.getMaxStackSize() - invStack.getCount();
+                if (space >= needed) return true;
+                needed -= space;
+            }
+        }
+        return needed <= 0;
+    }
 
-        ItemStack[] m = new ItemStack[9];
-        for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-
+    private boolean doSingleCraftFromMatrixOnly(EntityPlayer player, TileStorageHeart tile, ItemStack[] m) {
+        // Custom station crafts
         if (tile.hasEnchantingTable() && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5])) {
             int slot = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getEnchantTier(m[3], m[4], m[5]) - 1;
             if (slot >= 0) {
                 int power = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromHeart(tile, player.world);
                 com.brilliafy.magicstorage.util.EnchantingCraftingHelper.EnchantResult er =
                     com.brilliafy.magicstorage.util.EnchantingCraftingHelper.simulateEnchant(m[0], player, power, slot);
-                    if (er != null && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
+                if (er != null && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.hasEnoughXp(player, Math.max(er.xpCost, er.enchantLevel))) {
                     ItemStack enchanted = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.applyEnchantList(m[0], er.enchantments);
                     if (!player.inventory.addItemStackToInventory(enchanted)) player.dropItem(enchanted, false);
                     com.brilliafy.magicstorage.util.EnchantingCraftingHelper.consumeIngredients(m);
                     player.onEnchant(enchanted, er.xpCost);
-                    if (player instanceof EntityPlayerMP) {
-                        ((EntityPlayerMP) player).connection.sendPacket(
-                            new net.minecraft.network.play.server.SPacketSetExperience(
-                                player.experience, player.experienceTotal, player.experienceLevel));
-                    }
-                    player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                     for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                     onCraftMatrixChanged(matrix);
-                    detectAndSendChanges();
-                    return;
+                    return true;
                 }
             }
+            return false;
         }
 
         if (tile.hasFurnace() && com.brilliafy.magicstorage.util.SmeltingCraftingHelper.canCraft(m)) {
-            int count = com.brilliafy.magicstorage.util.SmeltingCraftingHelper.getSmeltableCount(m);
             ItemStack smelted = com.brilliafy.magicstorage.util.SmeltingCraftingHelper.computeResult(m);
             if (!smelted.isEmpty()) {
-                smelted.setCount(Math.min(count, smelted.getMaxStackSize()));
                 if (!player.inventory.addItemStackToInventory(smelted)) player.dropItem(smelted, false);
-                com.brilliafy.magicstorage.util.SmeltingCraftingHelper.consumeIngredients(m);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_FIRE_AMBIENT, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
+                com.brilliafy.magicstorage.util.SmeltingCraftingHelper.consumeIngredients(m, player.getRNG());
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
-        
+
         if (tile.hasAnvil() && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], player)) {
             com.brilliafy.magicstorage.util.AnvilCraftingHelper.AnvilResult ar = com.brilliafy.magicstorage.util.AnvilCraftingHelper.computeResult(m[0], m[4], player);
             if (ar != null && com.brilliafy.magicstorage.util.AnvilCraftingHelper.hasEnoughXp(player, ar.cost)) {
                 if (!player.inventory.addItemStackToInventory(ar.stack)) player.dropItem(ar.stack, false);
                 com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeIngredients(m, ar);
                 com.brilliafy.magicstorage.util.AnvilCraftingHelper.consumeXp(player, ar.cost);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int i = 0; i < 9; i++) matrix.setInventorySlotContents(i, m[i]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
         if (tile.hasBrewingStand() && com.brilliafy.magicstorage.util.PotionCraftingHelper.canCraft(m[0], m[1], m[3], m[4], m[5])) {
@@ -306,12 +317,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     if (!player.inventory.addItemStackToInventory(r)) player.dropItem(r, false);
                 }
                 com.brilliafy.magicstorage.util.PotionCraftingHelper.consumeIngredients(m, player.getRNG());
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_BREWING_STAND_BREW, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
         if (tile.hasRusticAdvancedCondenser() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftAdvancedCondenser(m)) {
@@ -319,12 +329,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (!outputStack.isEmpty()) {
                 if (!player.inventory.addItemStackToInventory(outputStack)) player.dropItem(outputStack, false);
                 com.brilliafy.magicstorage.util.RusticCraftingHelper.consumeAdvancedCondenserIngredients(m, player.getRNG());
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_BREWING_STAND_BREW, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
         if (tile.hasRusticSimpleCondenser() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftSimpleCondenser(m)) {
@@ -332,12 +341,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (!outputStack.isEmpty()) {
                 if (!player.inventory.addItemStackToInventory(outputStack)) player.dropItem(outputStack, false);
                 com.brilliafy.magicstorage.util.RusticCraftingHelper.consumeSimpleCondenserIngredients(m, player.getRNG());
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_BREWING_STAND_BREW, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
         if (tile.hasRusticBrewingBarrel() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftBrewing(m, tile)) {
@@ -345,12 +353,11 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (!outputStack.isEmpty()) {
                 if (!player.inventory.addItemStackToInventory(outputStack)) player.dropItem(outputStack, false);
                 com.brilliafy.magicstorage.util.RusticCraftingHelper.consumeBrewingIngredients(m, player.getRNG(), tile);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_BREWING_STAND_BREW, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
         if (tile.hasRusticCrushingTub() && com.brilliafy.magicstorage.util.RusticCraftingHelper.canCraftCrushing(m)) {
@@ -358,15 +365,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (!outputStack.isEmpty()) {
                 if (!player.inventory.addItemStackToInventory(outputStack)) player.dropItem(outputStack, false);
                 com.brilliafy.magicstorage.util.RusticCraftingHelper.consumeCrushingIngredients(m);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_SLIME_FALL, net.minecraft.util.SoundCategory.BLOCKS, 0.5F, player.getRNG().nextFloat() * 0.1F + 0.9F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
-        // Disenchanter
         if (tile.hasDisenchanterTable() && com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.canCraft(m[4], m[2])) {
             boolean isVoiding = tile.isDisenchanterVoiding();
             boolean isBulk = tile.isDisenchanterBulk();
@@ -374,15 +379,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (!outputStack.isEmpty()) {
                 if (!player.inventory.addItemStackToInventory(outputStack)) player.dropItem(outputStack, false);
                 com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.consumeIngredients(m, isVoiding, isBulk);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
-        // Bountiful Baubles Reforge
         if (tile.hasBountifulBaublesReforger() && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8])) {
             com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.BaubleReforgeResult bbr =
                 com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], player, tile);
@@ -390,41 +393,88 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 ItemStack cleanStack = bbr.actualReforgedStack.copy();
                 if (!player.inventory.addItemStackToInventory(cleanStack)) player.dropItem(cleanStack, false);
                 com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.consumeIngredients(m, bbr, player, tile);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
-        // Quality Tools Reforge
         if (tile.hasQualityToolsReforger() && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.canCraft(m[4], m[8])) {
             ItemStack outputStack = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], tile);
             if (!outputStack.isEmpty()) {
                 if (!player.inventory.addItemStackToInventory(outputStack)) player.dropItem(outputStack, false);
                 com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.consumeIngredients(m, tile);
-                player.world.playSound(null, player.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                 for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                 onCraftMatrixChanged(matrix);
-                detectAndSendChanges();
-                return;
+                return true;
             }
+            return false;
         }
 
-        this.recipeLocked = true;
-        ItemStack res = result.getStackInSlot(0).copy();
-        if (!player.inventory.addItemStackToInventory(res)) player.dropItem(res, false);
-        for (int i = 0; i < matrix.getSizeInventory(); i++) {
-            ItemStack s = matrix.getStackInSlot(i);
-            if (!s.isEmpty()) {
-                tile.extractItem(s2 -> ItemHandlerHelper.canItemStacksStack(s2, s), 1, false);
-                matrix.decrStackSize(i, 1);
+        // Vanilla Crafting Table recipe
+        net.minecraft.item.crafting.IRecipe recipe = CraftingManager.findMatchingRecipe(matrix, player.world);
+        if (recipe != null && recipe.matches(matrix, player.world)) {
+            ItemStack res = recipe.getCraftingResult(matrix);
+            if (!res.isEmpty()) {
+                ItemStack resCopy = res.copy();
+                if (!player.inventory.addItemStackToInventory(resCopy)) player.dropItem(resCopy, false);
+                // Consume ingredients strictly from matrix
+                net.minecraft.util.NonNullList<ItemStack> remaining = CraftingManager.getRemainingItems(matrix, player.world);
+                for (int i = 0; i < matrix.getSizeInventory(); i++) {
+                    ItemStack s = matrix.getStackInSlot(i);
+                    if (!s.isEmpty()) {
+                        matrix.decrStackSize(i, 1);
+                    }
+                    if (i < remaining.size()) {
+                        ItemStack rem = remaining.get(i);
+                        if (!rem.isEmpty()) {
+                            if (matrix.getStackInSlot(i).isEmpty()) {
+                                matrix.setInventorySlotContents(i, rem);
+                            } else if (!player.inventory.addItemStackToInventory(rem)) {
+                                player.dropItem(rem, false);
+                            }
+                        }
+                    }
+                }
+                onCraftMatrixChanged(matrix);
+                return true;
             }
         }
+        return false;
+    }
+
+    protected void craftShift(EntityPlayer player, TileStorageHeart tile) {
+        if (tile == null || matrix == null || result == null) return;
+        if (result.getStackInSlot(0).isEmpty()) return;
+        if (anvilResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) return;
+
+        this.recipeLocked = true;
+        boolean anyCrafted = false;
+        int maxCrafts = 64 * 36; // Guard limit
+
+        while (maxCrafts-- > 0) {
+            ItemStack res = result.getStackInSlot(0);
+            if (res.isEmpty()) break;
+            if (anvilResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) break;
+
+            if (!canPlayerInventoryAccept(player, res)) break;
+
+            ItemStack[] m = new ItemStack[9];
+            for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
+
+            boolean craftedSingle = doSingleCraftFromMatrixOnly(player, tile, m);
+            if (!craftedSingle) break;
+            anyCrafted = true;
+        }
+
         this.recipeLocked = false;
-        onCraftMatrixChanged(matrix);
-        detectAndSendChanges();
+
+        if (anyCrafted) {
+            onCraftMatrixChanged(matrix);
+            detectAndSendChanges();
+            sendItemRefresh(player, tile);
+        }
     }
 
     @Override
@@ -452,7 +502,6 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
     @Override
     public ItemStack transferStackInSlot(EntityPlayer playerIn, int slotIndex) {
-        if (playerIn.world.isRemote) return ItemStack.EMPTY;
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = inventorySlots.get(slotIndex);
         if (slot != null && slot.getHasStack()) {
@@ -460,13 +509,62 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             itemstack = itemstack1.copy();
             TileStorageHeart tileMaster = getTileMaster();
 
-            // Slot 0 = craft result -> craftShift
+            // Slot 0 = craft result
             if (slotIndex == 0 && !isSimple) {
-                craftShift(playerIn, tileMaster);
-                return ItemStack.EMPTY;
+                if (anvilResultLocked || enchantResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) {
+                    return ItemStack.EMPTY;
+                }
+
+                if (!slot.getHasStack()) return ItemStack.EMPTY;
+                ItemStack initialTarget = slot.getStack().copy();
+                if (initialTarget.isEmpty()) return ItemStack.EMPTY;
+
+                ItemStack firstCraftResult = ItemStack.EMPTY;
+                int maxCrafts = 64 * 36; // Safety limit
+
+                this.isShiftCrafting = true;
+                while (maxCrafts-- > 0) {
+                    if (!slot.getHasStack()) break;
+                    ItemStack currentSlotStack = slot.getStack();
+                    if (currentSlotStack.isEmpty()) break;
+
+                    // RECIPE LOCKING: If matrix output changes to a different item, stop immediately!
+                    if (!net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(initialTarget, currentSlotStack)) {
+                        break;
+                    }
+
+                    ItemStack itemstackCopy = currentSlotStack.copy();
+                    if (firstCraftResult.isEmpty()) firstCraftResult = itemstackCopy.copy();
+
+                    currentSlotStack.getItem().onCreated(currentSlotStack, playerIn.world, playerIn);
+
+                    // Transfer crafted item to player inventory (slots 10 to 45)
+                    if (!this.mergeItemStack(currentSlotStack, 10, 46, true)) {
+                        break; // Inventory full
+                    }
+
+                    slot.onSlotChange(currentSlotStack, itemstackCopy);
+
+                    if (currentSlotStack.isEmpty()) {
+                        slot.putStack(ItemStack.EMPTY);
+                    } else {
+                        slot.onSlotChanged();
+                    }
+
+                    slot.onTake(playerIn, currentSlotStack);
+                }
+                this.isShiftCrafting = false;
+
+                if (!playerIn.world.isRemote && tileMaster != null) {
+                    onCraftMatrixChanged(matrix);
+                    detectAndSendChanges();
+                    sendItemRefresh(playerIn, tileMaster);
+                }
+                return firstCraftResult;
             }
             // Matrix slots (1-9) -> return to network
             else if (slotIndex >= 1 && slotIndex <= 9) {
+                if (playerIn.world.isRemote) return ItemStack.EMPTY;
                 if (tileMaster != null) {
                     ItemStack remainder = tileMaster.insertItem(itemstack1, false);
                     slot.putStack(remainder);
@@ -477,6 +575,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             }
             // Player inventory/hotbar -> insert into network
             else if (tileMaster != null) {
+                if (playerIn.world.isRemote) return ItemStack.EMPTY;
                 ItemStack remainder = tileMaster.insertItem(itemstack1, false);
                 slot.putStack(remainder);
                 detectAndSendChanges();
@@ -511,47 +610,52 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
     @Override
     public ItemStack slotClick(int slotId, int dragType, net.minecraft.inventory.ClickType clickTypeIn, EntityPlayer player) {
-        // Handle hotkey on result slot: craft + move to specific hotbar slot
-        if (clickTypeIn == net.minecraft.inventory.ClickType.SWAP && slotId == 0 && !player.world.isRemote) {
-            if (anvilResultLocked || enchantResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) return ItemStack.EMPTY; // Block when result locked
-            TileStorageHeart master = getTileMaster();
-            if (master != null && dragType >= 0 && dragType < 9) {
-                // Snapshot inventory before craft
-                net.minecraft.item.ItemStack[] before = new net.minecraft.item.ItemStack[player.inventory.getSizeInventory()];
-                for (int i = 0; i < before.length; i++) {
-                    before[i] = player.inventory.getStackInSlot(i).copy();
-                }
-                
-                // Craft the item (puts in first available inventory slot)
-                this.craftShift(player, master);
-                
-                // Find the newly crafted item and move to target hotbar slot
-                for (int i = 0; i < before.length; i++) {
-                    net.minecraft.item.ItemStack now = player.inventory.getStackInSlot(i);
-                    net.minecraft.item.ItemStack prev = before[i];
-                    if (!net.minecraft.item.ItemStack.areItemStacksEqual(now, prev)) {
-                        // This slot changed — move the delta to hotbar
-                        int delta = now.getCount() - prev.getCount();
-                        if (delta > 0 && !now.isEmpty()) {
-                            // Copy the crafted item
-                            net.minecraft.item.ItemStack crafted = now.splitStack(delta);
-                            net.minecraft.item.ItemStack oldHotbar = player.inventory.getStackInSlot(dragType);
-                            player.inventory.setInventorySlotContents(dragType, crafted);
-                            if (!oldHotbar.isEmpty()) {
-                                // Put displaced hotbar item back in inventory
-                                if (!player.inventory.addItemStackToInventory(oldHotbar)) {
-                                    player.dropItem(oldHotbar, false);
-                                }
-                            }
-                            // Sync all changes to client (craftShift already called detectAndSendChanges,
-                            // but hotbar/inventory changes happened after that)
-                            this.detectAndSendChanges();
-                            break;
+        // Handle hotkey (SWAP) on result slot cleanly on both client and server
+        if (clickTypeIn == net.minecraft.inventory.ClickType.SWAP && slotId == 0) {
+            if (anvilResultLocked || enchantResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) return ItemStack.EMPTY;
+            Slot slot = inventorySlots.get(0);
+            if (slot != null && slot.getHasStack()) {
+                ItemStack resultStack = slot.getStack().copy();
+                if (!resultStack.isEmpty()) {
+                    resultStack.getItem().onCreated(resultStack, player.world, player);
+                    ItemStack currentHotbar = player.inventory.getStackInSlot(dragType);
+                    
+                    boolean moved = false;
+                    if (currentHotbar.isEmpty()) {
+                        player.inventory.setInventorySlotContents(dragType, resultStack);
+                        moved = true;
+                    } else if (net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(currentHotbar, resultStack)) {
+                        int space = currentHotbar.getMaxStackSize() - currentHotbar.getCount();
+                        if (space >= resultStack.getCount()) {
+                            currentHotbar.grow(resultStack.getCount());
+                            moved = true;
+                        } else {
+                            currentHotbar.grow(space);
+                            resultStack.shrink(space);
+                            moved = this.mergeItemStack(resultStack, 10, 46, true);
                         }
+                    } else {
+                        moved = this.mergeItemStack(resultStack, 10, 46, true);
+                    }
+                    
+                    if (moved) {
+                        slot.onTake(player, resultStack);
+                        if (!player.world.isRemote) {
+                            onCraftMatrixChanged(matrix);
+                            detectAndSendChanges();
+                            TileStorageHeart master = getTileMaster();
+                            if (master != null) sendItemRefresh(player, master);
+                            if (player instanceof EntityPlayerMP) {
+                                EntityPlayerMP mp = (EntityPlayerMP) player;
+                                mp.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(this.windowId, 0, result != null ? result.getStackInSlot(0) : ItemStack.EMPTY));
+                                mp.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(this.windowId, dragType + 37, player.inventory.getStackInSlot(dragType)));
+                            }
+                        }
+                        return resultStack;
                     }
                 }
             }
-            return net.minecraft.item.ItemStack.EMPTY;
+            return ItemStack.EMPTY;
         }
 
         // Capture matrix state before super processes the click
@@ -703,7 +807,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             ItemStack[] m = new ItemStack[9];
             for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
 
-            // Client side: for anvil, compute real result; for others, let server send via SPacketSetSlot
+            // Client side: predict matrix decrement for smooth response, server sends official slots
             if (playerIn.world.isRemote) {
                 ItemStack cur = getStack();
                 if (!cur.isEmpty() && cur.hasTagCompound()) {
@@ -732,7 +836,6 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         return ItemStack.EMPTY;
                     }
                 }
-                // For furnace/enchanting/brewing: return stack as-is, server sends real result
                 return stack;
             }
             
@@ -776,7 +879,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 }
                 if (master.hasFurnace() && com.brilliafy.magicstorage.util.SmeltingCraftingHelper.canCraft(m)) {
                     stack.onCrafting(playerIn.world, playerIn, 1);
-                    com.brilliafy.magicstorage.util.SmeltingCraftingHelper.consumeIngredients(m);
+                    com.brilliafy.magicstorage.util.SmeltingCraftingHelper.consumeIngredients(m, playerIn.getRNG());
                     playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                     for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                     onCraftMatrixChanged(matrix);
@@ -941,17 +1044,39 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             for (int i = 0; i < matrix.getSizeInventory(); i++)
                 lis.add(matrix.getStackInSlot(i).copy());
             super.onTake(playerIn, stack);
-            // SSN-style: auto-refill empty matrix slots from network
-            for (int i = 0; i < matrix.getSizeInventory(); i++) {
-                if (matrix.getStackInSlot(i).isEmpty() && master != null && !lis.get(i).isEmpty()) {
-                    final int slot = i;
-                    ItemStack req = master.extractItem(
-                        s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, lis.get(slot)),
-                        1, false);
-                    if (!req.isEmpty()) matrix.setInventorySlotContents(i, req);
+            // Auto-refill empty matrix slots: Priority 1 = Network, Priority 2 = Player Inventory (only during normal craft, NOT shift craft)
+            if (!isShiftCrafting) {
+                for (int i = 0; i < matrix.getSizeInventory(); i++) {
+                    if (matrix.getStackInSlot(i).isEmpty() && !lis.get(i).isEmpty()) {
+                        final int slot = i;
+                        // 1st Priority: Storage Network
+                        ItemStack req = master != null ? master.extractItem(
+                            s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, lis.get(slot)),
+                            1, false) : ItemStack.EMPTY;
+
+                        // 2nd Priority: Player Inventory
+                        if (req.isEmpty()) {
+                            for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
+                                ItemStack invStack = playerIn.inventory.mainInventory.get(slotIdx);
+                                if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, lis.get(slot))) {
+                                    req = invStack.splitStack(1);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!req.isEmpty()) matrix.setInventorySlotContents(i, req);
+                    }
                 }
             }
+            onCraftMatrixChanged(matrix);
             detectAndSendChanges();
+            if (playerIn instanceof EntityPlayerMP) {
+                EntityPlayerMP mp = (EntityPlayerMP) playerIn;
+                mp.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(ContainerMagicStorageBase.this.windowId, 0, result != null ? result.getStackInSlot(0) : ItemStack.EMPTY));
+                mp.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(-1, -1, playerIn.inventory.getItemStack()));
+            }
+            sendItemRefresh(playerIn, master);
             return stack;
         }
     }
