@@ -171,7 +171,7 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 
 #### Vanilla Stations
 - **Crafting Table**: <u>REQUIRED</u> in order to operate the Crafting Access.
-- **Furnace**: Smelt items directly from the crafting grid. Place fuel in the middle slot (currently supports coal or charcoal) and smeltable items in the rest of the slots.
+- **Furnace**: Smelt items directly on the crafting grid. Place any fuel item (vanilla or modded) in the center slot 5. Fill any surrounding grid slots (slots 1 to 4 and 6 to 9) with identical smeltable input items. Each filled input slot processes 1 item. Inputs must be identical to each other across all filled slots. Total smeltable capacity equals the fuel item single burn time (in ticks) multiplied by fuel count, divided by 200 ticks per smelt. If input item count exceeds total fuel capacity, output is blocked. Fuel is consumed probabilistically based on exact required burn time ratio (inputs * 200 / singleBurnTime).
 - **Enchanting Table**: Enchant items using the grid. Place the item in slot 1, lapis lazuli in slots 4/5/6 (any position). Bookshelf power is calculated from bookshelf items in your network storage. Works with modded table enchants and modded bookshelves.
 - **Anvil**: Combine enchantments or repair items. Place the target item in slot 1, the material or other item in slot 5. Uses real vanilla anvil logic including XP costs. Shows the final result before you commit.
 - **Brewing Stand**: Brew potions. Place blaze powder in slot 1, the ingredient in slot 2, potion bottles in slots 4/5/6. Has 5% chance of consuming the blaze powder.
@@ -185,7 +185,7 @@ Access your network from anywhere. Right-click to open. Two variants: Storage Ac
 - **Quality Tools Reforging Station**: Place a Reforging Station in the Heart, the tool or armor in the center slot (Slot 5), and repair material in the bottom-right slot (Slot 9) to reforge quality.
 
 #### Other Mod Support
-- **JEI (Just Enough Items)**: Full recipe transfer (`+` button) support in Crafting Access and Remote Crafting terminals. Includes bidirectional search synchronization—typing into JEI's search box automatically updates the Magic Storage terminal filter in real time (and vice versa). Pressing JEI recipe (`R`) and use (`U`) keybinds while hovering over any network item opens JEI recipe windows seamlessly.
+- **JEI (Just Enough Items)**: Full recipe transfer (`+` button) support in Crafting Access and Remote Crafting terminals. Includes bidirectional search synchronization: typing into JEI's search box automatically updates the Magic Storage terminal filter in real time (and vice versa). Pressing JEI recipe (`R`) and use (`U`) keybinds while hovering over any network item opens JEI recipe windows seamlessly.
 - **Reskillable Requirements**: Automatically checks player skill levels for stations placed inside the Storage Heart. For Rustic Alchemy, accessing the recipes requires meeting skill levels for both the Condenser and the Retort. Displays a red `✖ Insufficient Skill Level` tooltip when locked.
 
 
