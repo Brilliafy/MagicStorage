@@ -300,8 +300,13 @@ public class TileStorageHeart extends TileEntity implements ITickable {
 
     private void releaseChunkTicket() {
         if (chunkTicket != null) {
-            ForgeChunkManager.releaseTicket(chunkTicket);
-            chunkTicket = null;
+            try {
+                ForgeChunkManager.releaseTicket(chunkTicket);
+            } catch (Throwable t) {
+                MagicStorage.LOGGER.warn("Failed to release chunk ticket: " + t.getMessage());
+            } finally {
+                chunkTicket = null;
+            }
         }
     }
 
@@ -313,30 +318,30 @@ public class TileStorageHeart extends TileEntity implements ITickable {
      */
     public void updateForcedChunks() {
         if (world == null || world.isRemote) return;
-        // Release old ticket to clear previously forced chunks
-        if (chunkTicket != null) {
-            ForgeChunkManager.releaseTicket(chunkTicket);
-            chunkTicket = null;
-        }
-        // Request fresh ticket
-        chunkTicket = ForgeChunkManager.requestTicket(MagicStorage.instance, world, ForgeChunkManager.Type.NORMAL);
-        if (chunkTicket == null) return;
-        // Store heart position so callback can re-register on world load
-        chunkTicket.getModData().setInteger("heartX", pos.getX());
-        chunkTicket.getModData().setInteger("heartY", pos.getY());
-        chunkTicket.getModData().setInteger("heartZ", pos.getZ());
-        // Force the heart's own chunk
-        net.minecraft.util.math.ChunkPos heartChunk = new net.minecraft.util.math.ChunkPos(pos);
-        ForgeChunkManager.forceChunk(chunkTicket, heartChunk);
-        // Force chunks of all connected storage units
-        for (BlockPos unitPos : connectedUnits) {
-            net.minecraft.util.math.ChunkPos unitChunk = new net.minecraft.util.math.ChunkPos(unitPos);
-            ForgeChunkManager.forceChunk(chunkTicket, unitChunk);
-        }
-        // Force chunks of all connected access points
-        for (BlockPos accessPos : connectedAccessPoints) {
-            net.minecraft.util.math.ChunkPos accessChunk = new net.minecraft.util.math.ChunkPos(accessPos);
-            ForgeChunkManager.forceChunk(chunkTicket, accessChunk);
+        releaseChunkTicket();
+        try {
+            // Request fresh ticket
+            chunkTicket = ForgeChunkManager.requestTicket(MagicStorage.instance, world, ForgeChunkManager.Type.NORMAL);
+            if (chunkTicket == null) return;
+            // Store heart position so callback can re-register on world load
+            chunkTicket.getModData().setInteger("heartX", pos.getX());
+            chunkTicket.getModData().setInteger("heartY", pos.getY());
+            chunkTicket.getModData().setInteger("heartZ", pos.getZ());
+            // Force the heart's own chunk
+            net.minecraft.util.math.ChunkPos heartChunk = new net.minecraft.util.math.ChunkPos(pos);
+            ForgeChunkManager.forceChunk(chunkTicket, heartChunk);
+            // Force chunks of all connected storage units
+            for (BlockPos unitPos : connectedUnits) {
+                net.minecraft.util.math.ChunkPos unitChunk = new net.minecraft.util.math.ChunkPos(unitPos);
+                ForgeChunkManager.forceChunk(chunkTicket, unitChunk);
+            }
+            // Force chunks of all connected access points
+            for (BlockPos accessPos : connectedAccessPoints) {
+                net.minecraft.util.math.ChunkPos accessChunk = new net.minecraft.util.math.ChunkPos(accessPos);
+                ForgeChunkManager.forceChunk(chunkTicket, accessChunk);
+            }
+        } catch (Throwable t) {
+            MagicStorage.LOGGER.warn("Failed to update forced chunks for Heart at " + pos + ": " + t.getMessage());
         }
     }
 
