@@ -561,10 +561,10 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     this.isShiftCrafting = false;
                 }
 
-                if (!playerIn.world.isRemote && tileMaster != null) {
+                if (!playerIn.world.isRemote) {
                     onCraftMatrixChanged(matrix);
                     detectAndSendChanges();
-                    sendItemRefresh(playerIn, tileMaster);
+                    if (tileMaster != null) sendItemRefresh(playerIn, tileMaster);
                 }
                 return firstCraftResult;
             }
@@ -840,7 +840,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         return ItemStack.EMPTY;
                     }
                 }
-                return stack;
+                return super.onTake(playerIn, stack);
             }
             
             // For custom recipes: handle everything ourselves, skip super.onTake
