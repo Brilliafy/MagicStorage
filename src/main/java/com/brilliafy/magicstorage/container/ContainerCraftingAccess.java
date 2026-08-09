@@ -48,20 +48,6 @@ public class ContainerCraftingAccess extends ContainerMagicStorageBase {
     @Override
     public void slotChanged() {
         onCraftMatrixChanged(matrix);
-        if (!playerInv.player.world.isRemote && playerInv.player instanceof net.minecraft.entity.player.EntityPlayerMP) {
-            net.minecraft.entity.player.EntityPlayerMP mp = (net.minecraft.entity.player.EntityPlayerMP) playerInv.player;
-            net.minecraft.item.ItemStack resultStack = result != null ? result.getStackInSlot(0) : net.minecraft.item.ItemStack.EMPTY;
-            // Send result directly via connection — same as vanilla slotChangedCraftingGrid
-            mp.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(this.windowId, 0, resultStack));
-            TileStorageHeart master = getTileMaster();
-            if (master != null) {
-                List<ItemStack> allItems = master.getAllItems();
-                NetworkHandler.INSTANCE.sendTo(
-                    new NetworkHandler.StackRefreshClientMessage(allItems, new ArrayList<>()),
-                    mp
-                );
-            }
-        }
     }
 
     @Override

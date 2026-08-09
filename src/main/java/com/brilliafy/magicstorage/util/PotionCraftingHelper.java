@@ -25,6 +25,15 @@ public class PotionCraftingHelper {
             || stack.getItem() == Items.LINGERING_POTION);
     }
 
+    public static boolean isPotionGrid(ItemStack[] m) {
+        if (m == null || m.length < 9) return false;
+        if (m[0].isEmpty() || m[0].getItem() != Items.BLAZE_POWDER) return false;
+        if (m[1].isEmpty()) return false;
+        if (getBottles(m[3], m[4], m[5]).isEmpty()) return false;
+        if (!m[2].isEmpty() || !m[6].isEmpty() || !m[7].isEmpty() || !m[8].isEmpty()) return false;
+        return true;
+    }
+
     /** Check if slot contents are usable for brewing */
     public static boolean canCraft(ItemStack blaze, ItemStack ingredient,
                                     ItemStack bottle3, ItemStack bottle4, ItemStack bottle5) {

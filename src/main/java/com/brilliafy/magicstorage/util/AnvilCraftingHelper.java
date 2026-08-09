@@ -52,8 +52,8 @@ public class AnvilCraftingHelper {
                 + " stackResult=" + (stackResultField != null)
                 + " maxCost=" + (maximumCostField != null)
                 + " matCost=" + (materialCostField != null));
-        } catch (Exception e) {
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.warn("[MagicStorage] Anvil reflection init failed", e);
+        } catch (Throwable t) {
+            com.brilliafy.magicstorage.MagicStorage.LOGGER.warn("[MagicStorage] Anvil reflection init failed", t);
         }
     }
 
