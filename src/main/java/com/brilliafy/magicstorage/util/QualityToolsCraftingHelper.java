@@ -9,6 +9,15 @@ import net.minecraftforge.fml.common.Loader;
 
 public class QualityToolsCraftingHelper {
 
+    public static boolean isQualityToolsGrid(ItemStack[] m) {
+        if (m == null || m.length < 9) return false;
+        if (m[4].isEmpty() || m[8].isEmpty()) return false;
+        for (int i = 0; i < 9; i++) {
+            if (i != 4 && i != 8 && !m[i].isEmpty()) return false;
+        }
+        return true;
+    }
+
     public static boolean canCraft(ItemStack tool, ItemStack material) {
         if (!Loader.isModLoaded("qualitytools")) return false;
         if (tool.isEmpty() || material.isEmpty()) return false;

@@ -20,6 +20,15 @@ public class BountifulBaublesCraftingHelper {
         return stack.hasCapability(BaublesCapabilities.CAPABILITY_ITEM_BAUBLE, null);
     }
 
+    public static boolean isBaubleReforgeGrid(ItemStack[] m) {
+        if (m == null || m.length < 9) return false;
+        if (m[8].isEmpty()) return false;
+        for (int i = 0; i < 8; i++) {
+            if (!m[i].isEmpty()) return false;
+        }
+        return true;
+    }
+
     public static boolean canCraft(ItemStack bauble) {
         if (!Loader.isModLoaded("bountifulbaubles")) return false;
         return isBauble(bauble);

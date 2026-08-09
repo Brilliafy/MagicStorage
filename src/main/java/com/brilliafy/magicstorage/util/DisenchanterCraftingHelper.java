@@ -24,6 +24,15 @@ public class DisenchanterCraftingHelper {
         return stack.isItemEnchanted();
     }
 
+    public static boolean isDisenchanterGrid(ItemStack[] m) {
+        if (m == null || m.length < 9) return false;
+        if (m[4].isEmpty() || m[2].isEmpty()) return false;
+        for (int i = 0; i < 9; i++) {
+            if (i != 4 && i != 2 && !m[i].isEmpty()) return false;
+        }
+        return true;
+    }
+
     public static boolean canCraft(ItemStack target, ItemStack book) {
         if (!Loader.isModLoaded("disenchanter")) return false;
         if (target.isEmpty() || book.isEmpty()) return false;

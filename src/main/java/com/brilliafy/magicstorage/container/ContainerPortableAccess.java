@@ -57,13 +57,6 @@ public class ContainerPortableAccess extends ContainerMagicStorageBase {
     public void slotChanged() {
         if (isSimple) return;
         onCraftMatrixChanged(matrix);
-        TileStorageHeart heart = getTileMaster();
-        if (heart != null && !playerInv.player.world.isRemote) {
-            List<ItemStack> allItems = heart.getAllItems();
-            NetworkHandler.INSTANCE.sendTo(
-                new NetworkHandler.StackRefreshClientMessage(allItems, new ArrayList<>()),
-                (EntityPlayerMP) playerInv.player);
-        }
     }
 
     @Override

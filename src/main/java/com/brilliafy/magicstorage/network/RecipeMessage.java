@@ -65,7 +65,7 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
 
                 if (heart == null) return;
 
-                // 2. Group recipe slots by candidate ingredient for equal stack distribution
+                // 2. For each slot, choose the best candidate matching available items in Network or Player Inventory
                 class IngredientGroup {
                     final ItemStack candidate;
                     final List<Integer> slots = new ArrayList<>();
@@ -76,19 +76,54 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
                 for (int slot = 0; slot < 9; slot++) {
                     if (message.nbt.hasKey("s" + slot)) {
                         NBTTagList invList = message.nbt.getTagList("s" + slot, 10);
-                        if (invList.tagCount() > 0) {
-                            NBTTagCompound stackTag = invList.getCompoundTagAt(0);
-                            ItemStack candidate = new ItemStack(stackTag);
-                            if (!candidate.isEmpty()) {
+                        List<ItemStack> candidatesForSlot = new ArrayList<>();
+                        for (int i = 0; i < invList.tagCount(); i++) {
+                            ItemStack cand = new ItemStack(invList.getCompoundTagAt(i));
+                            if (!cand.isEmpty()) candidatesForSlot.add(cand);
+                        }
+
+                        if (!candidatesForSlot.isEmpty()) {
+                            ItemStack chosenCandidate = ItemStack.EMPTY;
+                            // Check storage network first
+                            for (ItemStack c : candidatesForSlot) {
+                                ItemStack found = heart.extractItem(s -> matchesCandidate(s, c), 1, true);
+                                if (!found.isEmpty()) {
+                                    chosenCandidate = found.copy();
+                                    chosenCandidate.setCount(1);
+                                    break;
+                                }
+                            }
+                            // Check player inventory second
+                            if (chosenCandidate.isEmpty()) {
+                                for (ItemStack c : candidatesForSlot) {
+                                    for (ItemStack invStack : player.inventory.mainInventory) {
+                                        if (matchesCandidate(invStack, c)) {
+                                            chosenCandidate = invStack.copy();
+                                            chosenCandidate.setCount(1);
+                                            break;
+                                        }
+                                    }
+                                    if (!chosenCandidate.isEmpty()) break;
+                                }
+                            }
+                            // Fallback to first candidate
+                            if (chosenCandidate.isEmpty()) {
+                                chosenCandidate = candidatesForSlot.get(0).copy();
+                                if (chosenCandidate.getMetadata() == net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE) {
+                                    chosenCandidate.setItemDamage(0);
+                                }
+                            }
+
+                            if (!chosenCandidate.isEmpty()) {
                                 IngredientGroup targetGroup = null;
                                 for (IngredientGroup g : groups) {
-                                    if (net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(g.candidate, candidate)) {
+                                    if (matchesCandidate(g.candidate, chosenCandidate)) {
                                         targetGroup = g;
                                         break;
                                     }
                                 }
                                 if (targetGroup == null) {
-                                    targetGroup = new IngredientGroup(candidate);
+                                    targetGroup = new IngredientGroup(chosenCandidate);
                                     groups.add(targetGroup);
                                 }
                                 targetGroup.slots.add(slot);
@@ -105,20 +140,22 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
 
                     // Priority 1: Extract total needed from Storage Network
                     ItemStack networkExtracted = heart.extractItem(
-                        s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, group.candidate),
+                        s -> matchesCandidate(s, group.candidate),
                         totalTargetForGroup, false);
                     int totalExtracted = networkExtracted.isEmpty() ? 0 : networkExtracted.getCount();
+                    ItemStack extractedItemSample = networkExtracted.isEmpty() ? group.candidate : networkExtracted;
 
                     // Priority 2: Extract remaining needed from Player Inventory
                     if (totalExtracted < totalTargetForGroup) {
                         int neededFromPlayer = totalTargetForGroup - totalExtracted;
                         for (int slotIdx = 0; slotIdx < player.inventory.mainInventory.size(); slotIdx++) {
                             ItemStack invStack = player.inventory.mainInventory.get(slotIdx);
-                            if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, group.candidate)) {
+                            if (!invStack.isEmpty() && matchesCandidate(invStack, group.candidate)) {
                                 int take = Math.min(neededFromPlayer, invStack.getCount());
                                 invStack.shrink(take);
                                 totalExtracted += take;
                                 neededFromPlayer -= take;
+                                if (extractedItemSample.isEmpty()) extractedItemSample = invStack;
                                 if (neededFromPlayer <= 0) break;
                             }
                         }
@@ -132,7 +169,7 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
                             int slotIndex = group.slots.get(i);
                             int countForSlot = basePerSlot + (i < remainder ? 1 : 0);
                             if (countForSlot > 0) {
-                                ItemStack slotStack = group.candidate.copy();
+                                ItemStack slotStack = extractedItemSample.copy();
                                 slotStack.setCount(countForSlot);
                                 container.getCraftMatrix().setInventorySlotContents(slotIndex, slotStack);
                             }
@@ -141,6 +178,12 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
                 }
                 container.onCraftMatrixChanged(container.getCraftMatrix());
                 container.detectAndSendChanges();
+                for (int i = 0; i < 9; i++) {
+                    player.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(container.windowId, i + 1, container.getCraftMatrix().getStackInSlot(i)));
+                }
+                ItemStack resultStack = container.getResult() != null ? container.getResult().getStackInSlot(0) : ItemStack.EMPTY;
+                player.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(container.windowId, 0, resultStack));
+
                 // Send refresh message so client UI updates network item counts
                 List<ItemStack> allItems = heart.getAllItems();
                 com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendTo(
@@ -149,5 +192,15 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
             }
         });
         return null;
+    }
+
+    private static boolean matchesCandidate(ItemStack storageStack, ItemStack candidate) {
+        if (storageStack.isEmpty() || candidate.isEmpty()) return false;
+        if (storageStack.getItem() != candidate.getItem()) return false;
+        if (candidate.getMetadata() != net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE &&
+            candidate.getMetadata() != storageStack.getMetadata()) {
+            return false;
+        }
+        return true;
     }
 }

@@ -26,21 +26,6 @@ import java.util.Random;
  */
 public class EnchantingCraftingHelper {
 
-    private static Method blockEnchantPowerBonusMethod;
-    private static Method forgeLevelSetMethod;
-
-    static {
-        try {
-            blockEnchantPowerBonusMethod = Block.class.getMethod("getEnchantPowerBonus",
-                World.class, BlockPos.class);
-        } catch (Exception ignored) {}
-
-        try {
-            forgeLevelSetMethod = ForgeEventFactory.class.getMethod("onEnchantmentLevelSet",
-                World.class, BlockPos.class, int.class, int.class, ItemStack.class, int.class);
-        } catch (Exception ignored) {}
-    }
-
     // ============================================================
     //  Result type
     // ============================================================
@@ -79,10 +64,8 @@ public class EnchantingCraftingHelper {
                 float bonus = 0.0f;
                 if (block == Blocks.BOOKSHELF) {
                     bonus = 1.0f;
-                } else if (blockEnchantPowerBonusMethod != null) {
-                    bonus = (float) blockEnchantPowerBonusMethod.invoke(block, world, BlockPos.ORIGIN);
                 } else {
-                    continue;
+                    bonus = block.getEnchantPowerBonus(world, BlockPos.ORIGIN);
                 }
                 if (bonus > 0) power += bonus * stack.getCount();
             } catch (Throwable ignored) {}
@@ -115,12 +98,10 @@ public class EnchantingCraftingHelper {
                 levels[i] = EnchantmentHelper.calcItemStackEnchantability(rng, i, power, item);
                 if (levels[i] < i + 1) levels[i] = 0;
 
-                if (forgeLevelSetMethod != null) {
-                    try {
-                        levels[i] = (int) forgeLevelSetMethod.invoke(null,
-                            player.world, BlockPos.ORIGIN, i, power, item, levels[i]);
-                    } catch (Throwable ignored) {}
-                }
+                try {
+                    levels[i] = ForgeEventFactory.onEnchantmentLevelSet(
+                        player.world, BlockPos.ORIGIN, i, power, item, levels[i]);
+                } catch (Throwable ignored) {}
             }
 
             if (slot < 0 || slot >= 3) return null;
@@ -288,6 +269,14 @@ public class EnchantingCraftingHelper {
 
     public static boolean isLapis(ItemStack stack) {
         return !stack.isEmpty() && stack.getItem() == Items.DYE && stack.getMetadata() == 4;
+    }
+
+    public static boolean isEnchantingGrid(ItemStack[] m) {
+        if (m == null || m.length < 9) return false;
+        if (m[0].isEmpty() || !m[0].isItemEnchantable()) return false;
+        if (!isLapis(m[3]) && !isLapis(m[4]) && !isLapis(m[5])) return false;
+        if (!m[1].isEmpty() || !m[2].isEmpty() || !m[6].isEmpty() || !m[7].isEmpty() || !m[8].isEmpty()) return false;
+        return true;
     }
 
     public static boolean canCraft(ItemStack itemSlot, ItemStack slot3, ItemStack slot4, ItemStack slot5) {
