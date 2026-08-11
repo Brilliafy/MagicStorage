@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = '1.0.31'
+version = '1.0.32'
 group = 'com.brilliafy.magicstorage'
 archivesBaseName = 'MagicStorage'
 

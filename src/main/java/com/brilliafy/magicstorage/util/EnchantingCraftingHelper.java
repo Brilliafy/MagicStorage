@@ -318,4 +318,18 @@ public class EnchantingCraftingHelper {
             }
         }
     }
+
+    public static void prepareEnchantContext(int enchantLevel) {
+        try {
+            Class<?> clazz = Class.forName("com.brilliafy.fairexperience.FairExperienceContext");
+            clazz.getMethod("setEnchantReqLevel", int.class).invoke(null, enchantLevel);
+        } catch (Throwable ignored) {}
+    }
+
+    public static void clearEnchantContext() {
+        try {
+            Class<?> clazz = Class.forName("com.brilliafy.fairexperience.FairExperienceContext");
+            clazz.getMethod("clearEnchantReqLevel").invoke(null);
+        } catch (Throwable ignored) {}
+    }
 }
