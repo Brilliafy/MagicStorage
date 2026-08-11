@@ -278,7 +278,12 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         ItemStack enchanted = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.applyEnchantList(m[0], er.enchantments);
                         if (!player.inventory.addItemStackToInventory(enchanted)) player.dropItem(enchanted, false);
                         com.brilliafy.magicstorage.util.EnchantingCraftingHelper.consumeIngredients(m);
-                        player.onEnchant(enchanted, er.xpCost);
+                        com.brilliafy.magicstorage.util.EnchantingCraftingHelper.prepareEnchantContext(er.enchantLevel);
+                        try {
+                            player.onEnchant(enchanted, er.xpCost);
+                        } finally {
+                            com.brilliafy.magicstorage.util.EnchantingCraftingHelper.clearEnchantContext();
+                        }
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
                         onCraftMatrixChanged(matrix);
                         return true;
@@ -863,7 +868,12 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             // Apply real enchantments using the SAVED item (not m[0] which is now empty)
                             ItemStack realItem = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.applyEnchantList(savedItem, er.enchantments);
                             stack.setTagCompound(realItem.getTagCompound());
-                            playerIn.onEnchant(stack, er.xpCost);
+                            com.brilliafy.magicstorage.util.EnchantingCraftingHelper.prepareEnchantContext(er.enchantLevel);
+                            try {
+                                playerIn.onEnchant(stack, er.xpCost);
+                            } finally {
+                                com.brilliafy.magicstorage.util.EnchantingCraftingHelper.clearEnchantContext();
+                            }
                             playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                             // Force client to update cursor immediately (fixes tooltip delay)
                             if (playerIn instanceof net.minecraft.entity.player.EntityPlayerMP) {
