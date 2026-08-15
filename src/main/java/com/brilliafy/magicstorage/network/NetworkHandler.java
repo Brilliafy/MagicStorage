@@ -31,6 +31,8 @@ public class NetworkHandler {
         INSTANCE.registerMessage(com.brilliafy.magicstorage.network.RecipeMessage.class, com.brilliafy.magicstorage.network.RecipeMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(RequestMessage.Handler.class, RequestMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(InsertMessage.Handler.class, InsertMessage.class, packetId++, Side.SERVER);
+        INSTANCE.registerMessage(DropMessage.Handler.class, DropMessage.class, packetId++, Side.SERVER);
+        INSTANCE.registerMessage(AutofillMessage.Handler.class, AutofillMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(SortMessage.Handler.class, SortMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(ClearRecipeMessage.Handler.class, ClearRecipeMessage.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(OpenRemoteKeyMessage.Handler.class, OpenRemoteKeyMessage.class, packetId++, Side.SERVER);
@@ -165,7 +167,7 @@ public class NetworkHandler {
                         ItemStack result;
                         if (heart != null) {
                             result = heart.extractItem(
-                                s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, msg.stack),
+                                s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, msg.stack),
                                 sizeRequested, false);
                             // Refresh crafting result (enchanting power depends on network items)
                             if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
@@ -179,7 +181,7 @@ public class NetworkHandler {
                             }
                         } else {
                             result = unit.extractItem(
-                                s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, msg.stack),
+                                s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, msg.stack),
                                 sizeRequested, false);
                         }
 
@@ -207,7 +209,7 @@ public class NetworkHandler {
                                 if (!s.isEmpty()) {
                                     boolean found = false;
                                     for (ItemStack existing : items) {
-                                        if (net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(existing, s)) {
+                                        if (com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(existing, s)) {
                                             existing.grow(s.getCount());
                                             found = true;
                                             break;
@@ -337,6 +339,139 @@ public class NetworkHandler {
                                 new com.brilliafy.magicstorage.network.NetworkHandler.StackRefreshClientMessage(items, new ArrayList<>()),
                                 player);
                         }
+                    }
+                });
+                return null;
+            }
+        }
+    }
+
+    public static class DropMessage implements IMessage {
+        public ItemStack stack = ItemStack.EMPTY;
+        public boolean all;
+
+        public DropMessage() {}
+
+        public DropMessage(ItemStack stack, boolean all) {
+            this.stack = stack;
+            this.all = all;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf) {
+            all = buf.readBoolean();
+            stack = readItemStack(buf);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf) {
+            buf.writeBoolean(all);
+            writeItemStack(buf, stack);
+        }
+
+        public static class Handler implements IMessageHandler<DropMessage, IMessage> {
+            @Override
+            public IMessage onMessage(DropMessage msg, MessageContext ctx) {
+                net.minecraft.entity.player.EntityPlayerMP player = ctx.getServerHandler().player;
+                player.getServerWorld().addScheduledTask(() -> {
+                    if (player.openContainer instanceof com.brilliafy.magicstorage.gui.IStorageContainer) {
+                        com.brilliafy.magicstorage.gui.IStorageContainer container = (com.brilliafy.magicstorage.gui.IStorageContainer) player.openContainer;
+                        com.brilliafy.magicstorage.tile.TileStorageHeart heart = null;
+                        com.brilliafy.magicstorage.tile.TileStorageUnit unit = null;
+                        if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
+                            heart = ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container).getTileMaster();
+                        } else if (container instanceof com.brilliafy.magicstorage.container.ContainerStorageAccess) {
+                            heart = ((com.brilliafy.magicstorage.container.ContainerStorageAccess) container).getAccessTile().findHeart();
+                        } else if (container instanceof com.brilliafy.magicstorage.container.ContainerStorageUnit) {
+                            unit = ((com.brilliafy.magicstorage.container.ContainerStorageUnit) container).getUnit();
+                        }
+
+                        if (msg.stack.isEmpty() || (heart == null && unit == null)) return;
+
+                        int sizeRequested = msg.all ? msg.stack.getMaxStackSize() : 1;
+
+                        ItemStack extracted;
+                        if (heart != null) {
+                            extracted = heart.extractItem(
+                                s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, msg.stack),
+                                sizeRequested, false);
+                            if (container instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
+                                com.brilliafy.magicstorage.container.ContainerMagicStorageBase base = (com.brilliafy.magicstorage.container.ContainerMagicStorageBase) container;
+                                base.onCraftMatrixChanged(base.getCraftMatrix());
+                                if (base.getResult() != null) {
+                                    ItemStack resultStack = base.getResult().getStackInSlot(0);
+                                    player.connection.sendPacket(new net.minecraft.network.play.server.SPacketSetSlot(base.windowId, 0, resultStack));
+                                }
+                            }
+                        } else {
+                            extracted = unit.extractItem(
+                                s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, msg.stack),
+                                sizeRequested, false);
+                        }
+
+                        if (!extracted.isEmpty()) {
+                            player.dropItem(extracted, true);
+                        }
+
+                        // Sync updated item list back to client
+                        if (heart != null) {
+                            java.util.List<ItemStack> allItems = heart.getAllItems();
+                            com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendTo(
+                                new com.brilliafy.magicstorage.network.NetworkHandler.StackRefreshClientMessage(allItems, new java.util.ArrayList<>()),
+                                player);
+                        } else if (unit != null) {
+                            java.util.List<ItemStack> items = new java.util.ArrayList<>();
+                            for (int i = 0; i < unit.getSlotCount(); i++) {
+                                ItemStack s = unit.getInventory().getStackInSlot(i);
+                                if (!s.isEmpty()) {
+                                    boolean found = false;
+                                    for (ItemStack existing : items) {
+                                        if (com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(existing, s)) {
+                                            existing.grow(s.getCount());
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found) items.add(s.copy());
+                                }
+                            }
+                            com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendTo(
+                                new com.brilliafy.magicstorage.network.NetworkHandler.StackRefreshClientMessage(items, new java.util.ArrayList<>()),
+                                player);
+                        }
+                    }
+                });
+                return null;
+            }
+        }
+    }
+
+    public static class AutofillMessage implements IMessage {
+        public int mode;
+
+        public AutofillMessage() {}
+
+        public AutofillMessage(int mode) {
+            this.mode = mode;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf) {
+            mode = buf.readInt();
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf) {
+            buf.writeInt(mode);
+        }
+
+        public static class Handler implements IMessageHandler<AutofillMessage, IMessage> {
+            @Override
+            public IMessage onMessage(AutofillMessage msg, MessageContext ctx) {
+                net.minecraft.entity.player.EntityPlayerMP player = ctx.getServerHandler().player;
+                player.getServerWorld().addScheduledTask(() -> {
+                    if (player.openContainer instanceof com.brilliafy.magicstorage.container.ContainerMagicStorageBase) {
+                        ((com.brilliafy.magicstorage.container.ContainerMagicStorageBase) player.openContainer).setAutofillMode(msg.mode);
                     }
                 });
                 return null;

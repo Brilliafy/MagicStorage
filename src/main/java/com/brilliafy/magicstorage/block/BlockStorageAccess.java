@@ -2,11 +2,13 @@ package com.brilliafy.magicstorage.block;
 
 import com.brilliafy.magicstorage.reference.ModInfo;
 import com.brilliafy.magicstorage.tile.TileStorageAccess;
+import com.brilliafy.magicstorage.tile.TileStorageHeart;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -32,7 +34,13 @@ public class BlockStorageAccess extends Block implements ITileEntityProvider {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state,
                                      EntityPlayer playerIn, EnumHand hand, EnumFacing facing,
                                      float hitX, float hitY, float hitZ) {
+        if (hand != EnumHand.MAIN_HAND) return true;
         if (!worldIn.isRemote) {
+            TileStorageAccess sa = (TileStorageAccess) worldIn.getTileEntity(pos);
+            TileStorageHeart heart = (sa != null) ? sa.findHeart() : null;
+            if (!com.brilliafy.magicstorage.util.ReskillableCraftingHelper.checkNetworkRequirements(playerIn, heart, ItemStack.EMPTY, this)) {
+                return true;
+            }
             playerIn.openGui(com.brilliafy.magicstorage.MagicStorage.instance,
                 0, worldIn, pos.getX(), pos.getY(), pos.getZ()); // GUI ID 0 = STORAGE_ACCESS
         }

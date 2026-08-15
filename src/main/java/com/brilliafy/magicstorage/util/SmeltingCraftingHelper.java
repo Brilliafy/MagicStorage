@@ -120,10 +120,10 @@ public class SmeltingCraftingHelper {
         }
 
         if (singleBurnTime > 0 && totalInputs > 0) {
-            float fuelUnitsNeeded = (float) totalInputs * 200.0f / (float) singleBurnTime;
+            double fuelUnitsNeeded = (double) totalInputs * 200.0 / (double) singleBurnTime;
             int wholeFuelsToConsume = (int) Math.floor(fuelUnitsNeeded);
-            float chance = fuelUnitsNeeded - wholeFuelsToConsume;
-            if (rng != null && rng.nextFloat() < chance) {
+            double chance = fuelUnitsNeeded - wholeFuelsToConsume;
+            if (MagicStorageRandom.rollChance(chance)) {
                 wholeFuelsToConsume += 1;
             }
             if (wholeFuelsToConsume > 0) {

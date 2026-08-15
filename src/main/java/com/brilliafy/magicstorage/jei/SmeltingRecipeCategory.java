@@ -1,5 +1,6 @@
 package com.brilliafy.magicstorage.jei;
 
+import com.brilliafy.magicstorage.reference.ModBlocksRef;
 import com.brilliafy.magicstorage.reference.ModInfo;
 import com.brilliafy.magicstorage.util.SmeltingCraftingHelper;
 import mezz.jei.api.IGuiHelper;
@@ -12,6 +13,7 @@ import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,8 +26,8 @@ public class SmeltingRecipeCategory implements IRecipeCategory<SmeltingRecipeCat
     private final IDrawable icon;
 
     public SmeltingRecipeCategory(IGuiHelper helper) {
-        background = helper.createBlankDrawable(140, 50);
-        icon = helper.createDrawableIngredient(new ItemStack(Item.getItemFromBlock(Blocks.FURNACE)));
+        background = helper.createBlankDrawable(160, 50);
+        icon = helper.createDrawableIngredient(new ItemStack(ModBlocksRef.CRAFTING_ACCESS));
     }
 
     @Override public String getUid() { return UID; }
@@ -38,9 +40,21 @@ public class SmeltingRecipeCategory implements IRecipeCategory<SmeltingRecipeCat
     public void setRecipe(IRecipeLayout layout, SmeltingJEIRecipe recipe, IIngredients ingredients) {
         IGuiItemStackGroup gui = layout.getItemStacks();
         gui.init(0, true, 10, 15);   // input (smeltable item)
-        gui.init(1, true, 55, 15);   // fuel (coal)
-        gui.init(2, false, 100, 15); // output
-        gui.set(ingredients);
+        gui.init(1, true, 45, 15);   // fuel (coal)
+        gui.init(2, false, 80, 15);  // required station: furnace
+        gui.init(3, false, 125, 15); // output
+
+        gui.set(0, ingredients.getInputs(ItemStack.class).get(0));
+        gui.set(1, ingredients.getInputs(ItemStack.class).get(1));
+        gui.set(2, new ItemStack(Blocks.FURNACE));
+        gui.set(3, ingredients.getOutputs(ItemStack.class).get(0));
+
+        gui.addTooltipCallback((slotIndex, input, ingredient, tooltip) -> {
+            if (slotIndex == 2) {
+                tooltip.add(TextFormatting.GOLD + "Requires Furnace in Storage Heart");
+                tooltip.add(TextFormatting.GRAY + "Place a Furnace inside the Storage Heart to craft.");
+            }
+        });
     }
 
     public static class SmeltingJEIRecipe implements IRecipeWrapper {
@@ -49,7 +63,9 @@ public class SmeltingRecipeCategory implements IRecipeCategory<SmeltingRecipeCat
         private final ItemStack output;
 
         public SmeltingJEIRecipe(ItemStack input, ItemStack fuel, ItemStack output) {
-            this.input = input; this.fuel = fuel; this.output = output;
+            this.input = input;
+            this.fuel = fuel;
+            this.output = output;
         }
 
         @Override

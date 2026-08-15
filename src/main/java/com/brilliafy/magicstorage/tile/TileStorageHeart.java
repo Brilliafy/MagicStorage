@@ -34,20 +34,21 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         if (stack.isEmpty()) return false;
         net.minecraft.item.Item item = stack.getItem();
         if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.CRAFTING_TABLE)) return true;
-        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.FURNACE)) return true;
-        if (item == net.minecraft.init.Items.BREWING_STAND || item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.BREWING_STAND)) return true;
-        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ANVIL)) return true;
-        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ENCHANTING_TABLE)) return true;
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.FURNACE)) return com.brilliafy.magicstorage.config.ModConfig.enableFurnace;
+        if (item == net.minecraft.init.Items.BREWING_STAND || item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.BREWING_STAND)) return com.brilliafy.magicstorage.config.ModConfig.enableBrewingStand;
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ANVIL)) return com.brilliafy.magicstorage.config.ModConfig.enableAnvil;
+        if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ENCHANTING_TABLE)) return com.brilliafy.magicstorage.config.ModConfig.enableEnchantingTable;
         if (item.getRegistryName() != null) {
             String reg = item.getRegistryName().toString();
             if ("rustic:condenser".equals(reg) || "rustic:condenser_advanced".equals(reg) ||
-                "rustic:retort".equals(reg) || "rustic:retort_advanced".equals(reg) ||
-                "rustic:brewing_barrel".equals(reg) || "rustic:crushing_tub".equals(reg) ||
-                "disenchanter:disenchantmenttable".equals(reg) ||
-                "bountifulbaubles:reforger".equals(reg) ||
-                "qualitytools:reforging_station".equals(reg)) {
-                return true;
+                "rustic:retort".equals(reg) || "rustic:retort_advanced".equals(reg)) {
+                return com.brilliafy.magicstorage.config.ModConfig.enableRusticAlchemy;
             }
+            if ("rustic:brewing_barrel".equals(reg)) return com.brilliafy.magicstorage.config.ModConfig.enableRusticBrewing;
+            if ("rustic:crushing_tub".equals(reg)) return com.brilliafy.magicstorage.config.ModConfig.enableRusticCrushing;
+            if ("disenchanter:disenchantmenttable".equals(reg)) return com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable;
+            if ("bountifulbaubles:reforger".equals(reg)) return com.brilliafy.magicstorage.config.ModConfig.enableBountifulBaublesReforger;
+            if ("qualitytools:reforging_station".equals(reg)) return com.brilliafy.magicstorage.config.ModConfig.enableQualityToolsReforger;
         }
         return false;
     }
@@ -70,6 +71,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasBrewingStand() {
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableBrewingStand) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null) {
@@ -80,6 +82,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasAnvil() {
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableAnvil) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:anvil".equals(stack.getItem().getRegistryName().toString())) return true;
@@ -88,6 +91,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasFurnace() {
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableFurnace) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:furnace".equals(stack.getItem().getRegistryName().toString())) return true;
@@ -96,6 +100,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasEnchantingTable() {
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableEnchantingTable) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:enchanting_table".equals(stack.getItem().getRegistryName().toString())) return true;
@@ -112,7 +117,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasRusticSimpleCondenser() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticAlchemy || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
         int retorts = 0;
         int condensers = 0;
         int advRetorts = 0;
@@ -133,7 +138,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasRusticAdvancedCondenser() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticAlchemy || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
         int retorts = 0;
         int condensers = 0;
         for (int i = 0; i < inventory.getSlots(); i++) {
@@ -148,7 +153,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasRusticBrewingBarrel() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticBrewing || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -159,7 +164,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasRusticCrushingTub() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticCrushing || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -170,7 +175,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasDisenchanterTable() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable || !net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -181,7 +186,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean isDisenchanterVoiding() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable || !net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -195,7 +200,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean isDisenchanterBulk() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable || !net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -209,7 +214,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasBountifulBaublesReforger() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("bountifulbaubles")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableBountifulBaublesReforger || !net.minecraftforge.fml.common.Loader.isModLoaded("bountifulbaubles")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -220,7 +225,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public boolean hasQualityToolsReforger() {
-        if (!net.minecraftforge.fml.common.Loader.isModLoaded("qualitytools")) return false;
+        if (!com.brilliafy.magicstorage.config.ModConfig.enableQualityToolsReforger || !net.minecraftforge.fml.common.Loader.isModLoaded("qualitytools")) return false;
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
@@ -460,7 +465,13 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public int getConnectedUnits() { return connectedUnits.size(); }
-    public Set<BlockPos> getConnectedUnitPositions() { return Collections.unmodifiableSet(connectedUnits); }
+    public Set<BlockPos> getConnectedUnitPositions() {
+        if (needsRefresh || connectedUnits.isEmpty()) {
+            refreshNetwork();
+            needsRefresh = false;
+        }
+        return Collections.unmodifiableSet(connectedUnits);
+    }
 
     private static class ItemStackKey {
         final Item item;
@@ -470,7 +481,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         ItemStackKey(ItemStack stack) {
             this.item = stack.getItem();
             this.metadata = stack.getMetadata();
-            this.nbt = stack.hasTagCompound() ? stack.getTagCompound() : null;
+            this.nbt = com.brilliafy.magicstorage.util.ItemMatchHelper.getComparableNBT(stack);
         }
 
         @Override
@@ -674,6 +685,10 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public ItemStack extractItem(java.util.function.Predicate<ItemStack> matcher, int maxCount, boolean simulate) {
+        if (maxCount <= 0) return ItemStack.EMPTY;
+        ItemStack extracted = ItemStack.EMPTY;
+        int needed = maxCount;
+
         for (BlockPos p : connectedUnits) {
             TileEntity te = world.getTileEntity(p);
             if (te instanceof TileStorageUnit) {
@@ -681,20 +696,29 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 for (int i = 0; i < unit.getSlotCount(); i++) {
                     ItemStack s = unit.getInventory().getStackInSlot(i);
                     if (!s.isEmpty() && matcher.test(s)) {
-                        int toExtract = Math.min(maxCount, s.getCount());
-                        ItemStack extracted = s.copy();
-                        extracted.setCount(toExtract);
-                        if (!simulate) {
-                            s.shrink(toExtract);
-                            unit.getInventory().setStackInSlot(i, s);
-                            markContentsDirty();
+                        if (extracted.isEmpty() || com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(extracted, s)) {
+                            int toExtract = Math.min(needed, s.getCount());
+                            if (extracted.isEmpty()) {
+                                extracted = s.copy();
+                                extracted.setCount(toExtract);
+                            } else {
+                                extracted.grow(toExtract);
+                            }
+                            needed -= toExtract;
+                            if (!simulate) {
+                                s.shrink(toExtract);
+                                unit.getInventory().setStackInSlot(i, s);
+                                markContentsDirty();
+                            }
+                            if (needed <= 0) {
+                                return extracted;
+                            }
                         }
-                        return extracted;
                     }
                 }
             }
         }
-        return ItemStack.EMPTY;
+        return extracted;
     }
 
     @Nullable
@@ -743,6 +767,21 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         for (int i = 0; i < access.tagCount(); i++) {
             connectedAccessPoints.add(BlockPos.fromLong(access.getCompoundTagAt(i).getLong("Pos")));
         }
+    }
+
+    @Override
+    public NBTTagCompound getUpdateTag() {
+        return writeToNBT(new NBTTagCompound());
+    }
+
+    @Override
+    public net.minecraft.network.play.server.SPacketUpdateTileEntity getUpdatePacket() {
+        return new net.minecraft.network.play.server.SPacketUpdateTileEntity(pos, 0, getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(net.minecraft.network.NetworkManager net, net.minecraft.network.play.server.SPacketUpdateTileEntity pkt) {
+        readFromNBT(pkt.getNbtCompound());
     }
 
     public static class ItemStackWithPos {

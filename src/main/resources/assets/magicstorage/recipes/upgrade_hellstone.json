@@ -1,14 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "HGH",
-    "PIP",
-    "HGH"
+    "HPH",
+    "GIG",
+    "HPH"
   ],
   "key": {
     "H": { "item": "magicstorage:hell_brick" },
-    "G": { "item": "minecraft:gold_block" },
     "P": { "item": "minecraft:blaze_powder" },
+    "G": { "item": "minecraft:gold_block" },
     "I": { "item": "magicstorage:upgrade_crimtane" }
   },
   "result": {

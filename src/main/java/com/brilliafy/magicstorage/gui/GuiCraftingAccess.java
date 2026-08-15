@@ -41,7 +41,7 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
     public List<ItemStack> stacks, craftableStacks;
     protected ItemStack stackUnderMouse = ItemStack.EMPTY;
     protected GuiTextField searchBar;
-    protected GuiStorageButton directionBtn, sortBtn, keepBtn, jeiBtn, clearTextBtn;
+    protected GuiStorageButton directionBtn, sortBtn, keepBtn, jeiBtn, clearTextBtn, autofillBtn;
     protected List<ItemSlotNetwork> slots;
     protected List<ItemStack> displayedStacks = null;
     protected Set<Integer> zeroStacks = new TreeSet<>();
@@ -112,7 +112,11 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         if (JeiHooks.isJeiLoaded()) addButton(jeiBtn);
         clearTextBtn = new GuiStorageButton(5, guiLeft + 64, searchBar.y - 3, "X");
         addButton(clearTextBtn);
-        // Request items from server
+        autofillBtn = new GuiStorageButton(7, guiLeft + 152, searchBar.y + 14, "");
+        if (!isSimple) addButton(autofillBtn);
+        // Request items and sync autofill setting to server
+        com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(
+            new com.brilliafy.magicstorage.network.NetworkHandler.AutofillMessage(SearchSettings.getAutofillMode().getId()));
         com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(
             new com.brilliafy.magicstorage.network.NetworkHandler.RequestMessage(-1, net.minecraft.item.ItemStack.EMPTY, false, false));
     }
@@ -276,6 +280,22 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         if (keepBtn != null && keepBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format(SearchSettings.isSearchKept() ? "gui.storagenetwork.fil.tooltip_keep_on" : "gui.storagenetwork.fil.tooltip_keep_off")), mouseX, mouseY);
         if (directionBtn != null && directionBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format(getDownwards() ? "gui.storagenetwork.sort.down" : "gui.storagenetwork.sort.up")), mouseX, mouseY);
         if (jeiBtn != null && jeiBtn.isMouseOver()) drawHoveringText(Lists.newArrayList(I18n.format(SearchSettings.isJeiSearchSynced() ? "gui.storagenetwork.fil.tooltip_jei_on" : "gui.storagenetwork.fil.tooltip_jei_off")), mouseX, mouseY);
+        if (autofillBtn != null && autofillBtn.isMouseOver()) {
+            String tooltipKey;
+            switch (SearchSettings.getAutofillMode()) {
+                case FULL:
+                    tooltipKey = "gui.magicstorage.autofill.full";
+                    break;
+                case NETWORK_ONLY:
+                    tooltipKey = "gui.magicstorage.autofill.network";
+                    break;
+                case DISABLED:
+                default:
+                    tooltipKey = "gui.magicstorage.autofill.off";
+                    break;
+            }
+            drawHoveringText(Lists.newArrayList(I18n.format(tooltipKey)), mouseX, mouseY);
+        }
     }
 
     @Override
@@ -297,6 +317,12 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         else if (button.id == keepBtn.id) { doSort = false; SearchSettings.setKeepSearch(!SearchSettings.isSearchKept()); SearchSettings.setSearch(searchBar.getText()); }
         else if (button.id == jeiBtn.id) { doSort = false; SearchSettings.setJeiSearchSync(!SearchSettings.isJeiSearchSynced()); SearchSettings.setSearch(searchBar.getText()); }
         else if (button.id == clearTextBtn.id) { doSort = false; clearSearch(); forceFocus = true; }
+        else if (button.id == autofillBtn.id) {
+            doSort = false;
+            SearchSettings.setAutofillMode(SearchSettings.getAutofillMode().next());
+            com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(
+                new com.brilliafy.magicstorage.network.NetworkHandler.AutofillMessage(SearchSettings.getAutofillMode().getId()));
+        }
     }
 
     private void clearSearch() { searchBar.setText(""); SearchSettings.setSearch(""); }
@@ -368,6 +394,12 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
                 SearchSettings.setSearch(searchBar.getText());
                 return;
             }
+            if (!searchBar.isFocused() && !stackUnderMouse.isEmpty() && mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode)) {
+                boolean all = isCtrlKeyDown();
+                com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(
+                    new com.brilliafy.magicstorage.network.NetworkHandler.DropMessage(stackUnderMouse, all));
+                return;
+            }
             super.keyTyped(typedChar, keyCode);  // calls checkHotbarKeys ONCE internally
         }
     }
@@ -416,7 +448,16 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
                 if (id == directionBtn.id) drawTexturedModalRect(this.x + 4, this.y + 3, WIDTH + (getDownwards() ? 6 : 0), 14, 6, 8);
                 if (id == sortBtn.id) drawTexturedModalRect(this.x + 4, this.y + 3, 188 + (getSort() == EnumSortType.AMOUNT ? 6 : getSort() == EnumSortType.MOD ? 12 : 0), 14, 6, 8);
                 if (id == keepBtn.id) drawTexturedModalRect(this.x + 4, this.y + 3, WIDTH + (SearchSettings.isSearchKept() ? 12 : 18), 22, 6, 8);
-                if (id == jeiBtn.id) drawTexturedModalRect(this.x + 4, this.y + 3, WIDTH + (SearchSettings.isJeiSearchSynced() ? 0 : 6), 22, 6, 8);
+                if (id == jeiBtn.id) drawTexturedModalRect(this.x + 4, this.y + 3, WIDTH + (SearchSettings.isJeiSearchSynced() ? 0 : 6), 22, 6, 7);
+                if (autofillBtn != null && id == autofillBtn.id) {
+                    if (SearchSettings.getAutofillMode() == com.brilliafy.magicstorage.data.EnumAutofillMode.FULL) {
+                        drawTexturedModalRect(this.x + 4, this.y + 3, 182, 29, 6, 8);
+                    } else if (SearchSettings.getAutofillMode() == com.brilliafy.magicstorage.data.EnumAutofillMode.NETWORK_ONLY) {
+                        drawTexturedModalRect(this.x + 4, this.y + 3, 176, 29, 6, 8);
+                    } else {
+                        drawTexturedModalRect(this.x + 4, this.y + 3, 188, 14, 6, 8);
+                    }
+                }
                 mouseDragged(mc, x, y);
                 drawCenteredString(fr, displayString, this.x + width / 2, this.y + (height - 8) / 2, 14737632);
             }

@@ -58,7 +58,7 @@ public class BlockStorageUnit extends Block implements ITileEntityProvider {
     @Override
     public TileEntity createNewTileEntity(World w, int meta) {
         TileStorageUnit unit = new TileStorageUnit();
-        unit.setTier(Math.min(meta, 6));
+        unit.setTier(meta);
         return unit;
     }
 
@@ -88,9 +88,22 @@ public class BlockStorageUnit extends Block implements ITileEntityProvider {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state,
                                      EntityPlayer playerIn, EnumHand hand, EnumFacing facing,
                                      float hitX, float hitY, float hitZ) {
+        if (hand != EnumHand.MAIN_HAND) return true;
         TileEntity te = worldIn.getTileEntity(pos);
         if (!(te instanceof TileStorageUnit)) return true;
         TileStorageUnit unit = (TileStorageUnit) te;
+
+        int tier = unit.getTier();
+        ItemStack unitStack = new ItemStack(this, 1, tier);
+        if (!worldIn.isRemote) {
+            if (!com.brilliafy.magicstorage.util.ReskillableCraftingHelper.checkStackRequirement(playerIn, unitStack)) {
+                return true;
+            }
+        } else {
+            if (!com.brilliafy.magicstorage.util.ReskillableCraftingHelper.hasSkillForStack(playerIn, unitStack)) {
+                return true;
+            }
+        }
         
         if (playerIn.isSneaking()) {
             if (!worldIn.isRemote) {
@@ -109,7 +122,6 @@ public class BlockStorageUnit extends Block implements ITileEntityProvider {
             }
             return true;
         }
-        
         
         // Regular right-click: open GUI
         if (!worldIn.isRemote) {

@@ -125,6 +125,11 @@ public class ItemPortableAccess extends Item {
             return false;
         }
 
+        TileStorageHeart heart = (TileStorageHeart) targetWorld.getTileEntity(remoteTile.getLinkedHeartPos());
+        if (!com.brilliafy.magicstorage.util.ReskillableCraftingHelper.checkNetworkRequirements(player, heart, remote, null)) {
+            return false;
+        }
+
         boolean sameDim = (itemDim == world.provider.getDimension());
         boolean inRange = player.getDistance(x, y, z) <= RANGES[meta];
         boolean canOpen = false;

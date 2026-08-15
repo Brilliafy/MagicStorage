@@ -1,38 +1,93 @@
-# Magic Storage v1.0.21 Changelog
+# Changelog - Magic Storage
 
-## Overview
-Magic Storage version 1.0.21 brings optional compatibility for five popular 1.12.2 mods: Rustic, Disenchanter, Bountiful Baubles, Quality Tools, and Reskillable. All new features work automatically if the corresponding mod is installed. If a mod is not in your modpack, Magic Storage functions normally without requiring extra dependencies or causing issues.
+All notable changes, fixes, and feature additions for **Magic Storage** are documented in this file.
 
 ---
 
-## Mod Support Details
+## [1.1.0] - 2026-08-15
 
-### Rustic Support
-- Alchemy Condensers and Retorts: Place 3 Retorts and 1 Condenser (either Simple or Advanced) inside your Storage Heart to craft alchemy potions directly from your Crafting Interface. Having Advanced stations in your Heart allows you to craft both Simple and Advanced alchemy recipes.
-- Alchemy Item Consumption: When performing alchemy, Coal fuel has a 20% chance to be consumed, while Water Buckets have a 12.5% chance to be consumed (leaving an empty bucket behind).
-- Brewing Barrel: Craft wines and elixirs right inside the Crafting Interface. Wine quality is determined by your Storage Heart's location and total brews completed, preventing players from re-rolling quality by taking items out and putting them back in.
-- Multi-Bottle Brewing: Brewing multiple bottles of juice at once crafts them all in a single action while advancing your brew count by one. Fuel consumption scales dynamically with the number of bottles (each bottle adds a 6.25% chance to consume Blaze Powder).
-- Crushing Tub: Crushing recipes (such as turning grapes into juice) are fully supported with authentic crushing sounds.
+### 🌟 Highlights & Major Features
+- **3-State Dynamic Autofill System**: Added an interactive 3-mode toggle button (`A`) directly on the Crafting Access interface:
+  - **Disabled (Off)**: No automatic refilling after crafting.
+  - **Partial (Yellow/Orange icon)**: Refills consumed ingredients and fuel strictly from the connected **Storage Network**.
+  - **Full / Activated (Green icon)**: Refills consumed ingredients and fuel from the **Storage Network** first, falling back to the **Player's Inventory** if network items run out.
+- **Quick Drop Keybinds (`Q` & `Ctrl + Q`)**:
+  - Hovering over any item in the Storage Access or Crafting Access GUI and pressing `Q` drops **1 item** directly into the world.
+  - Pressing `Ctrl + Q` drops an **entire stack** into the world.
+- **Focused Item JEI Recipe Transfer (`+`)**:
+  - Pressing **U** (Uses) or **R** (Recipes) on any specific item (in your inventory or network) and clicking the `+` transfer button now intelligently prioritizes the **exact item instance** you focused (retaining its specific quality, bauble attributes, enchantments, and durability) across Reforging, Anvil, Enchanting, Brewing, Disenchanting, and Alchemy stations.
+  - Automatically pulls the focused item from the player inventory first if held, or from the storage network.
+- **Storage Heart Illumination**:
+  - The Storage Heart block now emits light with the brightness of a Sea Lantern (Light Level 15).
+- **Reskillable Mod Integration & Protection**:
+  - **Network-Wide Skill Check**: Opening Storage Access, Crafting Access, or Remote Access verifies all placed blocks in the network. If any connected component requires higher Reskillable skills than the player possesses, access is locked and chat lists all missing required skills (e.g. `Magic Storage: Requires Mining 16, Building 12`).
+  - **Individual Unit Fallback**: If a network contains an advanced storage unit (e.g. Terra Unit) exceeding your current skills, you can still right-click individual Basic Storage Units to access their items directly.
+  - **Crafting Station Lock Tooltips**: Specialized crafting stations placed inside the Storage Heart (Furnace, Anvil, Brewing, etc.) respect Reskillable requirements with helpful warning tooltips.
 
-### Disenchanter Support
-- Disenchantment Table: Place a Disenchantment Table inside your Storage Heart to access disenchanting directly from the Crafting Interface.
-- How to Use: Put the item you want to disenchant in the center slot (Slot 5) and an unenchanted Book in the top-right slot (Slot 3) to extract enchantments onto an Enchanted Book in the output slot.
-- Table Upgrades: Fully supports Voiding Disenchantment Tables (which consume the original item completely) and Bulk Disenchantment Tables (which extract all enchantments into a single book).
+---
 
-### Bountiful Baubles Reforging
-- Reforger Station: Insert a Reforger into your Storage Heart to reforge Baubles directly in the Crafting Interface.
-- How to Use: Place your Bauble in the bottom-right slot (Slot 9) to reforge its modifiers.
-- Experience Costs: The required experience level is shown in the output tooltip. If you do not have enough experience, the output slot locks safely and displays an Insufficient XP warning. Reforging consumes the Bauble in Slot 9 upon completing the craft.
+### 🔨 JEI (Just Enough Items) & Custom Station Categories
+- **Complete Magic Storage Recipe Categories**:
+  - **Magic Storage Crafting**: Standard crafting recipes with Crafting Access catalyst.
+  - **Magic Storage Smelting**: Smart furnace recipes with dynamic burn-time calculations and uniform batch distribution.
+  - **Magic Storage Brewing**: Vanilla brewing recipes supporting Blaze Powder fuel and up to 3 simultaneous potion bottles on `Shift + Click`.
+  - **Magic Storage Enchanting**: Dynamic enchanting preview with deterministic seeds, XP level validation, and enchantability checks.
+  - **Magic Storage Anvil**: Tool/armor repairing and book combining recipes with accurate anvil level calculations and filtering of redundant max-tier recipes (e.g. Sharpness V + Sharpness V).
+  - **Magic Storage Disenchanting**: Disenchanting recipes extracting enchantments to books; supports items with 1, 2, 5+ enchantments and respects the Disenchanter's "Bulk" mode attribute.
+  - **Magic Storage Tool Reforging (QualityTools)**: Shows all dynamic reforge materials per tool (including OreDictionary tags and modded materials) as individual, non-cycling static recipes.
+  - **Magic Storage Bauble Reforging (BountifulBaubles)**: Shows bauble modifier reforging recipes with Reforging Station requirement tooltips.
+  - **Rustic Brewing**: Booze brewing recipes with support for modifier wine bottles and quality inheritance.
+  - **Rustic Crushing Tub**: Fruit crushing recipes with 4-fruit input requirements and glass bottle outputs.
+  - **Rustic Alchemy (Simple & Advanced)**: Condensation recipes with precise burn-tick requirements (300 ticks advanced / 400 ticks simple).
+- **Intelligent Fuel Management in JEI Transfer**:
+  - Fuel candidates are prioritized: **Coal** $\rightarrow$ **Charcoal** $\rightarrow$ **Highest burn-time fuels**.
+  - Deprioritizes blocks with book-power (e.g. bookshelves or modded tomes) to prevent burning enchanting materials.
+  - Skips single-capacity unstackable fuels (like wooden swords) when they cannot satisfy the minimum required burn ticks alone.
+  - `Shift + Click` on `+` evenly distributes items across all 8 surrounding slots with matching fuel in the center.
 
-### Quality Tools Reforging
-- Reforging Station: Insert a Reforging Station into your Storage Heart to reforge tools, weapons, and armor.
-- How to Use: Place the tool or armor in the center slot (Slot 5) and its repair material in the bottom-right slot (Slot 9).
-- Crafting: Consumes the tool in Slot 5 and one repair material in Slot 9, applying a new quality modifier to your item.
+---
 
-### Reskillable Requirements
-- Skill Checks: If you have Reskillable installed, crafting stations inside your Storage Heart will check your character's skill levels before allowing you to craft recipes from that station.
-- Multi-Station Requirements: For Rustic Alchemy, you must meet the skill requirements for both the Condenser and the Retort to craft alchemy potions.
-- Clear Feedback: If your skill level is too low, the output item remains visible in the Crafting Interface with a clear red Insufficient Skill Level message in its tooltip, and the output slot is locked so you cannot take or hotkey the item.
+### 🍷 Mod Compatibility & Integrations
+- **QualityTools & RLCraft Compatibility**:
+  - Built a dedicated, standalone JSON parser for `reforging materials.json` and OreDictionary entries to load all 500+ reforge recipes on client startup without invoking fragile server-side config reloads.
+  - Correctly links custom reforge materials (e.g. Spectral Silt for Bezoar, Leather for Tool Belt, Diamonds, Iron, etc.) ahead of the Nether Star universal fallback.
+  - Recipes in JEI display static materials without unwanted ingredient cycling animations.
+- **Spartan Weaponry & Transient NBT Tag Handling**:
+  - Added `ItemMatchHelper` to automatically filter client-side transient tags (`enchChecked`, `enchantmentsInvalid`, `UUID`, `UUIDMost`, `UUIDLeast`).
+  - Fixed ungrabbable items (such as Spartan Weaponry Iron Throwing Knives) in network storage.
+- **Rustic Booze Quality & Brewing**:
+  - Researched Rustic brew mechanics and fixed quality calculations for unmodified brews (yielding baseline 0.36 or 0.72 quality).
+  - Implemented exact modifier quality inheritance when using wine bottles as modifiers in brewing recipes.
+  - Dynamic JEI lookup preserves exact wine bottle quality when pressing **U** or **R**.
+- **Crushing Tub Crafting**:
+  - Fixed recipe recognition and crafting lock for fruit juices, enforcing proper 4-berry consumption.
 
-### Storage Heart Station Whitelist
-- Restructured Inventory: The Storage Heart now only accepts supported crafting stations (such as Crafting Tables, Furnaces, Anvils, Brewing Stands, Condensers, Retorts, Disenchantment Tables, and Reforging Stations). Other non-station items can no longer be placed inside the Heart.
+---
+
+### 🎨 Balancing & Crafting Recipe Changes
+- **Storage Heart**:
+  - Recipe updated: Slot 2 now requires a **Sea Lantern**.
+- **Crafting Access Interface**:
+  - Recipe updated: Slots 7, 8, 9 require **Lapis Blocks**, Slot 2 requires a **Clock**, and Slots 1, 3, 4, 6 require **Diamonds**.
+- **Remote Storage Access**:
+  - Recipe updated: Slot 2 requires an **Ender Pearl** and Slot 5 requires a **Storage Component**.
+- **Storage Unit Upgrades**:
+  - **Hallowed Storage Upgrade**: Requires **Gold Blocks** in slots 1, 3, 7, 9.
+  - **Hellstone Storage Upgrade**: Requires **Blaze Powder** in slots 2, 8.
+  - **Luminite Storage Upgrade**: Requires **Ender Chests** in slots 1, 3, 7, 9 and **Emerald Blocks** in slots 2, 4, 6, 8.
+
+---
+
+### 🐛 Bug Fixes & Quality of Life
+- **Visual Item Count Duplication**: Fixed a client-side visual desync where items momentarily appeared duplicated during multi-step custom crafting.
+- **Enchanting Desync & Hotkey Exploit**:
+  - Fixed an issue where hotkeying the crafting result of an enchanting recipe placed phantom items or caused client desyncs when the player lacked sufficient XP levels.
+  - Prevented crafting result pickup if XP requirements are unmet.
+  - Corrected Enchanted Book preview rendering to display the proper Enchanted Book item texture with glint.
+  - Fixed client freeze on shift-clicking enchantment recipes with large stacks of books.
+- **GUI Search Bar Polish**:
+  - Search bar is automatically cleared by default upon opening Storage Access and Storage Unit GUIs.
+  - Resolved `Backspace` key input issue in text search boxes.
+  - Disabled unintended JEI search-bar synchronization.
+- **Audio Feedback**:
+  - Enhanced insertion audio pitch when shift-clicking storage units or installing storage cores.

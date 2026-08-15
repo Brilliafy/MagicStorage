@@ -98,6 +98,17 @@ public class TileStorageUnit extends TileEntity {
         return heartPos;
     }
 
+    @Nullable
+    public TileStorageHeart findHeart() {
+        if (world != null && heartPos != null) {
+            TileEntity te = world.getTileEntity(heartPos);
+            if (te instanceof TileStorageHeart) {
+                return (TileStorageHeart) te;
+            }
+        }
+        return null;
+    }
+
     public ItemStack extractItem(java.util.function.Predicate<ItemStack> matcher, int maxCount, boolean simulate) {
         ItemStackHandler inv = getInventory();
         int remaining = maxCount;
