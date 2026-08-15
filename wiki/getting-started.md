@@ -1,3 +1,5 @@
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)
+
 # Getting Started with Magic Storage
 
 Magic Storage centralizes storage, item sorting, and multi-station crafting into a single connected network.
@@ -56,3 +58,7 @@ Opening a Storage Access or Crafting Access terminal presents the network invent
 | **`Shift + Right-Click`** | Storage Unit (Empty Hand) | Displays unit capacity and fullness in chat with an audio cue. |
 | **`Shift + Right-Click`** | Storage Unit (Holding Upgrade) | Applies tier upgrade in-place without dropping stored items. |
 | **`R` / `U`** | Hovering item in terminal | Displays JEI Recipes (`R`) or Uses (`U`). |
+
+---
+
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)

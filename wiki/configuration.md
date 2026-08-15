@@ -1,3 +1,5 @@
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)
+
 # Configuration Reference
 
 The configuration file is generated at `.minecraft/config/magicstorage.cfg` on first launch.
@@ -49,3 +51,7 @@ stations {
 | `stations` | `enableRusticAlchemy` | Boolean | `true` | Enables Rustic alchemy elixir crafting when Condensers and Retorts are in the Heart. |
 | `stations` | `enableRusticBrewing` | Boolean | `true` | Enables Rustic alcohol and juice brewing when a Brewing Barrel is in the Heart. |
 | `stations` | `enableRusticCrushing` | Boolean | `true` | Enables Rustic fruit crushing when a Crushing Tub is in the Heart. |
+
+---
+
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)

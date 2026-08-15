@@ -8,6 +8,9 @@ A modular storage network mod for Minecraft 1.12.2 (Forge) inspired by Terraria'
 
 ![Magic Storage](docs/images/wallpaper.png)
 
+> [!IMPORTANT]
+> **Just Enough Items (JEI) Recommended:** Installing **JEI** is strongly advised. Magic Storage provides complete dynamic JEI recipe transfer (`+` button) across standard crafting, smelting, batch brewing, enchanting, enchantment extraction, and item reforging.
+
 ---
 
 ## Documentation Wiki
@@ -206,7 +209,9 @@ stations {
 <details>
 <summary><b>9. Mod Integrations & Compatibility</b></summary>
 
-* **Just Enough Items (JEI):** Full `+` recipe transfer support with focused instance preservation (retaining custom qualities, bauble stats, and enchantments).
+* **Just Enough Items (JEI):** Full dynamic `+` recipe transfer across all station modes with focused instance matching (retains item qualities, bauble traits, damage, and enchantments).
+* **Carry On:** Confirmed working. Players can pick up and move Magic Storage Units in the world while preserving all internal contents intact.
+* **Mouse Tweaks [Continued]:** Confirmed working across all terminal inventory slots and item grids.
 * **Reskillable:** Enforces skill requirements across all network components and heart stations, presenting chat error lists and `✖ Insufficient Skill Level` tooltips.
 * **Spartan Weaponry:** Strips transient client tags (`enchChecked`, `enchantmentsInvalid`, `UUID`) via `ItemMatchHelper` to maintain accurate network item stacking.
 * **Quality Tools, Rustic, Bountiful Baubles, Disenchanter:** Integrated station recipes, quality preservation, and XP level mechanics.

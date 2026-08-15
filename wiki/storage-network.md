@@ -1,3 +1,5 @@
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)
+
 # Storage Network Architecture
 
 This document covers network mechanics, storage units, tier upgrades, wireless access remotes, and item automation.
@@ -85,5 +87,10 @@ Pressing the **`Left Alt`** keybind opens the first linked portable remote in th
 
 All Storage Units expose Forge `IItemHandler` capabilities on all 6 block faces:
 * **Hoppers, Droppers, and Transporters:** Can insert items into or extract items from individual storage units.
+* **Carry On Compatibility:** Storage units are recognized as portable tile entities, allowing players to carry and move storage units with their items intact.
 * **Network Redistribution:** The internal sorting engine (`softAutoSortEnabled`) periodically consolidates matching item stacks across connected units.
 * **Safe Unit Removal:** Breaking an active storage unit transfers items to adjacent units closest to the heart first. Excess items that exceed remaining capacity will drop into the world.
+
+---
+
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)

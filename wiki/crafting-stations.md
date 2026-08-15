@@ -1,3 +1,5 @@
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)
+
 # Crafting Stations & Mechanics
 
 Inserting crafting station blocks or items into the 20-slot station inventory of the **Storage Heart** enables custom crafting modes within the **Crafting Access**.
@@ -57,3 +59,7 @@ The Crafting Access features a 3-state autofill engine:
 * **Disabled (Off):** No items are refilled after completing a craft.
 * **Partial (Yellow):** Automatically refills consumed ingredients and fuels from **Network Storage** only.
 * **Full (Green):** Refills from **Network Storage** first, then falls back to **Player Inventory** if network supplies are exhausted.
+
+---
+
+[← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)
