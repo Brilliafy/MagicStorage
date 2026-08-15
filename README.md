@@ -4,271 +4,235 @@
 
 # Magic Storage
 
-A Terraria-inspired and simple storage network solution mod for Minecraft 1.12.2. Centralize all your items into a single Storage Heart, access them from any Storage Access terminal, use the Crafting Access to craft with your entire network inventory.
+A modular storage network mod for Minecraft 1.12.2 (Forge) inspired by Terraria's Magic Storage. Centralizes inventory items into a unified Storage Heart network, manages storage capacity through 8 modular unit tiers, allows wireless access via portable remotes, and provides multi-station crafting with automated item replenishment.
 
 ![Magic Storage](docs/images/wallpaper.png)
 
-## Quick Start
-
-1. Craft a **Storage Component** (the base crafting material).
-2. Craft a **Storage Heart** and place it.
-3. Craft a **Basic Storage Unit** and place it adjacent to the Storage Heart.
-4. Craft a **Storage Access** or **Crafting Access** and place it anywhere connected to the heart.
-5. Open the access terminal. Items placed in storage units become accessible from every access point by placing **Remote Access**. To use the **Crafting Access**, put a crafting table inside the storage heart.
-6. (Optional) Feed your crafting stations into the Storage Heart's inventory (right-click the heart). Place brewing stands, furnaces, anvils, enchanting tables, and crafting tables there. The Crafting Access will detect them.
-
-## Blocks & Items
-
-### Storage Component
-Iron ingots, chests, and redstone. Used in nearly every recipe.
-
-![Storage Component](docs/images/storage_component.png)
-
-### Storage Heart
-The core of your network. It has a 20-slot inventory for placing supported crafting stations (such as crafting tables, furnaces, anvils, enchanting tables, brewing stands, condensers, retorts, disenchantment tables, and reforging stations). The Heart strictly enforces a whitelist only allowed station items can be placed inside. The heart chunk-loads itself so remote access works across dimensions. Break it to disconnect the network.
-
-![Storage Heart](docs/images/storage_heart.png)
-
-### Storage Access
-Right-click to open a terminal. Browse all items in the network, search by name, sort by name/amount/mod. Click an item to pull it to your cursor. Shift+click to send it to your inventory. Insert items from your cursor into the network by clicking in the empty area.
-
-![Storage Access](docs/images/storage_access.png)
-
-### Crafting Access
-A crafting table that uses your network inventory. Place a crafting table in the Storage Heart to enable the basic 3x3 crafting grid. Place additional crafting stations in the heart to unlock more features:
-
-![Crafting Access](docs/images/crafting_access.png)
-
-### Remote Access Block
-Links portable access items to the Storage Heart. Place it adjacent to the heart. Portable items can access the network from anywhere (within range/dimension limits).
-
-![Remote Access](docs/images/remote_access.png)
-
-### Hell Bricks
-Material building block. Puts entities on fire that are standing on it if without fire resistance.
-
-![Hell Bricks](docs/images/hell_bricks.png)
-
-## Storage Units (8 Tiers)
-
-Place adjacent to the Storage Heart. Each tier has more capacity.
-
-Shift+right-click a storage unit to see its usage. Right-click to open and manage its contents. Use upgrades by holding them and shift+right-clicking the unit to upgrade in place.
-
-### Basic Unit
-**Slots:** `40`
-
-![Basic Unit](docs/images/basic_unit.png)
-
-### Crimtane Unit
-**Slots:** `80`
-
-![Crimtane Unit](docs/images/crimson_unit.png)
-
-### Demonite Unit
-**Slots:** `80`
-
-![Demonite Unit](docs/images/demonite_unit.png)
-
-### Hellstone Unit
-**Slots:**  `120`
-
-![Hellstone Unit](docs/images/hellstone_unit.png)
-
-### Hallowed Unit
-**Slots:** `160`
-
-![Hallowed Unit](docs/images/hallowed_unit.png)
-
-### Blue Chlorophyte Unit
-**Slots:** `220`
-
-![Blue Chlorophyte Unit](docs/images/blue_chloropyte_unit.png)
-
-### Luminite Unit
-**Slots:** `300`
-
-![Luminite Unit](docs/images/luminite_unit.png)
-
-### Terra Unit
-**Slots:** `600`
-
-![Terra Unit](docs/images/terra_unit.png)
-
-## Upgrades
-
-Shift+right-click a storage unit while holding an upgrade to apply it. The upgrade is consumed and the unit gains more slots.
-
-### Crimtane Upgrade
-![Crimtane Upgrade](docs/images/crimson_upgrade.png)
-
-### Demonite Upgrade
-![Demonite Upgrade](docs/images/demonite_upgrade.png)
-
-### Hellstone Upgrade
-![Hellstone Upgrade](docs/images/hellstone_upgrade.png)
-
-### Hallowed Upgrade
-![Hallowed Upgrade](docs/images/hallowed_upgrade.png)
-
-### Blue Chlorophyte Upgrade
-![Blue Chlorophyte Upgrade](docs/images/blue_chloropyte_upgrade.png)
-
-### Luminite Upgrade
-![Luminite Upgrade](docs/images/luminite_upgrade.png)
-
-### Terra Upgrade
-![Terra Upgrade](docs/images/terra_upgrade.png)
-
-## Portable Storage Access Remotes (3 Tiers)
-
-Access your network from anywhere. Right-click to open. Two variants: Storage Access (browse + insert/extract) and Crafting Access (with crafting grid and station support).
-
-### Simple Remote Storage Access
-**Range:** 200 blocks
-**Cross-Dimension:** No
-
-![Simple Remote Storage Access](docs/images/simple_remote_storage_access.png)
-
-
-### Advanced Remote Storage Access
-**Range:** Unlimited
-**Cross-Dimension:** No
-
-
-![Simple Remote Storage Access](docs/images/advanced_remote_storage_access.png)
-
-
-### Ultimate Remote Storage Access
-**Range:** Unlimited
-**Cross-Dimension:** Yes
-
-![Ultimate Storage Access Remote](docs/images/ultimate_storage_access_remote.png)
-
-
-
-## Portable Crafting Access Remotes (3 Tiers)
-
-### Simple Remote Crafting Access
-![Simple Remote Crafting Access](docs/images/simple_remote_crafting_access.png)
-
-**Range:** 200 blocks
-**Cross-Dimension:** No
-
-### Advanced Remote Crafting Access
-![Advanced Remote Crafting Access](docs/images/advanced_remote_crafting_access.png)
-
-**Range:** Unlimited
-**Cross-Dimension:** No
-
-### Ultimate Crafting Access
-![Ultimate Remote Crafting Access](docs/images/ultimate_remote_crafting_access.png)
-
-**Range:** Unlimited
-**Cross-Dimension:** Yes
-
-## Stations
-
-#### Vanilla Stations
-- **Crafting Table**: <u>REQUIRED</u> in order to operate the Crafting Access.
-- **Furnace**: Smelt items directly on the crafting grid. Place any fuel item (vanilla or modded) in the center slot 5. Fill any surrounding grid slots (slots 1 to 4 and 6 to 9) with identical smeltable input items. Each filled input slot processes 1 item. Inputs must be identical to each other across all filled slots. Total smeltable capacity equals the fuel item single burn time (in ticks) multiplied by fuel count, divided by 200 ticks per smelt. If input item count exceeds total fuel capacity, output is blocked. Fuel is consumed probabilistically based on exact required burn time ratio (inputs * 200 / singleBurnTime).
-- **Enchanting Table**: Enchant items using the grid. Place the item in slot 1, lapis lazuli in slots 4/5/6 (any position). Bookshelf power is calculated from bookshelf items in your network storage. Works with modded table enchants and modded bookshelves.
-- **Anvil**: Combine enchantments or repair items. Place the target item in slot 1, the material or other item in slot 5. Uses real vanilla anvil logic including XP costs. Shows the final result before you commit.
-- **Brewing Stand**: Brew potions. Place blaze powder in slot 1, the ingredient in slot 2, potion bottles in slots 4/5/6. Has 5% chance of consuming the blaze powder.
-
-#### Modded Stations (So Far)
-- **Rustic Condenser & Retorts**: Place 3 Retorts and 1 Condenser (Simple or Advanced) in the Heart to unlock alchemy crafting. Advanced stations also grant access to simple alchemy recipes. Coal has a 20% consumption chance per craft; Water Buckets have a 12.5% consumption chance (leaving behind an empty bucket).
-- **Rustic Brewing Barrel**: Craft wines and elixirs directly in the interface. Multi-bottle batch brewing scales Blaze Powder consumption at N * 6.25% (1 bottle = 6.25%, 8 bottles = 50%).
-- **Rustic Crushing Tub**: Crush fruits into juices directly in the network with authentic crushing sounds. Place 4 rustic fruit on the top left slot 1, and one bottle on the middle slot 5 to make a juice.
-- **Disenchanter Table**: Place a Disenchantment Table in the Heart. Put the item to disenchant in the center slot (Slot 5) and a Book in the top-right slot (Slot 3) to extract enchantments into an Enchanted Book. Fully supports Voiding and Bulk Disenchantment Tables. Follows Disenchantment Table logic, so your item will break upon 0 durability!
-- **Bountiful Baubles Reforger**: Place a Reforger in the Heart and place a Bauble in the bottom-right slot (Slot 9) to reforge modifiers. Displays required XP levels and enforces experience requirements.
-- **Quality Tools Reforging Station**: Place a Reforging Station in the Heart, the tool or armor in the center slot (Slot 5), and repair material in the bottom-right slot (Slot 9) to reforge quality.
-
-#### Other Mod Support
-- **JEI (Just Enough Items)**: Full recipe transfer (`+` button) support in Crafting Access and Remote Crafting terminals. Includes bidirectional search synchronization: typing into JEI's search box automatically updates the Magic Storage terminal filter in real time (and vice versa). Pressing JEI recipe (`R`) and use (`U`) keybinds while hovering over any network item opens JEI recipe windows seamlessly.
-- **Reskillable Requirements**: Automatically checks player skill levels for stations placed inside the Storage Heart. For Rustic Alchemy, accessing the recipes requires meeting skill levels for both the Condenser and the Retort. Displays a red `✖ Insufficient Skill Level` tooltip when locked.
-
-
-## JEI Integration
-
-All recipes of the mod items are accessible via JEI, besides for dynamic crafting using stations. In such case, JEI shows recipe categories for each crafting station. The Crafting Access acts as a catalyst for all categories.
-
-## Configuration
-
-The config file is at `.minecraft/config/magicstorage.cfg`.
-
-- **softAutoSortEnabled**: (default: true) When enabled, items are automatically moved into storage units that already contain matching items with available space. **Thus, it is safe and does not move items to new slots!**  only consolidates into existing ones to save storage space.
-- **softAutoSortIntervalSeconds**: (default: 60, range: 10-3600) How often in seconds the soft auto-sort runs to consolidate items across storage units.
-
-## Demos
-
+---
+
+## Documentation Wiki
+
+Detailed guides, formulas, and visual diagrams are organized in the [Wiki Directory](wiki/README.md):
+
+| Guide | Scope |
+| :--- | :--- |
+| **[Recipe Catalog](wiki/recipes/README.md)** | High-resolution visual diagrams for all 28 mod recipes and 12 station demonstrations. |
+| **[Getting Started](wiki/getting-started.md)** | Network placement rules, adjacency requirements, 32-block radius, and terminal navigation. |
+| **[Storage Network Architecture](wiki/storage-network.md)** | Storage unit tiers, in-place upgrades, wireless remotes, chunk tickets, and `IItemHandler` automation. |
+| **[Crafting Stations & Mechanics](wiki/crafting-stations.md)** | Station inventory rules, furnace fuel math, enchanting power scanning, and 3-state autofill. |
+| **[Mod Integrations](wiki/integrations.md)** | Native hooks for JEI, Reskillable, Quality Tools, Rustic, Bountiful Baubles, and Disenchanter. |
+| **[Configuration Reference](wiki/configuration.md)** | Configuration parameters, sorting intervals, and station feature toggles. |
+
+---
+
+## System Overview
+
+<details open>
+<summary><b>1. Quick Start & Network Rules</b></summary>
+
+### Core Setup
+Place a **Storage Heart** in your base, connect at least one **Storage Unit** adjacent to it, and attach a **Storage Access** (item management) or **Crafting Access** (crafting matrix) terminal.
+
+```
+[ Storage Unit ] <---> [ Storage Heart ] <---> [ Crafting Access ]
+```
+
+### Network Constraints
+* **Adjacency:** Every component block must directly touch at least one other network block.
+* **Operating Radius:** Network blocks must be within **32 blocks** of the Storage Heart.
+* **Single Master Brain:** Each network supports exactly one Storage Heart.
+* **Chunk Loading:** The Storage Heart automatically secures chunk tickets via `ForgeChunkManager` to keep its own chunk and connected unit chunks loaded.
+
+</details>
+
+<details>
+<summary><b>2. Blocks & Network Terminals</b></summary>
+
+| Block Name | Registry Name | Function |
+| :--- | :--- | :--- |
+| **Storage Component** | `magicstorage:storage_component` | Foundational crafting material for blocks, units, remotes, and upgrades. |
+| **Storage Heart** | `magicstorage:storage_heart` | Master network controller. Emits Light Level 15 and holds 20 crafting stations. |
+| **Storage Access** | `magicstorage:storage_access` | Terminal for depositing, extracting, searching, and sorting network items. |
+| **Crafting Access** | `magicstorage:crafting_access` | 3x3 crafting terminal connected to network items with 3-state autofill (`A`). |
+| **Remote Access** | `magicstorage:remote_access` | Network transceiver required to bind portable wireless remotes. |
+| **Hell Bricks** | `magicstorage:hell_brick` | Defensive block. Sets entities standing on top on fire for 3 seconds. |
+
+</details>
+
+<details>
+<summary><b>3. Storage Units & In-Place Upgrades</b></summary>
+
+Storage units increase total network slot capacity. Right-click any unit to inspect its contents. Shift-right-click with an empty hand to print fullness stats to chat. Shift-right-click with an upgrade item to upgrade the unit in-place without dropping stored items.
+
+| Tier | Storage Unit | Slot Capacity | Rows (9 Slots/Row) | In-Place Upgrade Item |
+| :---: | :--- | :---: | :---: | :--- |
+| **1** | **Basic Storage Unit** | **40** | 4.4 | Base Recipe |
+| **2** | **Crimtane Storage Unit** | **80** | 8.8 | `magicstorage:upgrade_crimtane` |
+| **3** | **Demonite Storage Unit** | **80** | 8.8 | `magicstorage:upgrade_demonite` |
+| **4** | **Hellstone Storage Unit** | **120** | 13.3 | `magicstorage:upgrade_hellstone` |
+| **5** | **Hallowed Storage Unit** | **160** | 17.7 | `magicstorage:upgrade_hallowed` |
+| **6** | **Blue Chlorophyte Storage Unit** | **220** | 24.4 | `magicstorage:upgrade_blue_chlorophyte` |
+| **7** | **Luminite Storage Unit** | **300** | 33.3 | `magicstorage:upgrade_luminite` |
+| **8** | **Terra Storage Unit** | **600** | 66.6 | `magicstorage:upgrade_terra` |
+
+#### Automation & Item Migration
+All Storage Units expose Forge `IItemHandler` capabilities on all 6 faces for Hoppers, Itemducts, and item conduits. Breaking an active storage unit migrates items to neighboring units closest to the heart first, dropping only excess items that exceed remaining space.
+
+</details>
+
+<details>
+<summary><b>4. Wireless Portable Remotes</b></summary>
+
+Bind a remote by holding it and **Sneak + Right-Clicking** a placed **Remote Access** block. Press **`Left Alt`** (configurable) in-game to open the first linked remote in your inventory directly.
+
+| Remote Tier | Terminal Interface | Operating Range | Cross-Dimensional Access |
+| :--- | :---: | :---: | :---: |
+| **Basic Portable Storage Access** | Storage Access | 200 Blocks | No |
+| **Advanced Portable Storage Access** | Storage Access | Unlimited | No |
+| **Ultimate Portable Storage Access** | Storage Access | Unlimited | **Yes** |
+| **Basic Portable Crafting Access** | Crafting Access | 200 Blocks | No |
+| **Advanced Portable Crafting Access** | Crafting Access | Unlimited | No |
+| **Ultimate Portable Crafting Access** | Crafting Access | Unlimited | **Yes** |
+
+</details>
+
+<details>
+<summary><b>5. Crafting Access & Dynamic Station Processing</b></summary>
+
+Right-click the **Storage Heart** and insert crafting station items into its 20-slot station inventory to unlock station recipes on the **Crafting Access** matrix.
+
+| Station | Requirements & Layout | Mechanics & Formulas |
+| :--- | :--- | :--- |
+| **Crafting Table** | `minecraft:crafting_table` in Heart (Required) | Standard 3x3 crafting matrix using network and inventory items. |
+| **Furnace** | Center Slot (5) = Fuel, Outer Slots (1-4, 6-9) = Inputs | Smelts up to 8 items simultaneously. Fuel burn probability: $\frac{\text{Inputs} \times 200}{\text{Single Fuel Burn Ticks}}$. |
+| **Enchanting Table** | Slot 1 = Target Item, Slots 4, 5, 6 = Lapis Lazuli | Reads bookshelf power dynamically from all bookshelf items in network storage. |
+| **Anvil** | Slot 1 = Target Item, Slot 5 = Material / Book | Authentic repair durability, enchantment combination, and XP level calculations. |
+| **Brewing Stand** | Slot 1 = Blaze Powder, Slot 2 = Ingredient, Slots 4/5/6 = Bottles | Batch brews 1 to 3 bottles with a 5% Blaze Powder consumption chance. |
+| **Rustic Condenser** | 1 Condenser + 3 Retorts (Simple or Advanced) | Minimum fuel burn ticks (400 Simple / 300 Advanced). Water buckets return empty buckets. |
+| **Rustic Brewing Barrel** | Slot 1 = Fruits, Slot 5 = Modifier Wine Bottle | Preserves and scales wine quality ratings from modifier bottles. |
+| **Rustic Crushing Tub** | Slot 1 = 4x Fruit, Slot 5 = Glass Bottle | Enforces 4-fruit batch requirement with crushing audio. |
+| **Disenchanter** | Slot 5 = Enchanted Item, Slot 3 = Book | Extracts enchantments to books; supports standard, Voiding, and Bulk tables. |
+| **Bountiful Baubles Reforger** | Slot 9 = Bauble Item | Rerolls bauble modifier attributes using player XP levels. |
+| **Quality Tools Reforging** | Slot 5 = Item, Slot 9 = Reforging Material | Dynamic material engine supports 500+ items and OreDictionary tags. |
+
+#### 3-State Autofill Engine (`A` Toggle)
+* **Disabled (Off):** No items are refilled after a craft.
+* **Partial (Yellow):** Refills consumed ingredients and fuels from **Network Storage** only.
+* **Full (Green):** Refills from **Network Storage** first, falling back to **Player Inventory** if network items are depleted.
+
+</details>
+
+<details>
+<summary><b>6. GUI Controls & Keybindings</b></summary>
+
+| Control / Shortcut | Context | Function |
+| :--- | :--- | :--- |
+| **`Left Alt`** | In-Game (No GUI) | Opens first bound portable remote found in the player inventory. |
+| **`Q`** | Hovering item in terminal | Drops **1 item** from the stack into the world. |
+| **`Ctrl + Q`** | Hovering item in terminal | Drops the **entire stack** into the world. |
+| **`Shift + Left-Click`** | Item in Terminal / Inventory | Transfers items between player inventory and network storage. |
+| **`Shift + Right-Click`** | Storage Unit (Empty Hand) | Prints capacity and fullness percentage to chat with audio feedback. |
+| **`Shift + Right-Click`** | Storage Unit (Holding Upgrade) | Upgrades storage unit tier in-place without dropping stored items. |
+| **`R` / `U`** | Hovering item in terminal | Opens JEI Recipes (`R`) or Uses (`U`). |
+| **`+` (Transfer)** | In JEI Recipe View | Transfers recipe items into Crafting Access, prioritizing focused item instances. |
+| **Search Bar** | In Terminal | Real-time text search filtering by name, tooltip text, or mod ID. |
+| **Sort Mode** | In Terminal | Cycles sorting by Quantity, Display Name, or Mod ID. |
+| **Sort Direction** | In Terminal | Toggles between Ascending ($\uparrow$) and Descending ($\downarrow$) order. |
+| **JEI Sync** | In Terminal | Synchronizes terminal search text with the JEI search bar. |
+
+</details>
+
+<details>
+<summary><b>7. Visual Demonstration Clips</b></summary>
+
+#### Multi-Station Setup
 ![Stations](docs/use/stations.gif)
 
-*Place stations into the Storage Heart to unlock features in the Crafting Access.*
-
+#### Mass Smelting
 ![Smelting](docs/use/smelting.gif)
 
-*Smelt logs into charcoal using the furnace station.*
-
+#### Batch Brewing
 ![Brewing](docs/use/brewing.gif)
 
-*Brew splash potions and use redstone to make them long lasting.*
-
+#### Enchanting Table
 ![Enchanting](docs/use/enchanting.gif)
 
-*Enchant items on the crafting grid with 3 lapis. Add bookshelves to storage to increase levels. Enchants refresh in real time.*
-
+#### Anvil Repair & Combining
 ![Repair and Combine](docs/use/repair_combine_insufficient.gif)
 
-*Repair two iron swords, combine them, and see the insufficient XP warning.*
-
+#### Wireless Remotes
 ![Remotes](docs/use/remotes.gif)
 
-*Bind and use portable remote access items.*
-
+#### In-Place Upgrades
 ![Unit Upgrades](docs/use/unit_upgrades.gif)
 
-*Upgrade 6 storage units with upgrade items.*
-
+#### Modded Station Integrations
 ![Optional_Mods](docs/use/demo.gif)
 
-*Brew Rustic mod juices with template modifier, or no modifier. Brew a rustic mod simple elixir potion, or advanced elixir potion. Crunch into rustic mod juice, disenchant, reforge your modifier using XP, reforge item quality.*
+</details>
 
-## Notes
+<details>
+<summary><b>8. Configuration Reference</b></summary>
 
-- In contrast to SSN mod, The Storage Heart uses ForgeChunkManager to keep its chunk loaded for cross-dimensional access, and provides soft auto-sort which is enabled by default. Also includes added hotkeying/shift+click support in access inventories and various other fixes.
-- Station items (furnace, anvil, brewing stand, etc.) must be IN the Storage Heart's inventory, not placed in the world.
-- Bookshelf power for enchanting is calculated from bookshelf ITEMS in your network storage units, not from blocks placed in the world.
-- The Crafting Access detects stations in real-time. Add or remove stations from the heart's inventory and the grid updates immediately.
-- Items in the crafting grid return to the network when you close the GUI.
-- If storage units are broken, if they are a part of a network, they move their items to units that are closest to the storage heart. If for any reason the network doesnt have enough space, it will move as many items as it can and the rest will drop upon breaking.
-- Upgrading units in-place expands their storage (preserves their items)
-- Storage units supports hoppers for automation
-- The crafting access mirrors actual real station mechanics, so other behavior-changing or content-adding mods are compatible!
+Config file location: `.minecraft/config/magicstorage.cfg`
 
-## Compatibility
+```hocon
+# Storage network sorting options
+sorting {
+    # Consolidated item stacking across storage units.
+    B:softAutoSortEnabled=true
 
-**WARNING**: This mod uses Java reflection to access vanilla `ContainerRepair` (for the anvil crafting feature). It has been tested with Forge **14.23.5.2864** client. Other versions may work but are not guaranteed. If you encounter crashes related to reflection, try updating or downgrading Forge to the tested version.
+    # Consolidation sweep interval in seconds (10 - 3600).
+    I:softAutoSortIntervalSeconds=60
+}
 
-## FAQ
-**Q:** I found a bug or my game crashed. Where should I report it?
-**A:** Please open an issue on our **[GitHub Issue Tracker](https://github.com/Brilliafy/MagicStorage/issues)** with your full log / crash log and Forge version so it can be investigated and fixed!
+# Crafting station recipe toggles (Crafting Table is always enabled)
+stations {
+    B:enableFurnace=true
+    B:enableBrewingStand=true
+    B:enableAnvil=true
+    B:enableEnchantingTable=true
+    B:enableDisenchanterTable=true
+    B:enableBountifulBaublesReforger=true
+    B:enableQualityToolsReforger=true
+    B:enableRusticAlchemy=true
+    B:enableRusticBrewing=true
+    B:enableRusticCrushing=true
+}
+```
 
-**Q:** Can I use this mod in my modpack ?
-**A:** Yes, you are free to include it in any modpack without asking for permission! Standard open-source credit (linking back to this CurseForge/GitHub page) is required and appreciated.
+</details>
 
-**Q:** Are you planning on expanding support to different versions / different mod loaders ?
-**A:** Right now, my main focus is polishing and maintaining the 1.12.2 Forge release! However, if there’s enough interest from the community (and as time permits), porting to newer versions or alternative loaders like Fabric/NeoForge is definitely on my radar. Feedback, support on Ko-fi, and community interest help me decide where to focus future development!
+<details>
+<summary><b>9. Mod Integrations & Compatibility</b></summary>
 
-**Q:** Are you planning to add station support for other mods ?
-**A:** Optional station support is now available for **Rustic**, **Disenchanter**, **Bountiful Baubles**, **Quality Tools**, and **Reskillable**! If you have additional modded stations you'd love to see integrated, feel free to open a feature request on GitHub.
+* **Just Enough Items (JEI):** Full `+` recipe transfer support with focused instance preservation (retaining custom qualities, bauble stats, and enchantments).
+* **Reskillable:** Enforces skill requirements across all network components and heart stations, presenting chat error lists and `✖ Insufficient Skill Level` tooltips.
+* **Spartan Weaponry:** Strips transient client tags (`enchChecked`, `enchantmentsInvalid`, `UUID`) via `ItemMatchHelper` to maintain accurate network item stacking.
+* **Quality Tools, Rustic, Bountiful Baubles, Disenchanter:** Integrated station recipes, quality preservation, and XP level mechanics.
 
-## Credits & Third-Party Assets
+> [!WARNING]
+> This mod accesses vanilla `ContainerRepair` via Java reflection for anvil operations. Tested with Forge **14.23.5.2864**.
 
-This project is a Minecraft port inspired by the original Terraria mod and utilizes the following third-party components:
+</details>
 
-* **[Magic Storage (Terraria)](https://github.com/blushiemagic/MagicStorage)** by blushiemagic, Original mod concept, mechanics, and sprite/texture assets used under the [MIT License](https://github.com/blushiemagic/MagicStorage/blob/master/LICENSE.txt).
-* **[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar, Network storage logic adapted under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
+<details>
+<summary><b>10. FAQ, Credits & License</b></summary>
+
+### Frequently Asked Questions
+
+**Q: Where should I report bugs or crashes?**  
+A: Open an issue on the [GitHub Issue Tracker](https://github.com/Brilliafy/MagicStorage/issues) with the crash report and Forge version.
+
+**Q: Can I include this mod in a modpack?**  
+A: Yes. You can include this mod in any modpack without prior permission.
+
+---
+
+### Third-Party Credits
+* **[Magic Storage (Terraria)](https://github.com/blushiemagic/MagicStorage)** by blushiemagic: Original mod concept, mechanics, and visual assets used under the [MIT License](https://github.com/blushiemagic/MagicStorage/blob/master/LICENSE.txt).
+* **[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar: Network storage foundations adapted under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
 
 ### License
-This mod is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. Portions of code and visual assets incorporated from third-party repositories remain under their respective MIT copyright notices.
+Licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+</details>
