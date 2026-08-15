@@ -8,6 +8,7 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -34,10 +35,14 @@ public class BlockCraftingAccess extends Block implements ITileEntityProvider {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state,
                                      EntityPlayer playerIn, EnumHand hand, EnumFacing facing,
                                      float hitX, float hitY, float hitZ) {
+        if (hand != EnumHand.MAIN_HAND) return true;
         if (!worldIn.isRemote) {
             TileCraftingAccess ca = (TileCraftingAccess) worldIn.getTileEntity(pos);
             if (ca != null) {
                 TileStorageHeart heart = ca.findHeart();
+                if (!com.brilliafy.magicstorage.util.ReskillableCraftingHelper.checkNetworkRequirements(playerIn, heart, ItemStack.EMPTY, this)) {
+                    return true;
+                }
                 if (heart != null && heart.hasCraftingTable()) {
                     playerIn.openGui(com.brilliafy.magicstorage.MagicStorage.instance,
                         1, worldIn, pos.getX(), pos.getY(), pos.getZ()); // GUI ID 1 = CRAFTING_ACCESS

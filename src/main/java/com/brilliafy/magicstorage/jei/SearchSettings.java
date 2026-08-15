@@ -13,12 +13,16 @@ public class SearchSettings {
 
     private static boolean jeiSearchSync = true;
     private static boolean keepSearch = true;
+    private static com.brilliafy.magicstorage.data.EnumAutofillMode autofillMode = com.brilliafy.magicstorage.data.EnumAutofillMode.FULL;
     private static String search = "";
 
     public static boolean isJeiSearchSynced() { return jeiSearchSync; }
     public static void setJeiSearchSync(boolean v) { jeiSearchSync = v; }
     public static boolean isSearchKept() { return keepSearch; }
     public static void setKeepSearch(boolean v) { keepSearch = v; }
+    public static com.brilliafy.magicstorage.data.EnumAutofillMode getAutofillMode() { return autofillMode; }
+    public static void setAutofillMode(com.brilliafy.magicstorage.data.EnumAutofillMode mode) { autofillMode = mode; }
+    public static boolean isAutofill() { return autofillMode != com.brilliafy.magicstorage.data.EnumAutofillMode.DISABLED; }
 
     public static String getSearch() {
         if (JeiHooks.isJeiLoaded() && jeiSearchSync) {

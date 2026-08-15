@@ -107,7 +107,7 @@ public class PotionCraftingHelper {
             }
         }
         // 5% chance to consume blaze powder (slot 0)
-        if (rand != null && rand.nextFloat() < 0.05f && !matrix[0].isEmpty()) {
+        if (MagicStorageRandom.rollChance(0.05) && !matrix[0].isEmpty()) {
             matrix[0].shrink(1);
         }
     }

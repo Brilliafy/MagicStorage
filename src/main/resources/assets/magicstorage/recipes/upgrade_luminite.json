@@ -1,14 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "OXO",
-    "EIE",
-    "OXO"
+    "EME",
+    "MIM",
+    "EME"
   ],
   "key": {
-    "O": { "item": "minecraft:obsidian" },
-    "X": { "item": "minecraft:end_stone" },
-    "E": { "item": "minecraft:ender_eye" },
+    "E": { "item": "minecraft:emerald_block" },
+    "M": { "item": "minecraft:ender_chest" },
     "I": { "item": "magicstorage:upgrade_blue_chlorophyte" }
   },
   "result": {

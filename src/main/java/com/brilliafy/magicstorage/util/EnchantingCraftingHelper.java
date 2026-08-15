@@ -83,11 +83,23 @@ public class EnchantingCraftingHelper {
     //  Core simulation
     // ============================================================
 
+    public static boolean isStackEnchantable(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        if (stack.getItem() == Items.BOOK) return true;
+        if (stack.isItemEnchantable()) return true;
+        ItemStack single = stack.copy();
+        single.setCount(1);
+        return single.isItemEnchantable() || (single.getItem().getItemEnchantability(single) > 0 && !single.isItemEnchanted());
+    }
+
     public static EnchantResult simulateEnchant(ItemStack item, EntityPlayer player,
                                                  int power, int slot) {
-        if (item == null || item.isEmpty() || player == null || player.world == null || !item.isItemEnchantable()) return null;
+        if (item == null || item.isEmpty() || player == null || player.world == null || !isStackEnchantable(item)) return null;
 
         try {
+            ItemStack single = item.copy();
+            single.setCount(1);
+
             int xpSeed = player.getXPSeed();
             Random rng = new Random();
             rng.setSeed(xpSeed);
@@ -95,12 +107,12 @@ public class EnchantingCraftingHelper {
             // --- Levels for all 3 slots (same RNG seed, matching vanilla) ---
             int[] levels = new int[3];
             for (int i = 0; i < 3; i++) {
-                levels[i] = EnchantmentHelper.calcItemStackEnchantability(rng, i, power, item);
+                levels[i] = EnchantmentHelper.calcItemStackEnchantability(rng, i, power, single);
                 if (levels[i] < i + 1) levels[i] = 0;
 
                 try {
                     levels[i] = ForgeEventFactory.onEnchantmentLevelSet(
-                        player.world, BlockPos.ORIGIN, i, power, item, levels[i]);
+                        player.world, BlockPos.ORIGIN, i, power, single, levels[i]);
                 } catch (Throwable ignored) {}
             }
 
@@ -111,16 +123,16 @@ public class EnchantingCraftingHelper {
             // --- Enchantment list for this slot ---
             rng.setSeed(xpSeed + slot);
             List<EnchantmentData> list = EnchantmentHelper.buildEnchantmentList(
-                rng, item, enchantLevel, false);
+                rng, single, enchantLevel, false);
             if (list == null || list.isEmpty()) return null;
 
-            if (item.getItem() == Items.BOOK && list.size() > 1) {
+            if (single.getItem() == Items.BOOK && list.size() > 1) {
                 list.remove(rng.nextInt(list.size()));
             }
 
             EnchantmentData clue = list.get(0);
             int xpCost = slot + 1;  // Vanilla: each slot costs slot+1 levels (1, 2, or 3)
-            ItemStack displayStack = buildDisplayStack(item, clue, xpCost, enchantLevel);
+            ItemStack displayStack = buildDisplayStack(single, clue, xpCost, enchantLevel);
 
             return new EnchantResult(enchantLevel, xpCost, list, clue, displayStack, xpSeed);
         } catch (Throwable t) {
@@ -183,19 +195,22 @@ public class EnchantingCraftingHelper {
 
     /** Make buildDisplayStack public for use by the container */
     public static ItemStack buildDisplayStack(ItemStack item, EnchantmentData clue, int xpCost, int enchantLevel) {
-        ItemStack r = item.copy();
+        boolean isBook = !item.isEmpty() && item.getItem() == Items.BOOK;
+        ItemStack r = isBook ? new ItemStack(Items.ENCHANTED_BOOK) : item.copy();
         r.setCount(1);
         net.minecraft.nbt.NBTTagCompound rootTag = r.hasTagCompound()
-            ? r.getTagCompound() : new net.minecraft.nbt.NBTTagCompound();
+            ? r.getTagCompound().copy() : new net.minecraft.nbt.NBTTagCompound();
 
-        net.minecraft.nbt.NBTTagList enchList = rootTag.getTagList("ench", 10);
-        if (enchList == null || enchList.tagCount() == 0) {
-            enchList = new net.minecraft.nbt.NBTTagList();
-            net.minecraft.nbt.NBTTagCompound fakeEnch = new net.minecraft.nbt.NBTTagCompound();
-            fakeEnch.setShort("id", (short) 0);
-            fakeEnch.setShort("lvl", (short) 1);
-            enchList.appendTag(fakeEnch);
-            rootTag.setTag("ench", enchList);
+        if (!isBook) {
+            net.minecraft.nbt.NBTTagList enchList = rootTag.getTagList("ench", 10);
+            if (enchList == null || enchList.tagCount() == 0) {
+                enchList = new net.minecraft.nbt.NBTTagList();
+                net.minecraft.nbt.NBTTagCompound fakeEnch = new net.minecraft.nbt.NBTTagCompound();
+                fakeEnch.setShort("id", (short) 0);
+                fakeEnch.setShort("lvl", (short) 1);
+                enchList.appendTag(fakeEnch);
+                rootTag.setTag("ench", enchList);
+            }
         }
 
         net.minecraft.nbt.NBTTagList lore = new net.minecraft.nbt.NBTTagList();
@@ -211,7 +226,7 @@ public class EnchantingCraftingHelper {
         if (display == null) display = new net.minecraft.nbt.NBTTagCompound();
         display.setTag("Lore", lore);
         rootTag.setTag("display", display);
-        rootTag.setInteger("HideFlags", 1);
+        rootTag.setInteger("HideFlags", 63);
         r.setTagCompound(rootTag);
         return r;
     }
@@ -242,7 +257,8 @@ public class EnchantingCraftingHelper {
 
     /** Display stack with red unavailable tier tooltip */
     public static ItemStack buildDisplayStackUnavailableTier(ItemStack item) {
-        ItemStack display = item.copy();
+        boolean isBook = !item.isEmpty() && item.getItem() == Items.BOOK;
+        ItemStack display = isBook ? new ItemStack(Items.ENCHANTED_BOOK) : item.copy();
         display.setCount(1);
         net.minecraft.nbt.NBTTagCompound rootTag = display.hasTagCompound()
             ? display.getTagCompound().copy() : new net.minecraft.nbt.NBTTagCompound();
@@ -273,14 +289,14 @@ public class EnchantingCraftingHelper {
 
     public static boolean isEnchantingGrid(ItemStack[] m) {
         if (m == null || m.length < 9) return false;
-        if (m[0].isEmpty() || !m[0].isItemEnchantable()) return false;
+        if (m[0].isEmpty() || !isStackEnchantable(m[0])) return false;
         if (!isLapis(m[3]) && !isLapis(m[4]) && !isLapis(m[5])) return false;
         if (!m[1].isEmpty() || !m[2].isEmpty() || !m[6].isEmpty() || !m[7].isEmpty() || !m[8].isEmpty()) return false;
         return true;
     }
 
     public static boolean canCraft(ItemStack itemSlot, ItemStack slot3, ItemStack slot4, ItemStack slot5) {
-        if (itemSlot.isEmpty() || !itemSlot.isItemEnchantable()) return false;
+        if (itemSlot.isEmpty() || !isStackEnchantable(itemSlot)) return false;
         return isLapis(slot3) || isLapis(slot4) || isLapis(slot5);
     }
 

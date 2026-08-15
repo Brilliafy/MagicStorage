@@ -1,15 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "ERE",
-    "DSD",
+    "DLD",
+    "ESE",
     "RRR"
   ],
   "key": {
-    "E": { "item": "minecraft:diamond" },
-    "R": { "item": "minecraft:redstone_block" },
-    "D": { "item": "minecraft:emerald" },
-    "S": { "item": "magicstorage:storage_component" }
+    "D": { "item": "minecraft:diamond" },
+    "L": { "item": "minecraft:sea_lantern" },
+    "E": { "item": "minecraft:emerald" },
+    "S": { "item": "magicstorage:storage_component" },
+    "R": { "item": "minecraft:redstone_block" }
   },
   "result": {
     "item": "magicstorage:storage_heart",

@@ -31,6 +31,7 @@ public class AnvilCraftingHelper {
     private static Field stackResultField;
     private static Field maximumCostField;
     private static Field materialCostField;
+    private static Field repairedItemNameField;
 
     static {
         try {
@@ -44,6 +45,8 @@ public class AnvilCraftingHelper {
                 new String[]{"maximumCost", "field_82854_e"});
             materialCostField = findField(ContainerRepair.class,
                 new String[]{"materialCost", "field_82856_l"});
+            repairedItemNameField = findField(ContainerRepair.class,
+                new String[]{"repairedItemName", "field_82857_m"});
             if (inputSlotsField == null) {
                 inputSlotsField = findFieldByType(ContainerRepair.class, IInventory.class, InventoryCraftResult.class);
             }
@@ -51,7 +54,8 @@ public class AnvilCraftingHelper {
                 + " inputSlots=" + (inputSlotsField != null)
                 + " stackResult=" + (stackResultField != null)
                 + " maxCost=" + (maximumCostField != null)
-                + " matCost=" + (materialCostField != null));
+                + " matCost=" + (materialCostField != null)
+                + " nameField=" + (repairedItemNameField != null));
         } catch (Throwable t) {
             com.brilliafy.magicstorage.MagicStorage.LOGGER.warn("[MagicStorage] Anvil reflection init failed", t);
         }
@@ -97,6 +101,9 @@ public class AnvilCraftingHelper {
         if (slot0.isEmpty() || slot4.isEmpty()) return false;
         if (isAnvil(slot0) || isAnvil(slot4)) return false;
         if (slot4.getItem() == Items.NAME_TAG) return false;
+        if (slot0.getItem() == Items.BOOK && slot4.getItem() != Items.ENCHANTED_BOOK) {
+            return false;
+        }
         AnvilResult ar = computeResult(slot0, slot4, player);
         return ar != null;
     }
@@ -120,11 +127,17 @@ public class AnvilCraftingHelper {
         try {
             ContainerRepair repair = new ContainerRepair(
                 player.inventory, player.world, player.getPosition(), player);
+            try {
+                repair.updateItemName("");
+            } catch (Throwable ignored) {}
+            if (repairedItemNameField != null) {
+                try {
+                    repairedItemNameField.set(repair, "");
+                } catch (Throwable ignored) {}
+            }
 
             IInventory inputSlots = (IInventory) inputSlotsField.get(repair);
             if (inputSlots == null) return null;
-            inputSlots.setInventorySlotContents(0, left.copy());
-            inputSlots.setInventorySlotContents(1, right.copy());
 
             try {
                 Field listenersField = Container.class.getDeclaredField("listeners");
@@ -133,6 +146,9 @@ public class AnvilCraftingHelper {
                 java.util.List<?> listeners = (java.util.List<?>) listenersField.get(repair);
                 if (listeners != null) listeners.clear();
             } catch (Exception ignored) {}
+
+            inputSlots.setInventorySlotContents(0, left.copy());
+            inputSlots.setInventorySlotContents(1, right.copy());
 
             repairOutputMethod.invoke(repair);
 
@@ -160,8 +176,7 @@ public class AnvilCraftingHelper {
                 }
                 return new AnvilResult(resultStack, cost, matCost);
             }
-        } catch (Exception e) {
-            com.brilliafy.magicstorage.MagicStorage.LOGGER.warn("[MagicStorage] Anvil reflection failed", e);
+        } catch (Throwable ignored) {
         }
         return null;
     }

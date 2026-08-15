@@ -24,6 +24,7 @@ public class BlockStorageHeart extends Block implements ITileEntityProvider {
         setTranslationKey(ModInfo.MOD_ID + ".storage_heart");
         setHardness(5.0F);
         setResistance(10.0F);
+        setLightLevel(1.0F);
         setCreativeTab(com.brilliafy.magicstorage.init.MagicStorageTab.TAB);
     }
 
@@ -55,6 +56,7 @@ public class BlockStorageHeart extends Block implements ITileEntityProvider {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state,
                                      EntityPlayer playerIn, EnumHand hand, EnumFacing facing,
                                      float hitX, float hitY, float hitZ) {
+        if (hand != EnumHand.MAIN_HAND) return true;
         if (!worldIn.isRemote) {
             TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof TileStorageHeart) {

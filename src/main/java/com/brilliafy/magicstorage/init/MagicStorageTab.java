@@ -15,6 +15,6 @@ public class MagicStorageTab extends CreativeTabs {
 
     @Override
     public ItemStack createIcon() {
-        return new ItemStack(ModBlocksRef.STORAGE_HEART);
+        return new ItemStack(ModBlocksRef.CRAFTING_ACCESS);
     }
 }

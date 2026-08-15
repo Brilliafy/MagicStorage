@@ -1,5 +1,6 @@
 package com.brilliafy.magicstorage.jei;
 
+import com.brilliafy.magicstorage.reference.ModBlocksRef;
 import com.brilliafy.magicstorage.reference.ModInfo;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.gui.IDrawable;
@@ -8,9 +9,11 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,8 +26,8 @@ public class EnchantingRecipeCategory implements IRecipeCategory<EnchantingRecip
     private final IDrawable icon;
 
     public EnchantingRecipeCategory(IGuiHelper helper) {
-        background = helper.createBlankDrawable(140, 50);
-        icon = helper.createDrawableIngredient(new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ENCHANTING_TABLE)));
+        background = helper.createBlankDrawable(160, 50);
+        icon = helper.createDrawableIngredient(new ItemStack(ModBlocksRef.CRAFTING_ACCESS));
     }
 
     @Override public String getUid() { return UID; }
@@ -36,59 +39,120 @@ public class EnchantingRecipeCategory implements IRecipeCategory<EnchantingRecip
     @Override
     public void setRecipe(IRecipeLayout layout, EnchantingJEIRecipe recipe, IIngredients ingredients) {
         IGuiItemStackGroup gui = layout.getItemStacks();
-        gui.init(0, true, 10, 15);   // enchantable item
-        gui.init(1, true, 55, 15);   // lapis lazuli
-        gui.init(2, false, 100, 15); // output (glint)
-        gui.set(ingredients);
+        gui.init(0, true, 10, 15);   // enchantable item / book
+        gui.init(1, true, 45, 15);   // lapis lazuli
+        gui.init(2, false, 80, 15);  // required station: enchanting table
+        gui.init(3, false, 125, 15); // output enchanted item
+
+        gui.set(0, ingredients.getInputs(ItemStack.class).get(0));
+        gui.set(1, ingredients.getInputs(ItemStack.class).get(1));
+        gui.set(2, new ItemStack(Blocks.ENCHANTING_TABLE));
+        gui.set(3, ingredients.getOutputs(ItemStack.class).get(0));
+
+        gui.addTooltipCallback((slotIndex, input, ingredient, tooltip) -> {
+            if (slotIndex == 2) {
+                tooltip.add(TextFormatting.GOLD + "Requires Enchanting Table in Storage Heart");
+                tooltip.add(TextFormatting.GRAY + "Place an Enchanting Table inside the Storage Heart to craft.");
+            }
+        });
     }
 
     public static class EnchantingJEIRecipe implements IRecipeWrapper {
-        private final ItemStack input;
+        private final List<ItemStack> inputs;
         private final ItemStack lapis;
-        private final ItemStack output;
+        private final List<ItemStack> outputs;
 
-        public EnchantingJEIRecipe(ItemStack input, ItemStack lapis, ItemStack output) {
-            this.input = input; this.lapis = lapis; this.output = output;
+        public EnchantingJEIRecipe(List<ItemStack> inputs, ItemStack lapis, List<ItemStack> outputs) {
+            this.inputs = inputs;
+            this.lapis = lapis;
+            this.outputs = outputs;
+        }
+
+        public EnchantingJEIRecipe(ItemStack singleInput, ItemStack lapis, ItemStack singleOutput) {
+            this(Collections.singletonList(singleInput), lapis, Collections.singletonList(singleOutput));
         }
 
         @Override
         public void getIngredients(IIngredients ingredients) {
-            List<List<ItemStack>> inputs = new ArrayList<>();
-            inputs.add(Collections.singletonList(input));
-            inputs.add(Collections.singletonList(lapis));
-            ingredients.setInputLists(ItemStack.class, inputs);
-            ingredients.setOutput(ItemStack.class, output);
+            List<List<ItemStack>> inLists = new ArrayList<>();
+            inLists.add(inputs);
+            inLists.add(Collections.singletonList(lapis));
+            ingredients.setInputLists(ItemStack.class, inLists);
+            ingredients.setOutputLists(ItemStack.class, Collections.singletonList(outputs));
+        }
+
+        public boolean matchesInput(ItemStack stack) {
+            if (stack == null || stack.isEmpty()) return false;
+            for (ItemStack in : inputs) {
+                if (in.getItem() == stack.getItem() && in.getMetadata() == stack.getMetadata()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public boolean matchesOutput(ItemStack stack) {
+            if (stack == null || stack.isEmpty()) return false;
+            for (ItemStack out : outputs) {
+                if (out.getItem() == stack.getItem()) {
+                    if (out.getItem() == Items.ENCHANTED_BOOK) {
+                        net.minecraft.nbt.NBTTagList outEnch = net.minecraft.item.ItemEnchantedBook.getEnchantments(out);
+                        net.minecraft.nbt.NBTTagList stackEnch = net.minecraft.item.ItemEnchantedBook.getEnchantments(stack);
+                        if (isEnchSubset(outEnch, stackEnch)) return true;
+                    } else if (stack.isItemEnchanted()) {
+                        net.minecraft.nbt.NBTTagList outEnch = out.getEnchantmentTagList();
+                        net.minecraft.nbt.NBTTagList stackEnch = stack.getEnchantmentTagList();
+                        if (isEnchSubset(outEnch, stackEnch)) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static boolean isEnchSubset(net.minecraft.nbt.NBTTagList req, net.minecraft.nbt.NBTTagList actual) {
+            if (req == null || req.isEmpty()) return true;
+            if (actual == null || actual.isEmpty()) return false;
+            for (int i = 0; i < req.tagCount(); i++) {
+                short reqId = req.getCompoundTagAt(i).getShort("id");
+                short reqLvl = req.getCompoundTagAt(i).getShort("lvl");
+                boolean found = false;
+                for (int j = 0; j < actual.tagCount(); j++) {
+                    if (actual.getCompoundTagAt(j).getShort("id") == reqId && actual.getCompoundTagAt(j).getShort("lvl") == reqLvl) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) return false;
+            }
+            return true;
         }
     }
 
-    /** Show one representative recipe per tool/weapon/armor type */
     public static List<EnchantingJEIRecipe> generateAllRecipes() {
         List<EnchantingJEIRecipe> recipes = new ArrayList<>();
         ItemStack lapis = new ItemStack(Items.DYE, 1, 4);
 
-        ItemStack[] examples = {
-            new ItemStack(Items.DIAMOND_SWORD),
-            new ItemStack(Items.DIAMOND_PICKAXE),
-            new ItemStack(Items.DIAMOND_AXE),
-            new ItemStack(Items.DIAMOND_HELMET),
-            new ItemStack(Items.DIAMOND_CHESTPLATE),
-            new ItemStack(Items.DIAMOND_LEGGINGS),
-            new ItemStack(Items.DIAMOND_BOOTS),
-            new ItemStack(Items.BOW),
-            new ItemStack(Items.IRON_SWORD),
-            new ItemStack(Items.IRON_PICKAXE),
-            new ItemStack(Items.IRON_HELMET),
-            new ItemStack(Items.IRON_CHESTPLATE),
-            new ItemStack(Items.IRON_LEGGINGS),
-            new ItemStack(Items.IRON_BOOTS),
-            new ItemStack(Items.SHIELD),
-        };
+        for (net.minecraft.enchantment.Enchantment e : net.minecraft.enchantment.Enchantment.REGISTRY) {
+            if (e == null) continue;
+            for (int lvl = 1; lvl <= e.getMaxLevel(); lvl++) {
+                // 1. Book -> Enchanted Book with this enchantment
+                ItemStack outputBook = new ItemStack(Items.ENCHANTED_BOOK);
+                net.minecraft.item.ItemEnchantedBook.addEnchantment(outputBook, new net.minecraft.enchantment.EnchantmentData(e, lvl));
+                recipes.add(new EnchantingJEIRecipe(new ItemStack(Items.BOOK), lapis, outputBook));
 
-        for (ItemStack input : examples) {
-            if (!input.isEmpty() && input.isItemEnchantable()) {
-                ItemStack output = input.copy();
-                // Output is the same item - JEI will show it with glint
-                recipes.add(new EnchantingJEIRecipe(input, lapis, output));
+                // 2. All equipment that can receive this enchantment (1-to-1 recipes)
+                for (Item item : Item.REGISTRY) {
+                    if (item == null) continue;
+                    ItemStack st = new ItemStack(item);
+                    if (st.isEmpty()) continue;
+                    if (st.isItemStackDamageable() || item instanceof net.minecraft.item.ItemSword || item instanceof net.minecraft.item.ItemTool || item instanceof net.minecraft.item.ItemArmor || item instanceof net.minecraft.item.ItemBow) {
+                        if (e.canApply(st) || e.canApplyAtEnchantingTable(st) || (e.type != null && e.type.canEnchantItem(item))) {
+                            ItemStack out = st.copy();
+                            out.addEnchantment(e, lvl);
+                            recipes.add(new EnchantingJEIRecipe(st, lapis, out));
+                        }
+                    }
+                }
             }
         }
 

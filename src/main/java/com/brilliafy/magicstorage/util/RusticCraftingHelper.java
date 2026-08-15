@@ -23,12 +23,65 @@ public class RusticCraftingHelper {
 
     private static final Random rand = new Random();
 
-    public static boolean isCoal(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem() == Items.COAL;
+    public static boolean isFuel(ItemStack stack) {
+        return !stack.isEmpty() && net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(stack) > 0;
     }
 
     public static boolean isWaterBucket(ItemStack stack) {
         return !stack.isEmpty() && stack.getItem() == Items.WATER_BUCKET;
+    }
+
+    public static String getFluidName(ItemStack stack) {
+        if (stack != null && !stack.isEmpty() && stack.hasTagCompound() && stack.getTagCompound().hasKey("Fluid", 10)) {
+            return stack.getTagCompound().getCompoundTag("Fluid").getString("FluidName");
+        }
+        return "";
+    }
+
+    public static ItemStack getFilledBottle(net.minecraftforge.fluids.Fluid fluid) {
+        if (fluid == null) return ItemStack.EMPTY;
+        if (fluid == FluidRegistry.WATER) {
+            return net.minecraft.potion.PotionUtils.addPotionToItemStack(
+                new ItemStack(Items.POTIONITEM), net.minecraft.init.PotionTypes.WATER);
+        }
+        net.minecraft.item.Item fluidBottleItem = net.minecraft.item.Item.getByNameOrId("rustic:fluid_bottle");
+        if (fluidBottleItem == null) return ItemStack.EMPTY;
+
+        ItemStack bottle = new ItemStack(fluidBottleItem);
+        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagCompound fluidTag = new NBTTagCompound();
+        fluidTag.setString("FluidName", fluid.getName());
+        fluidTag.setInteger("Amount", 1000);
+        if (fluid instanceof FluidBooze) {
+            NBTTagCompound boozeTag = new NBTTagCompound();
+            boozeTag.setFloat(FluidBooze.QUALITY_NBT_KEY, 0.75f);
+            fluidTag.setTag("Tag", boozeTag);
+        }
+        tag.setTag("Fluid", fluidTag);
+        bottle.setTagCompound(tag);
+        return bottle;
+    }
+
+    private static void consumeFuel(ItemStack[] m, int reqTicks) {
+        ItemStack fuel = m[7];
+        if (fuel.isEmpty()) return;
+        int singleBurnTime = net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(fuel);
+        if (singleBurnTime <= 0) return;
+
+        double fuelsNeeded = (double) reqTicks / (double) singleBurnTime;
+        int wholeFuels = (int) Math.floor(fuelsNeeded);
+        double chance = fuelsNeeded - wholeFuels;
+        if (MagicStorageRandom.rollChance(chance)) {
+            wholeFuels++;
+        }
+        if (wholeFuels > 0) {
+            net.minecraft.item.Item item = fuel.getItem();
+            ItemStack container = item.getContainerItem(fuel);
+            fuel.shrink(Math.min(wholeFuels, fuel.getCount()));
+            if (fuel.isEmpty() && !container.isEmpty()) {
+                m[7] = container;
+            }
+        }
     }
 
     // Parsed alchemy grid containing bottle and ingredient slots
@@ -42,15 +95,17 @@ public class RusticCraftingHelper {
 
     /**
      * Parses the 3x3 grid for alchemy recipes:
-     * Slot 8 (m[7]) = Coal
+     * Slot 8 (m[7]) = Fuel (any furnace fuel with burn time > 0)
      * Slot 9 (m[8]) = Water Bucket
      * Slots 5 & 6 (m[4], m[5]) = Must be empty
      * Slots 1, 2, 3, 4, 7 (m[0], m[1], m[2], m[3], m[6]) = Contains 1 Glass Bottle + materials
      */
-    private static AlchemyGrid parseAlchemyGrid(ItemStack[] m) {
+    private static AlchemyGrid parseAlchemyGrid(ItemStack[] m, int reqTicks) {
         AlchemyGrid grid = new AlchemyGrid();
         if (!m[4].isEmpty() || !m[5].isEmpty()) return grid; // slots 5, 6 must be empty
-        if (!isCoal(m[7])) return grid; // slot 8 must be coal
+        if (m[7].isEmpty()) return grid;
+        int singleBurn = net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(m[7]);
+        if (singleBurn <= 0 || singleBurn * m[7].getCount() < reqTicks) return grid; // Must satisfy minimum total fuel requirement!
         if (!isWaterBucket(m[8])) return grid; // slot 9 must be water bucket
 
         int[] alchemySlots = {0, 1, 2, 3, 6};
@@ -83,7 +138,7 @@ public class RusticCraftingHelper {
 
     public static ItemStack computeSimpleCondenserResult(ItemStack[] m) {
         if (!Loader.isModLoaded("rustic")) return ItemStack.EMPTY;
-        AlchemyGrid grid = parseAlchemyGrid(m);
+        AlchemyGrid grid = parseAlchemyGrid(m, 400);
         if (!grid.valid) return ItemStack.EMPTY;
 
         ItemStack[] inArray = grid.ingredientStacks.toArray(new ItemStack[0]);
@@ -97,7 +152,7 @@ public class RusticCraftingHelper {
     }
 
     public static void consumeSimpleCondenserIngredients(ItemStack[] m, Random rng) {
-        AlchemyGrid grid = parseAlchemyGrid(m);
+        AlchemyGrid grid = parseAlchemyGrid(m, 400);
         if (!grid.valid) return;
 
         if (grid.bottleSlot != -1 && !m[grid.bottleSlot].isEmpty()) {
@@ -107,15 +162,12 @@ public class RusticCraftingHelper {
             if (!m[slot].isEmpty()) m[slot].shrink(1);
         }
 
-        Random r = (rng != null) ? rng : rand;
         // 12.5% chance for water bucket to become empty bucket
-        if (r.nextFloat() < 0.125f) {
+        if (MagicStorageRandom.rollChance(0.125)) {
             m[8] = new ItemStack(Items.BUCKET);
         }
-        // 20% chance for coal to be consumed
-        if (r.nextFloat() < 0.20f && !m[7].isEmpty()) {
-            m[7].shrink(1);
-        }
+        // Fuel consumption: Basic condenser takes 400 burn ticks
+        consumeFuel(m, 400);
     }
 
     // ==========================================
@@ -129,7 +181,7 @@ public class RusticCraftingHelper {
 
     public static ItemStack computeAdvancedCondenserResult(ItemStack[] m) {
         if (!Loader.isModLoaded("rustic")) return ItemStack.EMPTY;
-        AlchemyGrid grid = parseAlchemyGrid(m);
+        AlchemyGrid grid = parseAlchemyGrid(m, 300);
         if (!grid.valid) return ItemStack.EMPTY;
 
         List<ItemStack> ingredients = grid.ingredientStacks;
@@ -160,7 +212,7 @@ public class RusticCraftingHelper {
     }
 
     public static void consumeAdvancedCondenserIngredients(ItemStack[] m, Random rng) {
-        AlchemyGrid grid = parseAlchemyGrid(m);
+        AlchemyGrid grid = parseAlchemyGrid(m, 300);
         if (!grid.valid) return;
 
         if (grid.bottleSlot != -1 && !m[grid.bottleSlot].isEmpty()) {
@@ -170,15 +222,12 @@ public class RusticCraftingHelper {
             if (!m[slot].isEmpty()) m[slot].shrink(1);
         }
 
-        Random r = (rng != null) ? rng : rand;
         // 12.5% chance for water bucket to become empty bucket
-        if (r.nextFloat() < 0.125f) {
+        if (MagicStorageRandom.rollChance(0.125)) {
             m[8] = new ItemStack(Items.BUCKET);
         }
-        // 20% chance for coal to be consumed
-        if (r.nextFloat() < 0.20f && !m[7].isEmpty()) {
-            m[7].shrink(1);
-        }
+        // Fuel consumption: Advanced condenser takes 300 burn ticks
+        consumeFuel(m, 300);
     }
 
     // ==========================================
@@ -214,57 +263,23 @@ public class RusticCraftingHelper {
         if (matchedRecipe == null) return ItemStack.EMPTY;
 
         FluidStack templateFluid = !m[3].isEmpty() ? FluidUtil.getFluidContained(m[3]) : null;
+        if (templateFluid != null && (templateFluid.tag == null || !templateFluid.tag.hasKey(FluidBooze.QUALITY_NBT_KEY))) {
+            if (m[3].hasTagCompound() && m[3].getTagCompound().hasKey("Fluid")) {
+                NBTTagCompound fTag = m[3].getTagCompound().getCompoundTag("Fluid");
+                if (fTag.hasKey("Tag") && fTag.getCompoundTag("Tag").hasKey(FluidBooze.QUALITY_NBT_KEY)) {
+                    if (templateFluid.tag == null) templateFluid.tag = new NBTTagCompound();
+                    templateFluid.tag.setFloat(FluidBooze.QUALITY_NBT_KEY, fTag.getCompoundTag("Tag").getFloat(FluidBooze.QUALITY_NBT_KEY));
+                }
+            }
+        }
+
         FluidStack outFluid = matchedRecipe.getResult(inputFluid, templateFluid);
         if (outFluid == null || outFluid.getFluid() == null) {
             outFluid = matchedRecipe.getResult(inputFluid);
         }
         if (outFluid == null || outFluid.getFluid() == null) return ItemStack.EMPTY;
 
-        // Seed deterministic random generator using heart position and heart's craft counter.
-        // Swapping bottles or changing stack count does NOT change the roll.
-        long posLong = (heart != null && heart.getPos() != null) ? heart.getPos().toLong() : 0L;
-        int craftCounter = (heart != null) ? heart.getBrewingCraftCounter() : 0;
-        long seed = 31L * posLong + craftCounter;
-        Random deterministicRand = new Random(seed);
-
-        // Quality calculation if template is present (m[3])
-        float templateQuality = -1.0f;
-        if (templateFluid != null && templateFluid.getFluid() != null && templateFluid.tag != null && templateFluid.tag.hasKey(FluidBooze.QUALITY_NBT_KEY)) {
-            templateQuality = templateFluid.tag.getFloat(FluidBooze.QUALITY_NBT_KEY);
-        } else if (!m[3].isEmpty() && m[3].hasTagCompound()) {
-            NBTTagCompound mainTag = m[3].getTagCompound();
-            if (mainTag.hasKey("Fluid")) {
-                NBTTagCompound fTag = mainTag.getCompoundTag("Fluid");
-                if (fTag.hasKey("Tag") && fTag.getCompoundTag("Tag").hasKey(FluidBooze.QUALITY_NBT_KEY)) {
-                    templateQuality = fTag.getCompoundTag("Tag").getFloat(FluidBooze.QUALITY_NBT_KEY);
-                }
-            }
-        }
-
-        if (templateQuality >= 0.0f) {
-            // Normal distribution around template quality with +- 0.04 range (mean 0)
-            double diff = deterministicRand.nextGaussian() * 0.02;
-            diff = Math.max(-0.04, Math.min(0.04, diff));
-            float newQuality = (float) Math.max(0.0, Math.min(1.0, templateQuality + diff));
-            if (outFluid.tag == null) outFluid.tag = new NBTTagCompound();
-            outFluid.tag.setFloat(FluidBooze.QUALITY_NBT_KEY, newQuality);
-        } else if (outFluid.getFluid() instanceof FluidBooze) {
-            // Exact Rustic formula for brewing without template:
-            float baseQuality;
-            if (inputFluid.getFluid() == ModFluids.GOLDEN_APPLE_JUICE) {
-                // Ambrosia / Golden Apple Juice special formula from Rustic Recipes.java
-                int r = (deterministicRand.nextInt(4) == 0) ? deterministicRand.nextInt(26) : (deterministicRand.nextInt(12) + 14);
-                baseQuality = ((49 + r) / 100F);
-            } else {
-                // Standard booze formula from Rustic BrewingBarrelRecipe.java: ((5 + rand.nextInt(71)) / 100F)
-                baseQuality = ((5 + deterministicRand.nextInt(71)) / 100F);
-            }
-            if (outFluid.tag == null) outFluid.tag = new NBTTagCompound();
-            outFluid.tag.setFloat(FluidBooze.QUALITY_NBT_KEY, baseQuality);
-        }
-
-        ItemFluidBottle bottleItem = (ItemFluidBottle) ModItems.FLUID_BOTTLE;
-        ItemStack resBottle = bottleItem.getFilledBottle(outFluid.getFluid());
+        ItemStack resBottle = getFilledBottle(outFluid.getFluid());
         if (outFluid.tag != null && outFluid.tag.hasKey(FluidBooze.QUALITY_NBT_KEY)) {
             float q = outFluid.tag.getFloat(FluidBooze.QUALITY_NBT_KEY);
             NBTTagCompound tag = resBottle.getTagCompound();
@@ -289,12 +304,11 @@ public class RusticCraftingHelper {
             m[4].shrink(count); // Craft all input juice bottles in one go
         }
         // m[3] (template) is NOT consumed
-        Random r = (rng != null) ? rng : rand;
         // Cumulative blaze powder consumption: 6.25% per bottle (1/16 per bottle)
         if (!m[7].isEmpty()) {
-            float chance = count * 0.0625f;
+            double chance = count * 0.0625;
             int toConsume = (int) chance;
-            if (r.nextFloat() < (chance - toConsume)) {
+            if (MagicStorageRandom.rollChance(chance - toConsume)) {
                 toConsume++;
             }
             if (toConsume > 0) {
@@ -310,28 +324,52 @@ public class RusticCraftingHelper {
     // ==========================================
     // 4. CRUSHING (CRUSHING TUB)
     // Slots (0-indexed):
-    // m[0] = 4 items of crushable ingredient (Slot 1, count >= 4)
+    // m[0] = crushable ingredient (Slot 1, count >= required amount)
     // m[4] = 1 Glass bottle (Slot 5)
     // m[1], m[2], m[3], m[5], m[6], m[7], m[8] must be empty (Slots 2, 3, 4, 6, 7, 8, 9)
     // ==========================================
 
+    public static boolean isCrushable(ItemStack stack) {
+        if (!Loader.isModLoaded("rustic") || stack == null || stack.isEmpty()) return false;
+        for (ICrushingTubRecipe recipe : Recipes.crushingTubRecipes) {
+            if (recipe.matches(stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int getRequiredCrushingAmount(ItemStack stack) {
+        if (!Loader.isModLoaded("rustic") || stack == null || stack.isEmpty()) return 4;
+        for (ICrushingTubRecipe recipe : Recipes.crushingTubRecipes) {
+            if (recipe.matches(stack)) {
+                FluidStack fluidOut = recipe.getResult();
+                if (fluidOut != null && fluidOut.amount > 0) {
+                    return (int) Math.ceil(1000.0 / fluidOut.amount);
+                }
+            }
+        }
+        return 4;
+    }
+
     public static boolean canCraftCrushing(ItemStack[] m) {
         if (!Loader.isModLoaded("rustic")) return false;
         if (!m[1].isEmpty() || !m[2].isEmpty() || !m[3].isEmpty() || !m[5].isEmpty() || !m[6].isEmpty() || !m[7].isEmpty() || !m[8].isEmpty()) return false;
-        if (m[0].isEmpty() || m[0].getCount() < 4) return false;
+        if (m[0].isEmpty()) return false;
+        int req = getRequiredCrushingAmount(m[0]);
+        if (m[0].getCount() < req) return false;
         if (m[4].isEmpty() || m[4].getItem() != Items.GLASS_BOTTLE) return false;
 
         return !computeCrushingResult(m).isEmpty();
     }
 
     public static ItemStack computeCrushingResult(ItemStack[] m) {
-        if (!Loader.isModLoaded("rustic")) return ItemStack.EMPTY;
+        if (!Loader.isModLoaded("rustic") || m == null || m.length < 5 || m[0].isEmpty()) return ItemStack.EMPTY;
         for (ICrushingTubRecipe recipe : Recipes.crushingTubRecipes) {
             if (recipe.matches(m[0])) {
                 FluidStack fluidOut = recipe.getResult();
                 if (fluidOut != null && fluidOut.getFluid() != null) {
-                    ItemFluidBottle bottleItem = (ItemFluidBottle) ModItems.FLUID_BOTTLE;
-                    return bottleItem.getFilledBottle(fluidOut.getFluid());
+                    return getFilledBottle(fluidOut.getFluid());
                 }
             }
         }
@@ -339,7 +377,14 @@ public class RusticCraftingHelper {
     }
 
     public static void consumeCrushingIngredients(ItemStack[] m) {
-        if (!m[0].isEmpty()) m[0].shrink(4);
-        if (!m[4].isEmpty()) m[4].shrink(1);
+        if (m != null && m.length > 4) {
+            if (!m[0].isEmpty()) {
+                int req = getRequiredCrushingAmount(m[0]);
+                m[0].shrink(req);
+            }
+            if (!m[4].isEmpty()) {
+                m[4].shrink(1);
+            }
+        }
     }
 }
