@@ -4,9 +4,10 @@
 
 ![Magic Storage Banner](https://raw.githubusercontent.com/Brilliafy/MagicStorage/master/docs/images/wallpaper.png)
 
-[![Ko-Fi](https://img.shields.io/badge/Support_on_Ko--Fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/S2X12424XK)
-[![GitHub Source](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Brilliafy/MagicStorage)
-[![Documentation Wiki](https://img.shields.io/badge/Wiki-Full_Documentation-0078D4?style=for-the-badge&logo=gitbook&logoColor=white)](https://github.com/Brilliafy/MagicStorage/tree/master/wiki)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.12.2-2C7B38?style=for-the-badge&logo=minecraft&logoColor=white)](https://github.com/Brilliafy/MagicStorage)
+[![Forge](https://img.shields.io/badge/Forge-14.23.5.2864-DFA837?style=for-the-badge&logo=curseforge&logoColor=white)](https://github.com/Brilliafy/MagicStorage)
+[![GitHub Source](https://img.shields.io/badge/GitHub-Source_Code-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Brilliafy/MagicStorage)
+[![Documentation Wiki](https://img.shields.io/badge/Wiki-Documentation-0078D4?style=for-the-badge&logo=gitbook&logoColor=white)](https://github.com/Brilliafy/MagicStorage/tree/master/wiki)
 
 </div>
 
