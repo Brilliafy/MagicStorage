@@ -12,9 +12,14 @@
 
 ---
 
+> [!IMPORTANT]
+> **Just Enough Items (JEI) Recommended:** Installing **JEI** is strongly advised. Magic Storage features complete dynamic JEI recipe transfer (`+` button) across all crafting matrix modes, smelting, batch brewing, enchantment extraction, and item reforging.
+
+---
+
 ### What is Magic Storage?
 
-**Magic Storage** is a modular, high-performance storage network solution for **Minecraft 1.12.2 (Forge)** inspired by Terraria's Magic Storage mod. It replaces cluttered chest rooms with an expandable block network, unified terminal interfaces, wireless cross-dimensional remotes, and multi-station crafting with automated item replenishment.
+**Magic Storage** is a modular storage network solution for **Minecraft 1.12.2 (Forge)** inspired by Terraria's Magic Storage mod. It replaces cluttered chest rooms with an expandable block network, unified terminal interfaces, wireless cross-dimensional remotes, and multi-station crafting with automated item replenishment.
 
 ---
 
@@ -25,8 +30,8 @@
 * **Multi-Station Crafting Matrix:** Feed crafting stations (Crafting Tables, Furnaces, Anvils, Enchanting Tables, Brewing Stands, and modded stations) directly into the Storage Heart to craft directly on the terminal grid.
 * **3-State Autofill Engine (`A` Key):** Automatically replenishes consumed crafting ingredients and fuels up to the exact recipe requirement from network storage or player inventory.
 * **Wireless Remotes:** Access storage and crafting matrices remotely across 200 blocks, unlimited distances, or across dimensions. Press **`Left Alt`** to open bound remotes instantly.
-* **Native Mod Hooks:** Full JEI `+` recipe transfer, Reskillable skill requirements, Spartan Weaponry NBT sanitization, Quality Tools reforging, Rustic elixirs/brewing/crushing, Bountiful Baubles reforgers, and Disenchanter tables.
-* **Automation Ready:** Every storage unit exposes Forge `IItemHandler` capabilities for Hoppers, Itemducts, and item transport conduits.
+* **Dynamic JEI Integration:** Full `+` recipe transfer support across all custom and modded stations with focused item instance matching.
+* **Automation & Mod Ready:** Storage units expose Forge `IItemHandler` capabilities for Hoppers, Itemducts, and item transport pipes.
 
 ---
 
@@ -43,6 +48,18 @@
 | ![Remotes](https://raw.githubusercontent.com/Brilliafy/MagicStorage/master/docs/use/remotes.gif) | ![Unit Upgrades](https://raw.githubusercontent.com/Brilliafy/MagicStorage/master/docs/use/unit_upgrades.gif) |
 
 </div>
+
+---
+
+### Mod Compatibility
+
+* **Carry On:** Confirmed working. Players can pick up and relocate Magic Storage Units with their inventory contents intact.
+* **Mouse Tweaks [Continued]:** Confirmed working across all terminal interfaces and crafting slots.
+* **Just Enough Items (JEI):** Full recipe transfer and synchronized search bar filtering.
+* **Reskillable:** Full network and station requirement enforcement with error notifications.
+* **Quality Tools & Bountiful Baubles:** Dynamic material discovery and XP-based modifier reforging.
+* **Rustic & Disenchanter:** Alchemy elixirs, brewing barrels, crushing tubs, and book disenchanting.
+* **Spartan Weaponry:** Client tag filtering ensures smooth network item stacking.
 
 ---
 

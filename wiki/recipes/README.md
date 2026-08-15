@@ -1,3 +1,5 @@
+[← Back to Wiki Hub](../README.md) | [Main Documentation](../../README.md)
+
 # Magic Storage Recipe Catalog & Station Demonstrations
 
 This catalog contains high-resolution crafting recipes for all **Magic Storage** items and blocks, as well as demonstration recipes for all dynamic station integrations supported within the **Crafting Access**.
@@ -267,3 +269,7 @@ The **Crafting Access** dynamically reads all crafting station items placed insi
 - **Mechanics:** Dynamically supports all 500+ materials (e.g. Spectral Silt for Bezoar, Leather for Tool Belts, Nether Stars, and OreDictionary tags).
 
 ![Quality Tools Reforger](station_quality_tools_reforge.png)
+
+---
+
+[← Back to Wiki Hub](../README.md) | [Main Documentation](../../README.md)
