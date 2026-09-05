@@ -177,17 +177,27 @@ public class QualityToolsCraftingHelper {
     }
 
     public static ItemStack computeResult(ItemStack tool, ItemStack material, TileStorageHeart heart) {
+        return computeResult(tool, material, heart, 0);
+    }
+
+    public static ItemStack computeResult(ItemStack tool, ItemStack material, TileStorageHeart heart, int localCounter) {
         if (!canCraft(tool, material)) return ItemStack.EMPTY;
 
         ItemStack toolCopy = tool.copy();
         toolCopy.setCount(1);
 
-        long posLong = (heart != null && heart.getPos() != null) ? heart.getPos().toLong() : 0L;
-        int craftCounter = (heart != null) ? heart.getBrewingCraftCounter() : 0;
-        long seed = 31L * posLong + craftCounter;
+        long posLong = (heart != null && heart.getPos() != null) ? heart.getPos().toLong() : 0x9E3779B97F4A7C15L;
+        int craftCounter = (heart != null ? heart.getReforgeCraftCounter() : 0) + localCounter;
+        int itemHash = (tool.getItem() != null && tool.getItem().getRegistryName() != null)
+            ? tool.getItem().getRegistryName().toString().hashCode() : 0;
+        long z = posLong ^ ((long) craftCounter * 0xbf58476d1ce4e5b9L) ^ ((long) itemHash << 16);
+        z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+        z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+        long seed = z ^ (z >>> 31);
 
         QualityType.RAND.setSeed(seed);
         QualityToolsHelper.generateQualityTag(toolCopy, true);
+        QualityType.RAND.setSeed(System.nanoTime());
 
         return toolCopy;
     }
@@ -212,7 +222,7 @@ public class QualityToolsCraftingHelper {
         matrix[4] = ItemStack.EMPTY;
 
         if (heart != null) {
-            heart.incrementBrewingCraftCounter();
+            heart.incrementReforgeCraftCounter();
         }
     }
 }

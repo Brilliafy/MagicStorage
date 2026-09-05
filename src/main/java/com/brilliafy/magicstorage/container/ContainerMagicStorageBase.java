@@ -43,6 +43,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     protected boolean bountifulBaublesResultLocked = false;
     protected boolean reskillableResultLocked = false;
     protected boolean isShiftCrafting = false;
+    protected int localReforgeCounter = 0;
     protected int autofillMode = 2; // 2=FULL (Network & Inventory), 1=NETWORK_ONLY, 0=DISABLED
     protected List<ItemStack> cachedStacks = new ArrayList<>();
     protected List<ItemStack> cachedCraftableStacks = new ArrayList<>();
@@ -207,7 +208,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 // 9. Bountiful Baubles Reforge
                 if (master.hasBountifulBaublesReforger() && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.isBaubleReforgeGrid(m) && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8])) {
                     com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.BaubleReforgeResult bbr =
-                        com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], playerInv.player, master);
+                        com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], playerInv.player, master, localReforgeCounter);
                     if (bbr != null) {
                         result.setInventorySlotContents(0, bbr.displayStack);
                         if (!bbr.hasEnoughXp) {
@@ -219,7 +220,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 }
                 // 10. Quality Tools Reforge
                 if (master.hasQualityToolsReforger() && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.isQualityToolsGrid(m) && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.canCraft(m[4], m[8])) {
-                    ItemStack res = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], master);
+                    ItemStack res = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], master, localReforgeCounter);
                     if (!res.isEmpty()) {
                         result.setInventorySlotContents(0, res);
                         checkAndApplyReskillableLock(playerInv.player, Block.getBlockFromName("qualitytools:reforging_station"));
@@ -1151,7 +1152,6 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         stack.setTagCompound(realResult.getTagCompound());
                         stack.setCount(1);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
-                        handleCustomAutofill(playerIn, master, beforeMatrix, false);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
                         syncAllSlots(playerIn);
@@ -1265,16 +1265,16 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 }
                 if (master.hasBountifulBaublesReforger() && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.isBaubleReforgeGrid(m) && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8])) {
                     com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.BaubleReforgeResult bbr =
-                        com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], playerIn, master);
+                        com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.computeResult(m[8], playerIn, master, localReforgeCounter);
                     if (bbr != null && bbr.hasEnoughXp) {
                         stack.onCrafting(playerIn.world, playerIn, 1);
                         com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.consumeIngredients(m, bbr, playerIn, master);
+                        ContainerMagicStorageBase.this.localReforgeCounter++;
                         playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                         ItemStack realResult = bbr.actualReforgedStack.copy();
                         stack.setTagCompound(realResult.hasTagCompound() ? realResult.getTagCompound().copy() : null);
                         stack.setCount(1);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
-                        handleCustomAutofill(playerIn, master, beforeMatrix, false);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
                         syncAllSlots(playerIn);
@@ -1289,16 +1289,16 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     return ItemStack.EMPTY;
                 }
                 if (master.hasQualityToolsReforger() && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.isQualityToolsGrid(m) && com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.canCraft(m[4], m[8])) {
-                    ItemStack res = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], master);
+                    ItemStack res = com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.computeResult(m[4], m[8], master, localReforgeCounter);
                     if (!res.isEmpty()) {
                         stack.onCrafting(playerIn.world, playerIn, 1);
                         com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.consumeIngredients(m, master);
+                        ContainerMagicStorageBase.this.localReforgeCounter++;
                         playerIn.world.playSound(null, playerIn.getPosition(), net.minecraft.init.SoundEvents.BLOCK_ANVIL_USE, net.minecraft.util.SoundCategory.PLAYERS, 1.0F, 1.0F);
                         ItemStack realResult = res.copy();
                         stack.setTagCompound(realResult.hasTagCompound() ? realResult.getTagCompound().copy() : null);
                         stack.setCount(1);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
-                        handleCustomAutofill(playerIn, master, beforeMatrix, false);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
                         syncAllSlots(playerIn);

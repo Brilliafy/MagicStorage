@@ -279,6 +279,29 @@ public class RusticCraftingHelper {
         }
         if (outFluid == null || outFluid.getFluid() == null) return ItemStack.EMPTY;
 
+        // Override quality with deterministic batch calculation so re-adding ingredients doesn't reroll
+        if (outFluid.getFluid() instanceof FluidBooze) {
+            long posLong = (heart != null && heart.getPos() != null) ? heart.getPos().toLong() : 0L;
+            int craftCounter = (heart != null) ? heart.getBrewingCraftCounter() : 0;
+            long z = posLong ^ ((long) craftCounter * 0xbf58476d1ce4e5b9L);
+            z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+            z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+            Random deterministicRand = new Random(z ^ (z >>> 31));
+
+            float quality;
+            if (templateFluid != null && templateFluid.getFluid() instanceof FluidBooze && templateFluid.tag != null && templateFluid.tag.hasKey(FluidBooze.QUALITY_NBT_KEY)) {
+                float auxQuality = templateFluid.tag.getFloat(FluidBooze.QUALITY_NBT_KEY);
+                int minChange = rustic.common.Config.MIN_BREW_QUALITY_CHANGE;
+                int maxChange = Math.max(rustic.common.Config.MAX_BREW_QUALITY_CHANGE, minChange);
+                int brewQualityChange = deterministicRand.nextInt(maxChange - minChange + 1) + minChange;
+                quality = Math.max(Math.min((float)(brewQualityChange + (int)(100.0f * auxQuality)) / 100.0f, 1.0f), 0.0f);
+            } else {
+                quality = (float)(5 + deterministicRand.nextInt(71)) / 100.0f;
+            }
+            if (outFluid.tag == null) outFluid.tag = new NBTTagCompound();
+            outFluid.tag.setFloat(FluidBooze.QUALITY_NBT_KEY, quality);
+        }
+
         ItemStack resBottle = getFilledBottle(outFluid.getFluid());
         if (outFluid.tag != null && outFluid.tag.hasKey(FluidBooze.QUALITY_NBT_KEY)) {
             float q = outFluid.tag.getFloat(FluidBooze.QUALITY_NBT_KEY);

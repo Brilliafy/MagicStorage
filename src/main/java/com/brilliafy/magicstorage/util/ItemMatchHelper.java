@@ -9,9 +9,10 @@ public class ItemMatchHelper {
         if (stack == null || stack.isEmpty() || !stack.hasTagCompound()) return null;
         NBTTagCompound tag = stack.getTagCompound().copy();
 
-        // Strip client-side tooltip mutations (e.g. SpartanWeaponry tooltip enchant check)
+        // Strip client-side tooltip mutations (e.g. SpartanWeaponry tooltip enchant check, Bountiful Baubles shields)
         tag.removeTag("enchChecked");
         tag.removeTag("enchantmentsInvalid");
+        tag.removeTag("HideFlags");
 
         // Strip random instance UUIDs (e.g. SpartanWeaponry throwing weapons assigning random UUIDs)
         tag.removeTag("UUID");

@@ -85,20 +85,22 @@ public class MagicRecipeTransferHandler<C extends Container & com.brilliafy.magi
     }
 
     private static List<ItemStack> prioritizeFocused(List<ItemStack> candidates, ItemStack focused) {
-        if (candidates == null) candidates = new ArrayList<>();
-        if (focused == null || focused.isEmpty()) return candidates;
+        if (candidates == null || candidates.isEmpty()) return java.util.Collections.emptyList();
+        if (focused == null || focused.isEmpty()) return new ArrayList<>(candidates);
 
-        List<ItemStack> result = new ArrayList<>();
         boolean matches = false;
         for (ItemStack cand : candidates) {
-            if (cand.getItem() == focused.getItem()) {
+            if (cand.getItem() == focused.getItem() && (!cand.getHasSubtypes() || cand.getMetadata() == focused.getMetadata())) {
                 matches = true;
                 break;
             }
         }
-        if (matches || candidates.isEmpty()) {
-            result.add(focused.copy());
+        if (!matches) {
+            return new ArrayList<>(candidates);
         }
+
+        List<ItemStack> result = new ArrayList<>();
+        result.add(focused.copy());
         for (ItemStack cand : candidates) {
             if (!ItemStack.areItemStacksEqual(cand, focused)) {
                 result.add(cand);
@@ -122,7 +124,11 @@ public class MagicRecipeTransferHandler<C extends Container & com.brilliafy.magi
                     IGuiIngredient<ItemStack> ingredient = inputs.get(slot.getSlotIndex() + 1);
                     if (ingredient == null) continue;
                     List<ItemStack> possibleItems = ingredient.getAllIngredients();
-                    putCandidates(nbt, slot.getSlotIndex(), prioritizeFocused(possibleItems, focusedStack));
+                    if (possibleItems == null || possibleItems.isEmpty()) continue;
+                    List<ItemStack> prioritized = prioritizeFocused(possibleItems, focusedStack);
+                    if (!prioritized.isEmpty()) {
+                        putCandidates(nbt, slot.getSlotIndex(), prioritized);
+                    }
                 }
             }
             return nbt;
