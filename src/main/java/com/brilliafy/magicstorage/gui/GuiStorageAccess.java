@@ -126,6 +126,13 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         super.renderHoveredToolTip(mouseX, mouseY);
+        if (mc.player.inventory.getItemStack().isEmpty()) {
+            for (ItemSlotNetwork s : slots) {
+                if (s != null && s.isMouseOverSlot(mouseX, mouseY)) {
+                    s.drawTooltip(mouseX, mouseY);
+                }
+            }
+        }
     }
 
     @Override

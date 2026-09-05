@@ -59,6 +59,10 @@ public class TileStorageHeart extends TileEntity implements ITickable {
             return isAllowedStation(stack);
         }
         @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+        @Override
         protected void onContentsChanged(int slot) {
             TileStorageHeart.this.markDirty();
         }
@@ -677,9 +681,6 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 }
             }
         }
-        if (!remainder.isEmpty()) {
-            remainder = net.minecraftforge.items.ItemHandlerHelper.insertItemStacked(inventory, remainder, simulate);
-        }
         if (!simulate) markContentsDirty();
         return remainder;
     }
@@ -730,11 +731,16 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public int getBrewingCraftCounter() { return brewingCraftCounter; }
     public void incrementBrewingCraftCounter() { brewingCraftCounter++; markDirty(); }
 
+    private int reforgeCraftCounter = 0;
+    public int getReforgeCraftCounter() { return reforgeCraftCounter; }
+    public void incrementReforgeCraftCounter() { reforgeCraftCounter++; markDirty(); }
+
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         compound.setTag("Inventory", inventory.serializeNBT());
         compound.setInteger("brewingCraftCounter", brewingCraftCounter);
+        compound.setInteger("reforgeCraftCounter", reforgeCraftCounter);
         NBTTagList units = new NBTTagList();
         for (BlockPos p : connectedUnits) {
             NBTTagCompound c = new NBTTagCompound();
@@ -757,6 +763,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         super.readFromNBT(compound);
         if (compound.hasKey("Inventory")) inventory.deserializeNBT(compound.getCompoundTag("Inventory"));
         if (compound.hasKey("brewingCraftCounter")) brewingCraftCounter = compound.getInteger("brewingCraftCounter");
+        if (compound.hasKey("reforgeCraftCounter")) reforgeCraftCounter = compound.getInteger("reforgeCraftCounter");
         connectedUnits.clear();
         NBTTagList units = compound.getTagList("ConnectedUnits", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < units.tagCount(); i++) {

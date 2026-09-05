@@ -29,6 +29,14 @@ public class ContainerStorageHeart extends Container {
                     public boolean isItemValid(ItemStack stack) {
                         return TileStorageHeart.isAllowedStation(stack);
                     }
+                    @Override
+                    public int getItemStackLimit(@javax.annotation.Nonnull ItemStack stack) {
+                        return 1;
+                    }
+                    @Override
+                    public int getSlotStackLimit() {
+                        return 1;
+                    }
                 });
             }
         }
@@ -62,8 +70,21 @@ public class ContainerStorageHeart extends Container {
                 if (!mergeItemStack(itemstack1, 20, inventorySlots.size(), true))
                     return ItemStack.EMPTY;
             } else {
-                if (!mergeItemStack(itemstack1, 0, 20, false))
+                if (!TileStorageHeart.isAllowedStation(itemstack1)) {
                     return ItemStack.EMPTY;
+                }
+                boolean moved = false;
+                for (int i = 0; i < 20; i++) {
+                    Slot targetSlot = inventorySlots.get(i);
+                    if (targetSlot != null && !targetSlot.getHasStack() && targetSlot.isItemValid(itemstack1)) {
+                        ItemStack single = itemstack1.splitStack(1);
+                        targetSlot.putStack(single);
+                        targetSlot.onSlotChanged();
+                        moved = true;
+                        if (itemstack1.isEmpty()) break;
+                    }
+                }
+                if (!moved) return ItemStack.EMPTY;
             }
             if (itemstack1.isEmpty()) slot.putStack(ItemStack.EMPTY);
             else slot.onSlotChanged();

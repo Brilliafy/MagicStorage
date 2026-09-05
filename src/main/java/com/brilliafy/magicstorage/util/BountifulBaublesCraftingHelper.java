@@ -66,6 +66,10 @@ public class BountifulBaublesCraftingHelper {
     }
 
     public static BaubleReforgeResult computeResult(ItemStack bauble, EntityPlayer player, TileStorageHeart heart) {
+        return computeResult(bauble, player, heart, 0);
+    }
+
+    public static BaubleReforgeResult computeResult(ItemStack bauble, EntityPlayer player, TileStorageHeart heart, int localCounter) {
         if (!canCraft(bauble)) return null;
 
         ItemStack baubleCopy = bauble.copy();
@@ -74,12 +78,20 @@ public class BountifulBaublesCraftingHelper {
         }
         NBTTagCompound tag = baubleCopy.getTagCompound();
 
-        long posLong = (heart != null && heart.getPos() != null) ? heart.getPos().toLong() : 0L;
-        int craftCounter = (heart != null) ? heart.getBrewingCraftCounter() : 0;
-        long seed = 31L * posLong + craftCounter;
+        long posLong = (heart != null && heart.getPos() != null) ? heart.getPos().toLong() : 0x9E3779B97F4A7C15L;
+        int craftCounter = (heart != null ? heart.getReforgeCraftCounter() : 0) + localCounter;
+        int itemHash = (bauble.getItem() != null && bauble.getItem().getRegistryName() != null)
+            ? bauble.getItem().getRegistryName().toString().hashCode() : 0;
+        long z = posLong ^ ((long) craftCounter * 0xbf58476d1ce4e5b9L) ^ ((long) itemHash << 16);
+        z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+        z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+        long seed = z ^ (z >>> 31);
         Random deterministicRand = new Random(seed);
 
         int xpCost = tag.hasKey("reforgeCost") ? tag.getInteger("reforgeCost") : (deterministicRand.nextInt(320 - 80 + 1) + 80);
+        if (tag.hasKey("reforgeCost")) {
+            deterministicRand.nextInt(320 - 80 + 1);
+        }
 
         EnumBaubleModifier mod = getDeterministicModifier(deterministicRand);
         mod.addTo(baubleCopy);
@@ -127,7 +139,7 @@ public class BountifulBaublesCraftingHelper {
         matrix[8] = ItemStack.EMPTY;
 
         if (heart != null) {
-            heart.incrementBrewingCraftCounter();
+            heart.incrementReforgeCraftCounter();
         }
     }
 }

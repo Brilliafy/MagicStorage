@@ -4,6 +4,37 @@ All notable changes, fixes, and feature additions for **Magic Storage** are docu
 
 ---
 
+## [1.1.11] - 2026-09-06
+
+### 🛠️ Bug Fixes & Quality of Life Improvements
+- **Storage Unit Item Tooltips on Hover**:
+  - Fixed an issue where opening individual Storage Units (or Storage Access / Remote Access) by right-clicking them in the world and hovering over items failed to display tooltips. Full item tooltips (including modded attributes, lore, enchantments, and durability) now display as expected.
+- **Storage Heart Slot Isolation & Station Limit**:
+  - Fixed a critical bug where network overflow items were pushed into the 20 Storage Heart slots when storage units became full.
+  - Heart slots are now strictly isolated from network storage and will never store general items.
+  - Heart slots now enforce a strict maximum stack limit of **1** for supported crafting stations only.
+  - Shift-clicking stations into the Storage Heart now safely distributes at most 1 station per slot.
+- **JEI Recipe Transfer (+) Ghost Item Extraction**:
+  - Fixed a bug where clicking the `+` recipe transfer button for recipes with empty slots (such as weapons or armor like a Diamond Sword) pulled already-crafted items (e.g. Diamond Swords) from your inventory or storage network into the empty recipe slots.
+  - Recipe transfer now cleanly ignores empty spaces in shaped crafting recipes.
+- **Anvil Repair Material Consumption Fix**:
+  - Fixed an issue where anvil repairs appeared to consume $n - 1$ materials (e.g., taking 2 iron ingots instead of 3).
+  - The anvil was correctly calculating and consuming all 3 materials, but the autofill system immediately pulled 1 replenishment ingot from storage into the emptied slot. Single-use repair and combine operations now bypass autofill.
+- **Cobalt Shield & Shield Extraction (Bountiful Baubles)**:
+  - Fixed a bug where Cobalt Shields, Obsidian Shields, and Ankh Shields could not be picked or extracted from the storage network.
+  - Resolved an NBT mismatch caused by client-side tooltip rendering mutating the stack with `HideFlags: 2`. Client transient `HideFlags` tags are now normalized during network storage queries.
+- **Reforging Station Modifier Freeze (Quality Tools & Bountiful Baubles)**:
+  - Fixed an issue where reforging at the Reforging Station (Quality Tools) or Bauble Reforger (Bountiful Baubles) eventually glitched and repeatedly yielded the exact same modifier over and over regardless of reroll attempts.
+  - Reforging now uses an independent, high-entropy 64-bit SplitMix64 RNG stream that guarantees distinct random modifiers per roll.
+  - Fixed RNG state pollution by properly resetting Quality Tools' global Random generator after rolling.
+  - Reforging counter now properly advances across all terminal types, including Portable Access remotes and unlinked networks.
+  - Disabled ingredient autofill during reforging to prevent unintended item restocking.
+- **Rustic Winery Quality Determinism**:
+  - Fixed a bug where removing and re-adding wine brewing ingredients to the crafting grid rerolled booze quality on every matrix update.
+  - Wine quality is now deterministically locked per batch based on the brewing counter, ensuring consistent quality until the batch is actually crafted.
+
+---
+
 ## [1.1.0] - 2026-08-15
 
 ### 🌟 Highlights & Major Features
