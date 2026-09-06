@@ -222,7 +222,7 @@ stations {
 </details>
 
 <details>
-<summary><b>10. FAQ, Credits & License</b></summary>
+<summary><b>10. FAQ, Credits, AI Disclosure & License</b></summary>
 
 ### Frequently Asked Questions
 
@@ -237,6 +237,13 @@ A: Yes. You can include this mod in any modpack without prior permission.
 ### Third-Party Credits
 * **[Magic Storage (Terraria)](https://github.com/blushiemagic/MagicStorage)** by blushiemagic: Original mod concept, mechanics, and visual assets used under the [MIT License](https://github.com/blushiemagic/MagicStorage/blob/master/LICENSE.txt).
 * **[Storage Network](https://github.com/Lothrazar/Storage-Network)** by Lothrazar: Network storage foundations adapted under the [MIT License](https://github.com/Lothrazar/Storage-Network/blob/master/LICENSE).
+
+---
+
+### AI Disclosure
+To accelerate development, AI was used for development and to re-write documentation.
+
+---
 
 ### License
 Licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
