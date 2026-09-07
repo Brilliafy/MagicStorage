@@ -531,100 +531,134 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
     @Override
     public ItemStack transferStackInSlot(EntityPlayer playerIn, int slotIndex) {
-        ItemStack itemstack = ItemStack.EMPTY;
+        if (playerIn.world.isRemote) return ItemStack.EMPTY;
+
         Slot slot = inventorySlots.get(slotIndex);
-        if (slot != null && slot.getHasStack()) {
-            ItemStack itemstack1 = slot.getStack();
-            itemstack = itemstack1.copy();
-            TileStorageHeart tileMaster = getTileMaster();
+        if (slot == null || !slot.getHasStack()) {
+            return ItemStack.EMPTY;
+        }
 
-            // Slot 0 = craft result
-            if (slotIndex == 0 && !isSimple) {
-                if (playerIn.world.isRemote) return ItemStack.EMPTY;
+        ItemStack itemstack1 = slot.getStack();
+        TileStorageHeart tileMaster = getTileMaster();
 
-                if (anvilResultLocked || enchantResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) {
-                    return ItemStack.EMPTY;
-                }
+        // Slot 0 = craft result
+        if (slotIndex == 0) {
+            if (isSimple) return ItemStack.EMPTY;
 
-                if (!slot.getHasStack()) return ItemStack.EMPTY;
-                ItemStack initialTarget = slot.getStack().copy();
-                if (initialTarget.isEmpty()) return ItemStack.EMPTY;
-
-                ItemStack[] m = new ItemStack[9];
-                for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
-
-                boolean isEnchanting = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.isEnchantingGrid(m) && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5]);
-                boolean isSingleOnlyStation = isEnchanting 
-                    || (com.brilliafy.magicstorage.util.AnvilCraftingHelper.isAnvilGrid(m) && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerIn))
-                    || (com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.isBaubleReforgeGrid(m) && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8]))
-                    || com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.isQualityToolsGrid(m)
-                    || com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.isDisenchanterGrid(m);
-
-                ItemStack firstCraftResult = ItemStack.EMPTY;
-                int maxCrafts = isSingleOnlyStation ? 1 : (64 * 36); // Safety limit
-
-                this.isShiftCrafting = true;
-                try {
-                    while (maxCrafts-- > 0) {
-                        if (!slot.getHasStack()) break;
-                        ItemStack currentSlotStack = slot.getStack();
-                        if (currentSlotStack.isEmpty()) break;
-
-                        // RECIPE LOCKING: If matrix output changes to a different item, stop immediately!
-                        if (!net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(initialTarget, currentSlotStack)) {
-                            break;
-                        }
-
-                        ItemStack craftedItem = slot.onTake(playerIn, currentSlotStack.copy());
-                        if (craftedItem.isEmpty()) break;
-
-                        if (firstCraftResult.isEmpty()) firstCraftResult = craftedItem.copy();
-
-                        craftedItem.getItem().onCreated(craftedItem, playerIn.world, playerIn);
-
-                        // Transfer crafted item to player inventory (slots 10 to 45)
-                        if (!this.mergeItemStack(craftedItem, 10, 46, true)) {
-                            playerIn.dropItem(craftedItem, false);
-                            break; // Inventory full
-                        }
-                    }
-                } finally {
-                    this.isShiftCrafting = false;
-                }
-
-                if (!playerIn.world.isRemote) {
-                    onCraftMatrixChanged(matrix);
-                    detectAndSendChanges();
-                    syncAllSlots(playerIn);
-                    if (tileMaster != null) sendItemRefresh(playerIn, tileMaster);
-                }
-                return firstCraftResult;
+            if (anvilResultLocked || enchantResultLocked || bountifulBaublesResultLocked || reskillableResultLocked) {
+                return ItemStack.EMPTY;
             }
-            // Matrix slots (1-9) -> return to network
-            else if (slotIndex >= 1 && slotIndex <= 9) {
-                if (playerIn.world.isRemote) return ItemStack.EMPTY;
-                if (tileMaster != null) {
-                    ItemStack remainder = tileMaster.insertItem(itemstack1, false);
-                    slot.putStack(remainder);
+
+            ItemStack initialTarget = itemstack1.copy();
+            if (initialTarget.isEmpty()) return ItemStack.EMPTY;
+
+            ItemStack[] m = new ItemStack[9];
+            for (int i = 0; i < 9; i++) m[i] = matrix.getStackInSlot(i);
+
+            boolean isEnchanting = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.isEnchantingGrid(m) && com.brilliafy.magicstorage.util.EnchantingCraftingHelper.canCraft(m[0], m[3], m[4], m[5]);
+            boolean isSingleOnlyStation = isEnchanting 
+                || (com.brilliafy.magicstorage.util.AnvilCraftingHelper.isAnvilGrid(m) && com.brilliafy.magicstorage.util.AnvilCraftingHelper.canCraft(m[0], m[4], playerIn))
+                || (com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.isBaubleReforgeGrid(m) && com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.canCraft(m[8]))
+                || com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.isQualityToolsGrid(m)
+                || com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.isDisenchanterGrid(m);
+
+            int maxCrafts = isSingleOnlyStation ? 1 : (64 * 36); // Safety limit
+
+            this.isShiftCrafting = true;
+            try {
+                while (maxCrafts-- > 0) {
+                    if (!slot.getHasStack()) break;
+                    ItemStack currentSlotStack = slot.getStack();
+                    if (currentSlotStack.isEmpty()) break;
+
+                    // RECIPE LOCKING: If matrix output changes to a different item, stop immediately!
+                    if (!net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(initialTarget, currentSlotStack)) {
+                        break;
+                    }
+
+                    ItemStack craftedItem = slot.onTake(playerIn, currentSlotStack.copy());
+                    if (craftedItem.isEmpty()) break;
+
+                    craftedItem.getItem().onCreated(craftedItem, playerIn.world, playerIn);
+
+                    // Transfer crafted item to player inventory (slots 10 to 45)
+                    if (!this.mergeItemStack(craftedItem, 10, 46, true)) {
+                        playerIn.dropItem(craftedItem, false);
+                        break; // Inventory full
+                    }
+                }
+            } finally {
+                this.isShiftCrafting = false;
+            }
+
+            onCraftMatrixChanged(matrix);
+            detectAndSendChanges();
+            syncAllSlots(playerIn);
+            if (tileMaster != null) sendItemRefresh(playerIn, tileMaster);
+            return ItemStack.EMPTY;
+        }
+        // Matrix slots (1-9) -> return to network or move to player inventory
+        else if (slotIndex >= 1 && slotIndex <= 9) {
+            if (tileMaster != null) {
+                ItemStack remainder = tileMaster.insertItem(itemstack1, false);
+                if (remainder.isEmpty()) {
+                    slot.putStack(ItemStack.EMPTY);
+                    slot.onSlotChanged();
                     detectAndSendChanges();
                     sendItemRefresh(playerIn, tileMaster);
                     return ItemStack.EMPTY;
+                } else if (remainder.getCount() < itemstack1.getCount()) {
+                    slot.putStack(remainder);
+                    slot.onSlotChanged();
+                    detectAndSendChanges();
+                    sendItemRefresh(playerIn, tileMaster);
+                    itemstack1 = remainder;
                 }
             }
-            // Player inventory/hotbar -> insert into network
-            else if (tileMaster != null) {
-                if (playerIn.world.isRemote) return ItemStack.EMPTY;
+            if (!this.mergeItemStack(itemstack1, 10, 46, false)) {
+                return ItemStack.EMPTY;
+            }
+            if (itemstack1.isEmpty()) {
+                slot.putStack(ItemStack.EMPTY);
+            } else {
+                slot.onSlotChanged();
+            }
+            detectAndSendChanges();
+            return ItemStack.EMPTY;
+        }
+        // Player inventory/hotbar (10-45) -> insert into network if connected, else swap between hotbar/inv
+        else if (slotIndex >= 10 && slotIndex < 46) {
+            if (tileMaster != null) {
                 ItemStack remainder = tileMaster.insertItem(itemstack1, false);
-                slot.putStack(remainder);
+                if (remainder.getCount() == itemstack1.getCount()) {
+                    return ItemStack.EMPTY;
+                }
+                slot.putStack(remainder.isEmpty() ? ItemStack.EMPTY : remainder);
+                slot.onSlotChanged();
                 detectAndSendChanges();
                 sendItemRefresh(playerIn, tileMaster);
-                if (remainder.isEmpty()) return ItemStack.EMPTY;
-                slot.onTake(playerIn, itemstack1);
+                return ItemStack.EMPTY;
+            } else {
+                if (slotIndex >= 10 && slotIndex < 37) {
+                    if (!this.mergeItemStack(itemstack1, 37, 46, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (slotIndex >= 37 && slotIndex < 46) {
+                    if (!this.mergeItemStack(itemstack1, 10, 37, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+                if (itemstack1.isEmpty()) {
+                    slot.putStack(ItemStack.EMPTY);
+                } else {
+                    slot.onSlotChanged();
+                }
+                detectAndSendChanges();
                 return ItemStack.EMPTY;
             }
         }
 
-        return itemstack;
+        return ItemStack.EMPTY;
     }
     
     protected void sendItemRefresh(EntityPlayer player, TileStorageHeart master) {

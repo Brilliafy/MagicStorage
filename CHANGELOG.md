@@ -2,6 +2,16 @@
 
 All notable changes, fixes, and feature additions for **Magic Storage** are documented in this file.
 
+## [1.1.12] - 2026-09-07
+
+### 🛠️ Bug Fixes & Stability
+- **Shift-Click Infinite Loop & Main Thread Freeze Fix**:
+  - Fixed a game freeze bug occurring when shift-clicking items (such as Spartan Weaponry sabers, weapons, or any inventory item) to move them in Crafting Access, Portable Remote Access, or Storage Heart terminals.
+  - Vanilla Minecraft's quick-move container loop (`Container.slotClick`) continuously polls `transferStackInSlot` while the returned stack matches the slot contents. When client-side simulation ran without an adjacent heart reference or when items could not be inserted into the network, unhandled fallthrough returned unchanged stacks, resulting in an unrecoverable infinite loop on the main thread with 0 log errors.
+  - Magic Storage containers now immediately terminate quick-move simulation on the client (`world.isRemote`) with `ItemStack.EMPTY`, allowing server packets to handle the transaction authoritatively.
+  - Server-side matrix and inventory transfers now safely fall back to player inventory or return `ItemStack.EMPTY` when the destination is full.
+  - Added network tile update packets (`getUpdateTag`, `getUpdatePacket`, `onDataPacket`) to `TileCraftingAccess` to maintain accurate client-server tile state synchronization.
+
 ---
 
 ## [1.1.11] - 2026-09-06
