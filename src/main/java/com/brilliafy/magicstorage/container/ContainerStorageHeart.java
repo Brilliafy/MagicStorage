@@ -61,6 +61,7 @@ public class ContainerStorageHeart extends Container {
 
     @Override
     public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+        if (playerIn.world.isRemote) return ItemStack.EMPTY;
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = inventorySlots.get(index);
         if (slot != null && slot.getHasStack()) {
@@ -88,6 +89,10 @@ public class ContainerStorageHeart extends Container {
             }
             if (itemstack1.isEmpty()) slot.putStack(ItemStack.EMPTY);
             else slot.onSlotChanged();
+
+            if (itemstack1.getCount() == itemstack.getCount()) {
+                return ItemStack.EMPTY;
+            }
         }
         return itemstack;
     }

@@ -146,4 +146,19 @@ public class TileCraftingAccess extends TileEntity implements ITickable {
         }
         if (compound.hasKey("stationIndex")) currentStationIndex = compound.getInteger("stationIndex");
     }
+
+    @Override
+    public NBTTagCompound getUpdateTag() {
+        return writeToNBT(new NBTTagCompound());
+    }
+
+    @Override
+    public net.minecraft.network.play.server.SPacketUpdateTileEntity getUpdatePacket() {
+        return new net.minecraft.network.play.server.SPacketUpdateTileEntity(pos, 0, getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(net.minecraft.network.NetworkManager net, net.minecraft.network.play.server.SPacketUpdateTileEntity pkt) {
+        readFromNBT(pkt.getNbtCompound());
+    }
 }
