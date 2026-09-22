@@ -945,13 +945,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 if (curCrush < reqCrush) {
                     int needed = reqCrush - curCrush;
                     ItemStack reqStack = (master != null) ? master.extractItem(
-                        s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, beforeMatrix[0]),
+                        s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, beforeMatrix[0]),
                         needed, false) : ItemStack.EMPTY;
                     if ((reqStack.isEmpty() || reqStack.getCount() < needed) && allowInventory) {
                         int remaining = needed - reqStack.getCount();
                         for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
                             ItemStack invStack = playerIn.inventory.mainInventory.get(slotIdx);
-                            if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, beforeMatrix[0])) {
+                            if (!invStack.isEmpty() && com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(invStack, beforeMatrix[0])) {
                                 ItemStack taken = invStack.splitStack(Math.min(remaining, invStack.getCount()));
                                 if (reqStack.isEmpty()) {
                                     reqStack = taken;
@@ -995,14 +995,14 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         final int slot = i;
                         int fillAmount = 1;
                         ItemStack req = (master != null) ? master.extractItem(
-                            s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, beforeMatrix[slot]),
+                            s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, beforeMatrix[slot]),
                             fillAmount, false) : ItemStack.EMPTY;
 
                         if ((req.isEmpty() || req.getCount() < fillAmount) && allowInventory) {
                             int needed = fillAmount - req.getCount();
                             for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
                                 ItemStack invStack = playerIn.inventory.mainInventory.get(slotIdx);
-                                if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, beforeMatrix[slot])) {
+                                if (!invStack.isEmpty() && com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(invStack, beforeMatrix[slot])) {
                                     ItemStack taken = invStack.splitStack(Math.min(needed, invStack.getCount()));
                                     if (req.isEmpty()) {
                                         req = taken;
@@ -1037,13 +1037,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             if (currentFuel < neededFuel) {
                                 int toExtract = neededFuel - currentFuel;
                                 ItemStack reqFuel = (master != null) ? master.extractItem(
-                                    s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, fuelCandidate),
+                                    s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, fuelCandidate),
                                     toExtract, false) : ItemStack.EMPTY;
                                 if ((reqFuel.isEmpty() || reqFuel.getCount() < toExtract) && allowInventory) {
                                     int remaining = toExtract - reqFuel.getCount();
                                     for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
                                         ItemStack invStack = playerIn.inventory.mainInventory.get(slotIdx);
-                                        if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, fuelCandidate)) {
+                                        if (!invStack.isEmpty() && com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(invStack, fuelCandidate)) {
                                             ItemStack taken = invStack.splitStack(Math.min(remaining, invStack.getCount()));
                                             if (reqFuel.isEmpty()) {
                                                 reqFuel = taken;
@@ -1440,7 +1440,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         }
                         // 1st Priority: Storage Network
                         ItemStack req = master != null ? master.extractItem(
-                            s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, lis.get(slot)),
+                            s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, lis.get(slot)),
                             fillAmount, false) : ItemStack.EMPTY;
 
                         // 2nd Priority: Player Inventory
@@ -1448,7 +1448,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             int needed = fillAmount - req.getCount();
                             for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
                                 ItemStack invStack = playerIn.inventory.mainInventory.get(slotIdx);
-                                if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, lis.get(slot))) {
+                                if (!invStack.isEmpty() && com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(invStack, lis.get(slot))) {
                                     ItemStack taken = invStack.splitStack(Math.min(needed, invStack.getCount()));
                                     if (req.isEmpty()) {
                                         req = taken;
@@ -1483,13 +1483,13 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             if (currentFuel < neededFuel) {
                                 int toExtract = neededFuel - currentFuel;
                                 ItemStack reqFuel = master != null ? master.extractItem(
-                                    s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, fuelCandidate),
+                                    s -> com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(s, fuelCandidate),
                                     toExtract, false) : ItemStack.EMPTY;
                                 if ((reqFuel.isEmpty() || reqFuel.getCount() < toExtract) && allowInventory) {
                                     int remaining = toExtract - reqFuel.getCount();
                                     for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
                                         ItemStack invStack = playerIn.inventory.mainInventory.get(slotIdx);
-                                        if (!invStack.isEmpty() && net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(invStack, fuelCandidate)) {
+                                        if (!invStack.isEmpty() && com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(invStack, fuelCandidate)) {
                                             ItemStack taken = invStack.splitStack(Math.min(remaining, invStack.getCount()));
                                             if (reqFuel.isEmpty()) {
                                                 reqFuel = taken;
