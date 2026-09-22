@@ -84,26 +84,52 @@ public class MagicRecipeTransferHandler<C extends Container & com.brilliafy.magi
         nbt.setTag("s" + slotIndex, invList);
     }
 
+    private static boolean candidateMatchesFocused(ItemStack cand, ItemStack focused) {
+        if (cand == null || focused == null || cand.isEmpty() || focused.isEmpty()) return false;
+        if (cand.getItem() != focused.getItem()) return false;
+
+        if (cand.getMetadata() != net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE &&
+            cand.getMetadata() != focused.getMetadata()) {
+            return false;
+        }
+
+        if (com.brilliafy.magicstorage.util.ItemMatchHelper.isPotionItem(cand) ||
+            com.brilliafy.magicstorage.util.ItemMatchHelper.isPotionItem(focused)) {
+            return com.brilliafy.magicstorage.util.ItemMatchHelper.matchesPotion(cand, focused);
+        }
+
+        if (cand.hasTagCompound() || focused.hasTagCompound()) {
+            NBTTagCompound tagCand = com.brilliafy.magicstorage.util.ItemMatchHelper.getComparableNBT(cand);
+            NBTTagCompound tagFoc = com.brilliafy.magicstorage.util.ItemMatchHelper.getComparableNBT(focused);
+            if (tagCand == null && tagFoc == null) return true;
+            if (tagCand == null || tagFoc == null) return false;
+            return tagCand.equals(tagFoc);
+        }
+
+        return true;
+    }
+
     private static List<ItemStack> prioritizeFocused(List<ItemStack> candidates, ItemStack focused) {
         if (candidates == null || candidates.isEmpty()) return java.util.Collections.emptyList();
         if (focused == null || focused.isEmpty()) return new ArrayList<>(candidates);
 
-        boolean matches = false;
-        for (ItemStack cand : candidates) {
-            if (cand.getItem() == focused.getItem() && (!cand.getHasSubtypes() || cand.getMetadata() == focused.getMetadata())) {
-                matches = true;
+        int matchIndex = -1;
+        for (int i = 0; i < candidates.size(); i++) {
+            if (candidateMatchesFocused(candidates.get(i), focused)) {
+                matchIndex = i;
                 break;
             }
         }
-        if (!matches) {
+
+        if (matchIndex == -1) {
             return new ArrayList<>(candidates);
         }
 
-        List<ItemStack> result = new ArrayList<>();
-        result.add(focused.copy());
-        for (ItemStack cand : candidates) {
-            if (!ItemStack.areItemStacksEqual(cand, focused)) {
-                result.add(cand);
+        List<ItemStack> result = new ArrayList<>(candidates.size());
+        result.add(candidates.get(matchIndex));
+        for (int i = 0; i < candidates.size(); i++) {
+            if (i != matchIndex) {
+                result.add(candidates.get(i));
             }
         }
         return result;
@@ -289,7 +315,8 @@ public class MagicRecipeTransferHandler<C extends Container & com.brilliafy.magi
                         if (fluidIn != null && fluidIn.getFluid() != null && Loader.isModLoaded("rustic")) {
                             try {
                                 ItemStack bottle = ((rustic.common.items.ItemFluidBottle) rustic.common.items.ModItems.FLUID_BOTTLE).getFilledBottle(fluidIn.getFluid());
-                                putStack(nbt, 4, !focusedStack.isEmpty() && focusedStack.getItem() == bottle.getItem() ? focusedStack : bottle);
+                                boolean useFocused = !focusedStack.isEmpty() && com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(bottle, focusedStack);
+                                putStack(nbt, 4, useFocused ? focusedStack : bottle);
                             } catch (Throwable ignored) {}
                         }
                     }

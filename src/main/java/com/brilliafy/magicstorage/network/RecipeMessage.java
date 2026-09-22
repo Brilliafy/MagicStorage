@@ -520,17 +520,10 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
             return false;
         }
 
-        // Potion matching
-        if (candidate.getItem() == net.minecraft.init.Items.POTIONITEM ||
-            candidate.getItem() == net.minecraft.init.Items.SPLASH_POTION ||
-            candidate.getItem() == net.minecraft.init.Items.LINGERING_POTION) {
-            if (candidate.hasTagCompound() && candidate.getTagCompound().hasKey("Potion")) {
-                String candPotion = candidate.getTagCompound().getString("Potion");
-                String storPotion = storageStack.hasTagCompound() ? storageStack.getTagCompound().getString("Potion") : "";
-                if (!candPotion.isEmpty() && !candPotion.equals(storPotion)) {
-                    return false;
-                }
-            }
+        // Potion matching - always strict!
+        if (com.brilliafy.magicstorage.util.ItemMatchHelper.isPotionItem(candidate) ||
+            com.brilliafy.magicstorage.util.ItemMatchHelper.isPotionItem(storageStack)) {
+            return com.brilliafy.magicstorage.util.ItemMatchHelper.matchesPotion(storageStack, candidate);
         }
 
         // Rustic Fluid Bottle matching
