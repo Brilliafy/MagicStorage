@@ -35,10 +35,53 @@ public class ContainerPortableAccess extends ContainerMagicStorageBase {
         }
         if (!isSimple) {
             bindGrid();
-            bindPlayerInvo(playerInv);
+        }
+        bindPlayerInvo(playerInv);
+        if (!isSimple) {
             onCraftMatrixChanged(matrix);
         }
         // SSN: don't try to find heart here — let the RequestMessage refresh handle it
+    }
+
+    @Override
+    protected void bindPlayerInvo(final InventoryPlayer playerInv) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                int slot = j + i * 9 + 9;
+                if (slot == remoteSlot) {
+                    this.addSlotToContainer(new Slot(playerInv, slot, 8 + j * 18, 174 + i * 18) {
+                        @Override
+                        public boolean isItemValid(ItemStack stack) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean canTakeStack(EntityPlayer playerIn) {
+                            return false;
+                        }
+                    });
+                } else {
+                    this.addSlotToContainer(new Slot(playerInv, slot, 8 + j * 18, 174 + i * 18));
+                }
+            }
+        }
+        for (int i = 0; i < 9; ++i) {
+            if (i == remoteSlot) {
+                this.addSlotToContainer(new Slot(playerInv, i, 8 + i * 18, 232) {
+                    @Override
+                    public boolean isItemValid(ItemStack stack) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean canTakeStack(EntityPlayer playerIn) {
+                        return false;
+                    }
+                });
+            } else {
+                this.addSlotToContainer(new Slot(playerInv, i, 8 + i * 18, 232));
+            }
+        }
     }
 
     public ItemStack getRemoteStack() { return remoteStack; }

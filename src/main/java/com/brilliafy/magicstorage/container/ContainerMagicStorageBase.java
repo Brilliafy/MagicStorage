@@ -52,6 +52,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     public void setAutofillMode(int mode) { this.autofillMode = mode; }
     public boolean isAutofillEnabled() { return autofillMode != 0; }
     public void setAutofillEnabled(boolean enabled) { this.autofillMode = enabled ? 2 : 0; }
+    public boolean isSimple() { return isSimple; }
 
     public List<ItemStack> getCachedStacks() { return cachedStacks; }
 
@@ -541,6 +542,40 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         ItemStack itemstack1 = slot.getStack();
         TileStorageHeart tileMaster = getTileMaster();
 
+        if (this.isSimple) {
+            // In a simple container (Storage Remote), slots are ONLY player inventory (0-35)
+            // 0-26: player main inventory (slots 9-35 in playerInv)
+            // 27-35: player hotbar (slots 0-8 in playerInv)
+            if (tileMaster != null) {
+                ItemStack remainder = tileMaster.insertItem(itemstack1, false);
+                if (remainder.getCount() == itemstack1.getCount()) {
+                    return ItemStack.EMPTY;
+                }
+                slot.putStack(remainder.isEmpty() ? ItemStack.EMPTY : remainder);
+                slot.onSlotChanged();
+                detectAndSendChanges();
+                sendItemRefresh(playerIn, tileMaster);
+                return ItemStack.EMPTY;
+            } else {
+                if (slotIndex >= 0 && slotIndex < 27) {
+                    if (!this.mergeItemStack(itemstack1, 27, 36, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (slotIndex >= 27 && slotIndex < 36) {
+                    if (!this.mergeItemStack(itemstack1, 0, 27, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+                if (itemstack1.isEmpty()) {
+                    slot.putStack(ItemStack.EMPTY);
+                } else {
+                    slot.onSlotChanged();
+                }
+                detectAndSendChanges();
+                return ItemStack.EMPTY;
+            }
+        }
+
         // Slot 0 = craft result
         if (slotIndex == 0) {
             if (isSimple) return ItemStack.EMPTY;
@@ -699,7 +734,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
     @Override
     public ItemStack slotClick(int slotId, int dragType, net.minecraft.inventory.ClickType clickTypeIn, EntityPlayer player) {
         // Handle hotkey (SWAP) on result slot cleanly on both client and server
-        if (clickTypeIn == net.minecraft.inventory.ClickType.SWAP && slotId == 0) {
+        if (!isSimple && clickTypeIn == net.minecraft.inventory.ClickType.SWAP && slotId == 0) {
             Slot slot = inventorySlots.get(0);
             if (slot == null || !slot.canTakeStack(player)) return ItemStack.EMPTY;
             if (slot.getHasStack()) {
@@ -752,7 +787,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
 
         // Capture matrix state before super processes the click
         ItemStack[] beforeMatrix = null;
-        if (matrix != null && !player.world.isRemote) {
+        if (!isSimple && matrix != null && !player.world.isRemote) {
             beforeMatrix = new ItemStack[9];
             for (int i = 0; i < 9; i++) beforeMatrix[i] = matrix.getStackInSlot(i).copy();
         }
@@ -760,7 +795,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         ItemStack result = super.slotClick(slotId, dragType, clickTypeIn, player);
 
         // If a matrix slot changed or slot 0 was clicked, force recipe re-check and sync result
-        if (matrix != null && !player.world.isRemote) {
+        if (!isSimple && matrix != null && !player.world.isRemote) {
             boolean changed = false;
             if (beforeMatrix != null) {
                 for (int i = 0; i < 9; i++) {
@@ -772,7 +807,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     }
                 }
             }
-            if (changed || slotId == 0) {
+            if (changed || (!isSimple && slotId == 0)) {
                 onCraftMatrixChanged(matrix);
                 detectAndSendChanges();
             }
@@ -871,17 +906,18 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
         }
 
         private void handleCustomAutofill(EntityPlayer playerIn, TileStorageHeart master, ItemStack[] beforeMatrix, boolean isAlchemy) {
-            if (isShiftCrafting || autofillMode == 0 || master == null) return;
+            if (isShiftCrafting || autofillMode == 0) return;
             boolean allowInventory = autofillMode == 2;
+            if (master == null && !allowInventory) return;
 
             // 1. Specific Alchemy Water Bucket autofill:
             // If slot 8 was WATER_BUCKET and is now empty BUCKET, replace with another WATER_BUCKET from network/inventory
             if (isAlchemy && beforeMatrix != null && beforeMatrix.length > 8 && !beforeMatrix[8].isEmpty() && beforeMatrix[8].getItem() == net.minecraft.init.Items.WATER_BUCKET) {
                 ItemStack currentSlot8 = matrix.getStackInSlot(8);
                 if (!currentSlot8.isEmpty() && currentSlot8.getItem() == net.minecraft.init.Items.BUCKET) {
-                    ItemStack waterBucket = master.extractItem(s -> !s.isEmpty() && s.getItem() == net.minecraft.init.Items.WATER_BUCKET, 1, false);
+                    ItemStack waterBucket = (master != null) ? master.extractItem(s -> !s.isEmpty() && s.getItem() == net.minecraft.init.Items.WATER_BUCKET, 1, false) : ItemStack.EMPTY;
                     if (!waterBucket.isEmpty()) {
-                        ItemStack leftoverBucket = master.insertItem(currentSlot8, false);
+                        ItemStack leftoverBucket = (master != null) ? master.insertItem(currentSlot8, false) : currentSlot8;
                         if (!leftoverBucket.isEmpty()) {
                             if (!playerIn.inventory.addItemStackToInventory(leftoverBucket)) {
                                 playerIn.dropItem(leftoverBucket, false);
@@ -908,9 +944,9 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                 int curCrush = matrix.getStackInSlot(0).isEmpty() ? 0 : matrix.getStackInSlot(0).getCount();
                 if (curCrush < reqCrush) {
                     int needed = reqCrush - curCrush;
-                    ItemStack reqStack = master.extractItem(
+                    ItemStack reqStack = (master != null) ? master.extractItem(
                         s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, beforeMatrix[0]),
-                        needed, false);
+                        needed, false) : ItemStack.EMPTY;
                     if ((reqStack.isEmpty() || reqStack.getCount() < needed) && allowInventory) {
                         int remaining = needed - reqStack.getCount();
                         for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
@@ -943,12 +979,24 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     if (i == 0 && com.brilliafy.magicstorage.util.RusticCraftingHelper.isCrushable(beforeMatrix[0])) {
                         continue;
                     }
+                    if (com.brilliafy.magicstorage.util.QualityToolsCraftingHelper.isQualityToolsGrid(beforeMatrix) && i == 4) {
+                        continue;
+                    }
+                    if (com.brilliafy.magicstorage.util.AnvilCraftingHelper.isAnvilGrid(beforeMatrix) && i == 0) {
+                        continue;
+                    }
+                    if (com.brilliafy.magicstorage.util.BountifulBaublesCraftingHelper.isBaubleReforgeGrid(beforeMatrix) && i == 8) {
+                        continue;
+                    }
+                    if (com.brilliafy.magicstorage.util.DisenchanterCraftingHelper.isDisenchanterGrid(beforeMatrix) && i == 4) {
+                        continue;
+                    }
                     if (matrix.getStackInSlot(i).isEmpty() && !beforeMatrix[i].isEmpty()) {
                         final int slot = i;
                         int fillAmount = 1;
-                        ItemStack req = master.extractItem(
+                        ItemStack req = (master != null) ? master.extractItem(
                             s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, beforeMatrix[slot]),
-                            fillAmount, false);
+                            fillAmount, false) : ItemStack.EMPTY;
 
                         if ((req.isEmpty() || req.getCount() < fillAmount) && allowInventory) {
                             int needed = fillAmount - req.getCount();
@@ -971,7 +1019,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                     }
                 }
 
-                // 3. Furnace Fuel Autofill to meet minimum required burn time:
+                // 4. Furnace Fuel Autofill to meet minimum required burn time:
                 if (beforeMatrix.length > 4 && !beforeMatrix[4].isEmpty() && com.brilliafy.magicstorage.util.SmeltingCraftingHelper.isFuel(beforeMatrix[4])) {
                     int totalInputs = 0;
                     for (int i = 0; i < 9; i++) {
@@ -988,9 +1036,9 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                             int currentFuel = matrix.getStackInSlot(4).isEmpty() ? 0 : matrix.getStackInSlot(4).getCount();
                             if (currentFuel < neededFuel) {
                                 int toExtract = neededFuel - currentFuel;
-                                ItemStack reqFuel = master.extractItem(
+                                ItemStack reqFuel = (master != null) ? master.extractItem(
                                     s -> net.minecraftforge.items.ItemHandlerHelper.canItemStacksStack(s, fuelCandidate),
-                                    toExtract, false);
+                                    toExtract, false) : ItemStack.EMPTY;
                                 if ((reqFuel.isEmpty() || reqFuel.getCount() < toExtract) && allowInventory) {
                                     int remaining = toExtract - reqFuel.getCount();
                                     for (int slotIdx = 0; slotIdx < playerIn.inventory.mainInventory.size(); slotIdx++) {
@@ -1186,6 +1234,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         stack.setTagCompound(realResult.getTagCompound());
                         stack.setCount(1);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
+                        handleCustomAutofill(playerIn, master, beforeMatrix, false);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
                         syncAllSlots(playerIn);
@@ -1333,6 +1382,7 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
                         stack.setTagCompound(realResult.hasTagCompound() ? realResult.getTagCompound().copy() : null);
                         stack.setCount(1);
                         for (int j = 0; j < 9; j++) matrix.setInventorySlotContents(j, m[j]);
+                        handleCustomAutofill(playerIn, master, beforeMatrix, false);
                         onCraftMatrixChanged(matrix);
                         detectAndSendChanges();
                         syncAllSlots(playerIn);
