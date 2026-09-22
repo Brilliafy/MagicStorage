@@ -50,6 +50,7 @@ public class RecipeMessage implements IMessage, IMessageHandler<RecipeMessage, I
         player.getServerWorld().addScheduledTask(() -> {
             if (player.openContainer instanceof ContainerMagicStorageBase) {
                 ContainerMagicStorageBase container = (ContainerMagicStorageBase) player.openContainer;
+                if (container.isSimple() || container.getCraftMatrix() == null) return;
                 TileStorageHeart heart = container.getTileMaster();
 
                 // 1. Clear existing grid items: Network -> Player Inventory -> Floor
