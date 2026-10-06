@@ -1,11 +1,13 @@
 package com.brilliafy.magicstorage.jei;
 
+import com.brilliafy.magicstorage.reference.ModBlocksRef;
 import com.brilliafy.magicstorage.util.RusticCraftingHelper;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeRegistryPlugin;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.oredict.OreDictionary;
@@ -16,17 +18,20 @@ import java.util.List;
 
 public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
 
-    private final List<EnchantingRecipeCategory.EnchantingJEIRecipe> allEnchantingRecipes;
+    private final List<AnvilRecipeCategory.AnvilJEIRecipe> allAnvilBaselineRecipes;
+    private final List<EnchantingRecipeCategory.EnchantingJEIRecipe> allEnchantingBaselineRecipes;
     private final List<RusticBrewingRecipeCategory.RusticBrewingJEIRecipe> allBrewingRecipes;
     private final List<RusticCrushingRecipeCategory.RusticCrushingJEIRecipe> allCrushingRecipes;
     private final List<DisenchanterRecipeCategory.DisenchanterJEIRecipe> allDisenchanterRecipes;
 
     public MagicStorageJEIRegistryPlugin(
-            List<EnchantingRecipeCategory.EnchantingJEIRecipe> allEnchantingRecipes,
+            List<AnvilRecipeCategory.AnvilJEIRecipe> allAnvilBaselineRecipes,
+            List<EnchantingRecipeCategory.EnchantingJEIRecipe> allEnchantingBaselineRecipes,
             List<RusticBrewingRecipeCategory.RusticBrewingJEIRecipe> allBrewingRecipes,
             List<RusticCrushingRecipeCategory.RusticCrushingJEIRecipe> allCrushingRecipes,
             List<DisenchanterRecipeCategory.DisenchanterJEIRecipe> allDisenchanterRecipes) {
-        this.allEnchantingRecipes = allEnchantingRecipes != null ? allEnchantingRecipes : Collections.emptyList();
+        this.allAnvilBaselineRecipes = allAnvilBaselineRecipes != null ? allAnvilBaselineRecipes : Collections.emptyList();
+        this.allEnchantingBaselineRecipes = allEnchantingBaselineRecipes != null ? allEnchantingBaselineRecipes : Collections.emptyList();
         this.allBrewingRecipes = allBrewingRecipes != null ? allBrewingRecipes : Collections.emptyList();
         this.allCrushingRecipes = allCrushingRecipes != null ? allCrushingRecipes : Collections.emptyList();
         this.allDisenchanterRecipes = allDisenchanterRecipes != null ? allDisenchanterRecipes : Collections.emptyList();
@@ -43,28 +48,36 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
         List<String> categories = new ArrayList<>();
 
         if (focus.getMode() == IFocus.Mode.INPUT) {
-            // 1. Enchanting Table input
-            if (!stack.isItemEnchanted() && stack.getItem() != Items.ENCHANTED_BOOK) {
-                if (stack.getItem() == Items.DYE && stack.getMetadata() == 4) {
-                    categories.add(EnchantingRecipeCategory.UID);
-                } else if (stack.getItem() == Items.BOOK || stack.isItemStackDamageable() || stack.getItem() instanceof net.minecraft.item.ItemSword || stack.getItem() instanceof net.minecraft.item.ItemTool || stack.getItem() instanceof net.minecraft.item.ItemArmor || stack.getItem() instanceof net.minecraft.item.ItemBow) {
-                    for (EnchantingRecipeCategory.EnchantingJEIRecipe recipe : allEnchantingRecipes) {
-                        if (recipe.matchesInput(stack)) {
-                            categories.add(EnchantingRecipeCategory.UID);
-                            break;
-                        }
-                    }
+            // Crafting access catalyst: show all categories
+            if (stack.getItem() == Item.getItemFromBlock(ModBlocksRef.CRAFTING_ACCESS)) {
+                categories.add(AnvilRecipeCategory.UID);
+                categories.add(EnchantingRecipeCategory.UID);
+                if (Loader.isModLoaded("disenchanter")) categories.add(DisenchanterRecipeCategory.UID);
+                if (Loader.isModLoaded("rustic")) {
+                    categories.add(RusticBrewingRecipeCategory.UID);
+                    categories.add(RusticCrushingRecipeCategory.UID);
                 }
+                return categories;
             }
 
-            // 2. Disenchanter Table input (Works for any enchanted item with 1, 2, 5+ enchantments, or regular books)
+            // 1. Anvil Table input
+            if (AnvilRecipeCategory.isAnvilInput(stack)) {
+                categories.add(AnvilRecipeCategory.UID);
+            }
+
+            // 2. Enchanting Table input
+            if (EnchantingRecipeCategory.isEnchantingInput(stack)) {
+                categories.add(EnchantingRecipeCategory.UID);
+            }
+
+            // 3. Disenchanter Table input (Works for any enchanted item or regular book)
             if (Loader.isModLoaded("disenchanter")) {
                 if (stack.getItem() == Items.BOOK || !net.minecraft.enchantment.EnchantmentHelper.getEnchantments(stack).isEmpty()) {
                     categories.add(DisenchanterRecipeCategory.UID);
                 }
             }
 
-            // 3. Rustic Brewing input
+            // 4. Rustic Brewing input
             if (Loader.isModLoaded("rustic")) {
                 if (stack.getItem() == Items.BLAZE_POWDER) {
                     categories.add(RusticBrewingRecipeCategory.UID);
@@ -80,7 +93,7 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
                     }
                 }
 
-                // 4. Rustic Crushing input
+                // 5. Rustic Crushing input
                 for (RusticCrushingRecipeCategory.RusticCrushingJEIRecipe recipe : allCrushingRecipes) {
                     if (OreDictionary.itemMatches(recipe.getInputFruit(), stack, false)) {
                         categories.add(RusticCrushingRecipeCategory.UID);
@@ -89,24 +102,24 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
                 }
             }
         } else if (focus.getMode() == IFocus.Mode.OUTPUT) {
-            // 1. Enchanting Table output
-            if (stack.isItemEnchanted() || stack.getItem() == Items.ENCHANTED_BOOK) {
-                for (EnchantingRecipeCategory.EnchantingJEIRecipe recipe : allEnchantingRecipes) {
-                    if (recipe.matchesOutput(stack)) {
-                        categories.add(EnchantingRecipeCategory.UID);
-                        break;
-                    }
-                }
+            // 1. Anvil Table output
+            if (AnvilRecipeCategory.isAnvilOutput(stack)) {
+                categories.add(AnvilRecipeCategory.UID);
             }
 
-            // 2. Disenchanter Table output
+            // 2. Enchanting Table output
+            if (EnchantingRecipeCategory.isEnchantingOutput(stack)) {
+                categories.add(EnchantingRecipeCategory.UID);
+            }
+
+            // 3. Disenchanter Table output
             if (Loader.isModLoaded("disenchanter")) {
                 if (stack.getItem() == Items.ENCHANTED_BOOK) {
                     categories.add(DisenchanterRecipeCategory.UID);
                 }
             }
 
-            // 3. Rustic Brewing output
+            // 4. Rustic Brewing & Crushing output
             if (Loader.isModLoaded("rustic")) {
                 String fluidName = RusticCraftingHelper.getFluidName(stack);
                 if (!fluidName.isEmpty()) {
@@ -139,31 +152,48 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
         ItemStack stack = (ItemStack) focus.getValue();
         if (stack.isEmpty()) return Collections.emptyList();
 
-        List<T> matched = new ArrayList<>();
-
-        if (EnchantingRecipeCategory.UID.equals(uid)) {
-            if (focus.getMode() == IFocus.Mode.INPUT) {
-                if (stack.isItemEnchanted() || stack.getItem() == Items.ENCHANTED_BOOK) {
-                    return Collections.emptyList();
-                }
-                boolean isLapis = stack.getItem() == Items.DYE && stack.getMetadata() == 4;
-                for (EnchantingRecipeCategory.EnchantingJEIRecipe recipe : allEnchantingRecipes) {
-                    if (isLapis || recipe.matchesInput(stack)) {
-                        @SuppressWarnings("unchecked")
-                        T wrapper = (T) recipe;
-                        matched.add(wrapper);
-                    }
-                }
-            } else if (focus.getMode() == IFocus.Mode.OUTPUT) {
-                for (EnchantingRecipeCategory.EnchantingJEIRecipe recipe : allEnchantingRecipes) {
-                    if (recipe.matchesOutput(stack)) {
-                        @SuppressWarnings("unchecked")
-                        T wrapper = (T) recipe;
-                        matched.add(wrapper);
-                    }
-                }
+        // 1. Anvil Category (Dynamic Real-Time Resolution)
+        if (AnvilRecipeCategory.UID.equals(uid)) {
+            if (stack.getItem() == Item.getItemFromBlock(ModBlocksRef.CRAFTING_ACCESS)) {
+                @SuppressWarnings("unchecked")
+                List<T> result = (List<T>) allAnvilBaselineRecipes;
+                return result;
             }
-        } else if (DisenchanterRecipeCategory.UID.equals(uid) && Loader.isModLoaded("disenchanter")) {
+            if (focus.getMode() == IFocus.Mode.INPUT) {
+                List<AnvilRecipeCategory.AnvilJEIRecipe> dynamic = AnvilRecipeCategory.getCachedRecipesForInput(stack, allAnvilBaselineRecipes);
+                @SuppressWarnings("unchecked")
+                List<T> result = (List<T>) dynamic;
+                return result;
+            } else if (focus.getMode() == IFocus.Mode.OUTPUT) {
+                List<AnvilRecipeCategory.AnvilJEIRecipe> dynamic = AnvilRecipeCategory.getCachedRecipesForOutput(stack);
+                @SuppressWarnings("unchecked")
+                List<T> result = (List<T>) dynamic;
+                return result;
+            }
+        }
+
+        // 2. Enchanting Category (Dynamic Real-Time Resolution)
+        if (EnchantingRecipeCategory.UID.equals(uid)) {
+            if (stack.getItem() == Item.getItemFromBlock(ModBlocksRef.CRAFTING_ACCESS)) {
+                @SuppressWarnings("unchecked")
+                List<T> result = (List<T>) allEnchantingBaselineRecipes;
+                return result;
+            }
+            if (focus.getMode() == IFocus.Mode.INPUT) {
+                List<EnchantingRecipeCategory.EnchantingJEIRecipe> dynamic = EnchantingRecipeCategory.getCachedRecipesForInput(stack, allEnchantingBaselineRecipes);
+                @SuppressWarnings("unchecked")
+                List<T> result = (List<T>) dynamic;
+                return result;
+            } else if (focus.getMode() == IFocus.Mode.OUTPUT) {
+                List<EnchantingRecipeCategory.EnchantingJEIRecipe> dynamic = EnchantingRecipeCategory.getCachedRecipesForOutput(stack);
+                @SuppressWarnings("unchecked")
+                List<T> result = (List<T>) dynamic;
+                return result;
+            }
+        }
+
+        // 3. Disenchanter Category
+        if (DisenchanterRecipeCategory.UID.equals(uid) && Loader.isModLoaded("disenchanter")) {
             if (focus.getMode() == IFocus.Mode.INPUT) {
                 if (stack.getItem() == Items.BOOK) {
                     @SuppressWarnings("unchecked")
@@ -184,6 +214,7 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
             } else if (focus.getMode() == IFocus.Mode.OUTPUT) {
                 if (stack.getItem() == Items.ENCHANTED_BOOK) {
                     java.util.Map<net.minecraft.enchantment.Enchantment, Integer> focusEnchs = net.minecraft.enchantment.EnchantmentHelper.getEnchantments(stack);
+                    List<T> matched = new ArrayList<>();
                     for (DisenchanterRecipeCategory.DisenchanterJEIRecipe recipe : allDisenchanterRecipes) {
                         ItemStack out = recipe.getOutputBook();
                         if (!out.isEmpty()) {
@@ -198,9 +229,14 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
                             }
                         }
                     }
+                    return matched;
                 }
             }
-        } else if (RusticBrewingRecipeCategory.UID.equals(uid)) {
+        }
+
+        // 4. Rustic Brewing Category
+        if (RusticBrewingRecipeCategory.UID.equals(uid) && Loader.isModLoaded("rustic")) {
+            List<T> matched = new ArrayList<>();
             if (focus.getMode() == IFocus.Mode.INPUT) {
                 if (stack.getItem() == Items.BLAZE_POWDER) {
                     @SuppressWarnings("unchecked")
@@ -215,7 +251,6 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
                             T wrapper = (T) recipe;
                             matched.add(wrapper);
                         } else if (fluidName.equals(recipe.getModifierFluidName()) && recipe.hasModifier()) {
-                            // Create dynamic recipe with the EXACT focused bottle (matching its exact quality)
                             RusticBrewingRecipeCategory.RusticBrewingJEIRecipe dynamicRecipe =
                                 new RusticBrewingRecipeCategory.RusticBrewingJEIRecipe(
                                     recipe.inputJuice,
@@ -241,7 +276,12 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
                     }
                 }
             }
-        } else if (RusticCrushingRecipeCategory.UID.equals(uid)) {
+            return matched;
+        }
+
+        // 5. Rustic Crushing Category
+        if (RusticCrushingRecipeCategory.UID.equals(uid) && Loader.isModLoaded("rustic")) {
+            List<T> matched = new ArrayList<>();
             if (focus.getMode() == IFocus.Mode.INPUT) {
                 for (RusticCrushingRecipeCategory.RusticCrushingJEIRecipe recipe : allCrushingRecipes) {
                     if (OreDictionary.itemMatches(recipe.getInputFruit(), stack, false)) {
@@ -262,17 +302,23 @@ public class MagicStorageJEIRegistryPlugin implements IRecipeRegistryPlugin {
                     }
                 }
             }
+            return matched;
         }
 
-        return matched;
+        return Collections.emptyList();
     }
 
     @Override
     public <T extends IRecipeWrapper> List<T> getRecipeWrappers(IRecipeCategory<T> recipeCategory) {
         String uid = recipeCategory.getUid();
+        if (AnvilRecipeCategory.UID.equals(uid)) {
+            @SuppressWarnings("unchecked")
+            List<T> result = (List<T>) allAnvilBaselineRecipes;
+            return result;
+        }
         if (EnchantingRecipeCategory.UID.equals(uid)) {
             @SuppressWarnings("unchecked")
-            List<T> result = (List<T>) allEnchantingRecipes;
+            List<T> result = (List<T>) allEnchantingBaselineRecipes;
             return result;
         }
         if (DisenchanterRecipeCategory.UID.equals(uid) && Loader.isModLoaded("disenchanter")) {

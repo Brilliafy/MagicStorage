@@ -9,6 +9,7 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -18,6 +19,7 @@ import net.minecraft.util.text.TextFormatting;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class EnchantingRecipeCategory implements IRecipeCategory<EnchantingRecipeCategory.EnchantingJEIRecipe> {
 
@@ -71,6 +73,10 @@ public class EnchantingRecipeCategory implements IRecipeCategory<EnchantingRecip
         public EnchantingJEIRecipe(ItemStack singleInput, ItemStack lapis, ItemStack singleOutput) {
             this(Collections.singletonList(singleInput), lapis, Collections.singletonList(singleOutput));
         }
+
+        public List<ItemStack> getInputs() { return inputs; }
+        public ItemStack getLapis() { return lapis; }
+        public List<ItemStack> getOutputs() { return outputs; }
 
         @Override
         public void getIngredients(IIngredients ingredients) {
@@ -128,34 +134,157 @@ public class EnchantingRecipeCategory implements IRecipeCategory<EnchantingRecip
         }
     }
 
-    public static List<EnchantingJEIRecipe> generateAllRecipes() {
+    // ===================== Dynamic Classification & Helpers =====================
+
+    public static boolean isEnchantingInput(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        if (stack.getItem() == Items.DYE && stack.getMetadata() == 4) return true; // Lapis Lazuli
+        if (stack.getItem() == Items.BOOK) return true;
+        if (AnvilRecipeCategory.isEquipment(stack) && !stack.isItemEnchanted()) return true;
+        if (stack.getItem() == Item.getItemFromBlock(ModBlocksRef.CRAFTING_ACCESS)) return true;
+        return false;
+    }
+
+    public static boolean isEnchantingOutput(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        if (stack.getItem() == Items.ENCHANTED_BOOK) return true;
+        if (AnvilRecipeCategory.isEquipment(stack) && stack.isItemEnchanted()) return true;
+        return false;
+    }
+
+    // ===================== Baseline Recipes =====================
+
+    public static List<EnchantingJEIRecipe> generateBaselineRecipes() {
         List<EnchantingJEIRecipe> recipes = new ArrayList<>();
         ItemStack lapis = new ItemStack(Items.DYE, 1, 4);
+        ItemStack regularBook = new ItemStack(Items.BOOK);
 
-        for (net.minecraft.enchantment.Enchantment e : net.minecraft.enchantment.Enchantment.REGISTRY) {
+        for (Enchantment e : Enchantment.REGISTRY) {
             if (e == null) continue;
             for (int lvl = 1; lvl <= e.getMaxLevel(); lvl++) {
-                // 1. Book -> Enchanted Book with this enchantment
-                ItemStack outputBook = new ItemStack(Items.ENCHANTED_BOOK);
-                net.minecraft.item.ItemEnchantedBook.addEnchantment(outputBook, new net.minecraft.enchantment.EnchantmentData(e, lvl));
-                recipes.add(new EnchantingJEIRecipe(new ItemStack(Items.BOOK), lapis, outputBook));
-
-                // 2. All equipment that can receive this enchantment (1-to-1 recipes)
-                for (Item item : Item.REGISTRY) {
-                    if (item == null) continue;
-                    ItemStack st = new ItemStack(item);
-                    if (st.isEmpty()) continue;
-                    if (st.isItemStackDamageable() || item instanceof net.minecraft.item.ItemSword || item instanceof net.minecraft.item.ItemTool || item instanceof net.minecraft.item.ItemArmor || item instanceof net.minecraft.item.ItemBow) {
-                        if (e.canApply(st) || e.canApplyAtEnchantingTable(st) || (e.type != null && e.type.canEnchantItem(item))) {
-                            ItemStack out = st.copy();
-                            out.addEnchantment(e, lvl);
-                            recipes.add(new EnchantingJEIRecipe(st, lapis, out));
-                        }
-                    }
-                }
+                ItemStack outputBook = AnvilRecipeCategory.createEnchantedBook(e, lvl);
+                recipes.add(new EnchantingJEIRecipe(regularBook, lapis, outputBook));
             }
         }
 
+        // Representative equipment enchants
+        if (net.minecraft.init.Enchantments.SHARPNESS != null) {
+            ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
+            recipes.add(new EnchantingJEIRecipe(sword, lapis, AnvilRecipeCategory.withEnchantment(sword, net.minecraft.init.Enchantments.SHARPNESS, 1)));
+        }
+        if (net.minecraft.init.Enchantments.EFFICIENCY != null) {
+            ItemStack pick = new ItemStack(Items.DIAMOND_PICKAXE);
+            recipes.add(new EnchantingJEIRecipe(pick, lapis, AnvilRecipeCategory.withEnchantment(pick, net.minecraft.init.Enchantments.EFFICIENCY, 1)));
+        }
+
         return recipes;
+    }
+
+    public static List<EnchantingJEIRecipe> generateAllRecipes() {
+        return generateBaselineRecipes();
+    }
+
+    // ===================== Caching =====================
+
+    private static ItemStack lastInputFocus = ItemStack.EMPTY;
+    private static List<EnchantingJEIRecipe> lastInputCache = null;
+
+    private static ItemStack lastOutputFocus = ItemStack.EMPTY;
+    private static List<EnchantingJEIRecipe> lastOutputCache = null;
+
+    public static synchronized List<EnchantingJEIRecipe> getCachedRecipesForInput(ItemStack input, List<EnchantingJEIRecipe> baseline) {
+        if (input == null || input.isEmpty()) return Collections.emptyList();
+        if (!lastInputFocus.isEmpty() && ItemStack.areItemStacksEqual(lastInputFocus, input) && ItemStack.areItemStackTagsEqual(lastInputFocus, input)) {
+            return lastInputCache;
+        }
+        List<EnchantingJEIRecipe> result = getRecipesForInput(input, baseline);
+        lastInputFocus = input.copy();
+        lastInputCache = result;
+        return result;
+    }
+
+    public static synchronized List<EnchantingJEIRecipe> getCachedRecipesForOutput(ItemStack output) {
+        if (output == null || output.isEmpty()) return Collections.emptyList();
+        if (!lastOutputFocus.isEmpty() && ItemStack.areItemStacksEqual(lastOutputFocus, output) && ItemStack.areItemStackTagsEqual(lastOutputFocus, output)) {
+            return lastOutputCache;
+        }
+        List<EnchantingJEIRecipe> result = getRecipesForOutput(output);
+        lastOutputFocus = output.copy();
+        lastOutputCache = result;
+        return result;
+    }
+
+    // ===================== Dynamic Recipe Calculations =====================
+
+    public static List<EnchantingJEIRecipe> getRecipesForInput(ItemStack input, List<EnchantingJEIRecipe> baseline) {
+        if (input == null || input.isEmpty()) return Collections.emptyList();
+        ItemStack lapis = new ItemStack(Items.DYE, 1, 4);
+
+        // 1. If input is Lapis Lazuli: return baseline
+        if (input.getItem() == Items.DYE && input.getMetadata() == 4) {
+            return baseline;
+        }
+
+        // 2. If input is Book:
+        if (input.getItem() == Items.BOOK) {
+            List<EnchantingJEIRecipe> recipes = new ArrayList<>();
+            for (Enchantment e : Enchantment.REGISTRY) {
+                if (e == null) continue;
+                for (int lvl = 1; lvl <= e.getMaxLevel(); lvl++) {
+                    ItemStack outputBook = AnvilRecipeCategory.createEnchantedBook(e, lvl);
+                    recipes.add(new EnchantingJEIRecipe(input.copy(), lapis, outputBook));
+                }
+            }
+            return recipes;
+        }
+
+        // 3. If input is unenchanted equipment:
+        if (AnvilRecipeCategory.isEquipment(input) && !input.isItemEnchanted()) {
+            List<EnchantingJEIRecipe> recipes = new ArrayList<>();
+            for (Enchantment e : Enchantment.REGISTRY) {
+                if (e == null) continue;
+                if (AnvilRecipeCategory.canEnchant(e, input)) {
+                    for (int lvl = 1; lvl <= e.getMaxLevel(); lvl++) {
+                        ItemStack out = AnvilRecipeCategory.withEnchantment(input, e, lvl);
+                        recipes.add(new EnchantingJEIRecipe(input.copy(), lapis, out));
+                    }
+                }
+            }
+            return recipes;
+        }
+
+        return Collections.emptyList();
+    }
+
+    public static List<EnchantingJEIRecipe> getRecipesForOutput(ItemStack output) {
+        if (output == null || output.isEmpty()) return Collections.emptyList();
+        ItemStack lapis = new ItemStack(Items.DYE, 1, 4);
+
+        // 1. If output is Enchanted Book:
+        if (output.getItem() == Items.ENCHANTED_BOOK) {
+            Map<Enchantment, Integer> enchs = AnvilRecipeCategory.getEnchantments(output);
+            if (enchs.isEmpty()) return Collections.emptyList();
+
+            List<EnchantingJEIRecipe> recipes = new ArrayList<>();
+            ItemStack regularBook = new ItemStack(Items.BOOK);
+            for (Map.Entry<Enchantment, Integer> entry : enchs.entrySet()) {
+                ItemStack outBook = AnvilRecipeCategory.createEnchantedBook(entry.getKey(), entry.getValue());
+                recipes.add(new EnchantingJEIRecipe(regularBook, lapis, outBook));
+            }
+            return recipes;
+        }
+
+        // 2. If output is enchanted equipment:
+        if (AnvilRecipeCategory.isEquipment(output) && output.isItemEnchanted()) {
+            List<EnchantingJEIRecipe> recipes = new ArrayList<>();
+            Map<Enchantment, Integer> enchs = AnvilRecipeCategory.getEnchantments(output);
+            for (Map.Entry<Enchantment, Integer> entry : enchs.entrySet()) {
+                ItemStack baseWithout = AnvilRecipeCategory.withoutEnchantment(output, entry.getKey());
+                recipes.add(new EnchantingJEIRecipe(baseWithout, lapis, output.copy()));
+            }
+            return recipes;
+        }
+
+        return Collections.emptyList();
     }
 }
