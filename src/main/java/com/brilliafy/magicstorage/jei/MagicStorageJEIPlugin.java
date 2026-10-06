@@ -87,7 +87,6 @@ public class MagicStorageJEIPlugin implements IModPlugin {
 
         registry.addRecipeCategories(new AnvilRecipeCategory(registry.getJeiHelpers().getGuiHelper()));
         registry.addRecipeCatalyst(craftingAccessStack, AnvilRecipeCategory.UID);
-        registry.addRecipes(AnvilRecipeCategory.generateAllRecipes(), AnvilRecipeCategory.UID);
         registerTransfer(transferRegistry, AnvilRecipeCategory.UID);
 
         // 5. Enchanting, Rustic Brewing & Crushing (Custom RecipeRegistryPlugin handles dynamic lookups & filtering)
@@ -118,7 +117,8 @@ public class MagicStorageJEIPlugin implements IModPlugin {
         }
 
         registry.addRecipeRegistryPlugin(new MagicStorageJEIRegistryPlugin(
-            EnchantingRecipeCategory.generateAllRecipes(),
+            AnvilRecipeCategory.generateBaselineRecipes(),
+            EnchantingRecipeCategory.generateBaselineRecipes(),
             brewingRecipes,
             crushingRecipes,
             disenchanterRecipes
@@ -156,7 +156,7 @@ public class MagicStorageJEIPlugin implements IModPlugin {
         if (Loader.isModLoaded("disenchanter")) {
             registry.addRecipeCategories(new DisenchanterRecipeCategory(registry.getJeiHelpers().getGuiHelper()));
             registry.addRecipeCatalyst(craftingAccessStack, DisenchanterRecipeCategory.UID);
-            registry.addRecipes(DisenchanterRecipeCategory.generateAllRecipes(), DisenchanterRecipeCategory.UID);
+            registry.addRecipes(disenchanterRecipes, DisenchanterRecipeCategory.UID);
             registerTransfer(transferRegistry, DisenchanterRecipeCategory.UID);
         }
 
