@@ -47,6 +47,8 @@ public class TileCraftingAccess extends TileEntity implements ITickable {
     @Nullable public BlockPos getHeartPos() { return heartPos; }
     public void setHeartPos(@Nullable BlockPos heartPos) { this.heartPos = heartPos; markDirty(); }
 
+    private List<Station> cachedValidStations = Collections.singletonList(ALL_STATIONS[0]);
+
     public int getCurrentStationIndex() { return currentStationIndex; }
 
     public void setCurrentStationIndex(int index) {
@@ -64,62 +66,59 @@ public class TileCraftingAccess extends TileEntity implements ITickable {
     public int getStationCount() { return getValidStations().size(); }
 
     public List<Station> getValidStations() {
-        List<Station> list = new ArrayList<>();
-        for (Station s : ALL_STATIONS) {
-            if (foundStations.contains(s.name) || s.name.equals("crafting_table"))
-                list.add(s);
-        }
-        if (list.isEmpty()) list.add(ALL_STATIONS[0]);
-        return list;
+        return cachedValidStations;
     }
 
     @Override
     public void update() {
         if (tickCounter++ % 20 == 0 && world != null && !world.isRemote) {
             TileStorageHeart heart = findHeart();
-            if (heart == null) {
-                // Try to find a heart adjacent
-                for (EnumFacing dir : EnumFacing.VALUES) {
-                    TileEntity te = world.getTileEntity(pos.offset(dir));
-                    if (te instanceof TileStorageHeart) {
-                        heartPos = te.getPos();
-                        break;
-                    }
-                }
-            }
             // Detect stations from the heart's inventory
-            foundStations.clear();
-            foundStations.add("crafting_table"); // always available if CA opens
+            Set<String> newStations = new HashSet<>();
+            newStations.add("crafting_table"); // always available if CA opens
             if (heart != null) {
-                if (heart.hasFurnace()) foundStations.add("furnace");
-                if (heart.hasBrewingStand()) foundStations.add("brewing_stand");
-                if (heart.hasAnvil()) foundStations.add("anvil");
-                if (heart.hasEnchantingTable()) foundStations.add("enchanting_table");
-                if (heart.hasRusticSimpleCondenser()) foundStations.add("rustic_simple_condenser");
-                if (heart.hasRusticAdvancedCondenser()) foundStations.add("rustic_advanced_condenser");
-                if (heart.hasRusticBrewingBarrel()) foundStations.add("rustic_brewing_barrel");
-                if (heart.hasRusticCrushingTub()) foundStations.add("rustic_crushing_tub");
-                if (heart.hasDisenchanterTable()) foundStations.add("disenchanter_table");
-                if (heart.hasBountifulBaublesReforger()) foundStations.add("bountiful_reforger");
-                if (heart.hasQualityToolsReforger()) foundStations.add("quality_reforger");
+                if (heart.hasFurnace()) newStations.add("furnace");
+                if (heart.hasBrewingStand()) newStations.add("brewing_stand");
+                if (heart.hasAnvil()) newStations.add("anvil");
+                if (heart.hasEnchantingTable()) newStations.add("enchanting_table");
+                if (heart.hasRusticSimpleCondenser()) newStations.add("rustic_simple_condenser");
+                if (heart.hasRusticAdvancedCondenser()) newStations.add("rustic_advanced_condenser");
+                if (heart.hasRusticBrewingBarrel()) newStations.add("rustic_brewing_barrel");
+                if (heart.hasRusticCrushingTub()) newStations.add("rustic_crushing_tub");
+                if (heart.hasDisenchanterTable()) newStations.add("disenchanter_table");
+                if (heart.hasBountifulBaublesReforger()) newStations.add("bountiful_reforger");
+                if (heart.hasQualityToolsReforger()) newStations.add("quality_reforger");
+            }
+            if (!newStations.equals(foundStations)) {
+                foundStations.clear();
+                foundStations.addAll(newStations);
+                List<Station> list = new ArrayList<>();
+                for (Station s : ALL_STATIONS) {
+                    if (foundStations.contains(s.name) || s.name.equals("crafting_table"))
+                        list.add(s);
+                }
+                if (list.isEmpty()) list.add(ALL_STATIONS[0]);
+                cachedValidStations = Collections.unmodifiableList(list);
             }
         }
     }
 
     @Nullable
     public TileStorageHeart findHeart() {
-        if (heartPos != null && world != null) {
-            world.getChunk(heartPos);
+        if (heartPos != null && world != null && world.isBlockLoaded(heartPos)) {
             TileEntity te = world.getTileEntity(heartPos);
             if (te instanceof TileStorageHeart) return (TileStorageHeart) te;
         }
         if (world != null) {
             for (EnumFacing dir : EnumFacing.VALUES) {
-                TileEntity te = world.getTileEntity(pos.offset(dir));
-                if (te instanceof TileStorageHeart) {
-                    heartPos = te.getPos();
-                    markDirty();
-                    return (TileStorageHeart) te;
+                BlockPos neighbor = pos.offset(dir);
+                if (world.isBlockLoaded(neighbor)) {
+                    TileEntity te = world.getTileEntity(neighbor);
+                    if (te instanceof TileStorageHeart) {
+                        heartPos = te.getPos();
+                        markDirty();
+                        return (TileStorageHeart) te;
+                    }
                 }
             }
         }

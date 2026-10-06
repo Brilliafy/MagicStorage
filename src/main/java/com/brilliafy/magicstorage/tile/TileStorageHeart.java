@@ -53,6 +53,120 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         return false;
     }
 
+    private boolean cachedHasBrewingStand = false;
+    private boolean cachedHasAnvil = false;
+    private boolean cachedHasFurnace = false;
+    private boolean cachedHasEnchantingTable = false;
+    private boolean cachedHasCraftingTable = false;
+    private boolean cachedHasRusticSimpleCondenser = false;
+    private boolean cachedHasRusticAdvancedCondenser = false;
+    private boolean cachedHasRusticBrewingBarrel = false;
+    private boolean cachedHasRusticCrushingTub = false;
+    private boolean cachedHasDisenchanterTable = false;
+    private boolean cachedDisenchanterVoiding = false;
+    private boolean cachedDisenchanterBulk = false;
+    private boolean cachedHasBountifulBaublesReforger = false;
+    private boolean cachedHasQualityToolsReforger = false;
+    private boolean stationsDirty = true;
+    private List<ItemStack> cachedAllItems = null;
+    private int cachedEnchantPower = -1;
+    private List<TileStorageUnit> cachedUnitTiles = null;
+
+    public List<TileStorageUnit> getValidUnits() {
+        if (cachedUnitTiles == null || cachedUnitTiles.size() != connectedUnits.size()) {
+            List<TileStorageUnit> list = new ArrayList<>(connectedUnits.size());
+            for (BlockPos p : connectedUnits) {
+                if (world != null && world.isBlockLoaded(p)) {
+                    TileEntity te = world.getTileEntity(p);
+                    if (te instanceof TileStorageUnit && !te.isInvalid()) {
+                        list.add((TileStorageUnit) te);
+                    }
+                }
+            }
+            cachedUnitTiles = list;
+        }
+        return cachedUnitTiles;
+    }
+
+    public void updateStationFlags() {
+        cachedHasBrewingStand = false;
+        cachedHasAnvil = false;
+        cachedHasFurnace = false;
+        cachedHasEnchantingTable = false;
+        cachedHasCraftingTable = false;
+        cachedHasRusticSimpleCondenser = false;
+        cachedHasRusticAdvancedCondenser = false;
+        cachedHasRusticBrewingBarrel = false;
+        cachedHasRusticCrushingTub = false;
+        cachedHasDisenchanterTable = false;
+        cachedDisenchanterVoiding = false;
+        cachedDisenchanterBulk = false;
+        cachedHasBountifulBaublesReforger = false;
+        cachedHasQualityToolsReforger = false;
+
+        boolean rusticLoaded = net.minecraftforge.fml.common.Loader.isModLoaded("rustic");
+        boolean disenchanterLoaded = net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter");
+        boolean baublesLoaded = net.minecraftforge.fml.common.Loader.isModLoaded("bountifulbaubles");
+        boolean qualityToolsLoaded = net.minecraftforge.fml.common.Loader.isModLoaded("qualitytools");
+
+        int retorts = 0;
+        int condensers = 0;
+        int advRetorts = 0;
+        int advCondensers = 0;
+
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            net.minecraft.item.Item item = stack.getItem();
+            if (item == null) continue;
+
+            if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.CRAFTING_TABLE)) {
+                cachedHasCraftingTable = true;
+            } else if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.FURNACE)) {
+                if (com.brilliafy.magicstorage.config.ModConfig.enableFurnace) cachedHasFurnace = true;
+            } else if (item == net.minecraft.init.Items.BREWING_STAND || item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.BREWING_STAND)) {
+                if (com.brilliafy.magicstorage.config.ModConfig.enableBrewingStand) cachedHasBrewingStand = true;
+            } else if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ANVIL)) {
+                if (com.brilliafy.magicstorage.config.ModConfig.enableAnvil) cachedHasAnvil = true;
+            } else if (item == net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.ENCHANTING_TABLE)) {
+                if (com.brilliafy.magicstorage.config.ModConfig.enableEnchantingTable) cachedHasEnchantingTable = true;
+            } else if (item.getRegistryName() != null) {
+                String reg = item.getRegistryName().toString();
+                if (rusticLoaded) {
+                    if ("rustic:retort".equals(reg)) retorts += stack.getCount();
+                    else if ("rustic:condenser".equals(reg)) condensers += stack.getCount();
+                    else if ("rustic:retort_advanced".equals(reg)) advRetorts += stack.getCount();
+                    else if ("rustic:condenser_advanced".equals(reg)) advCondensers += stack.getCount();
+                    else if ("rustic:brewing_barrel".equals(reg)) {
+                        if (com.brilliafy.magicstorage.config.ModConfig.enableRusticBrewing) cachedHasRusticBrewingBarrel = true;
+                    } else if ("rustic:crushing_tub".equals(reg)) {
+                        if (com.brilliafy.magicstorage.config.ModConfig.enableRusticCrushing) cachedHasRusticCrushingTub = true;
+                    }
+                }
+                if (disenchanterLoaded && "disenchanter:disenchantmenttable".equals(reg)) {
+                    if (com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable) {
+                        cachedHasDisenchanterTable = true;
+                        int meta = stack.getMetadata();
+                        if ((meta & 4) != 0) cachedDisenchanterVoiding = true;
+                        if ((meta & 2) != 0) cachedDisenchanterBulk = true;
+                    }
+                } else if (baublesLoaded && "bountifulbaubles:reforger".equals(reg)) {
+                    if (com.brilliafy.magicstorage.config.ModConfig.enableBountifulBaublesReforger) cachedHasBountifulBaublesReforger = true;
+                } else if (qualityToolsLoaded && "qualitytools:reforging_station".equals(reg)) {
+                    if (com.brilliafy.magicstorage.config.ModConfig.enableQualityToolsReforger) cachedHasQualityToolsReforger = true;
+                }
+            }
+        }
+
+        if (com.brilliafy.magicstorage.config.ModConfig.enableRusticAlchemy && rusticLoaded) {
+            boolean hasBasic = retorts >= 3 && condensers >= 1;
+            boolean hasAdv = advRetorts >= 3 && advCondensers >= 1;
+            cachedHasRusticSimpleCondenser = hasBasic || hasAdv;
+            cachedHasRusticAdvancedCondenser = (advRetorts >= 3 && advCondensers >= 1) || (retorts >= 3 && advCondensers >= 1);
+        }
+        stationsDirty = false;
+    }
+
     private final ItemStackHandler inventory = new ItemStackHandler(20) {
         @Override
         public boolean isItemValid(int slot, @javax.annotation.Nonnull ItemStack stack) {
@@ -64,6 +178,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         }
         @Override
         protected void onContentsChanged(int slot) {
+            updateStationFlags();
             TileStorageHeart.this.markDirty();
         }
     };
@@ -71,172 +186,98 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public ItemStackHandler getInventory() { return inventory; }
 
     public void markContentsDirty() {
+        cachedAllItems = null;
+        cachedEnchantPower = -1;
         if (contentsDirtyTick < 0) contentsDirtyTick = tickCounter;
+    }
+
+    public int getEnchantPower(net.minecraft.world.World worldIn) {
+        if (cachedEnchantPower >= 0) return cachedEnchantPower;
+        cachedEnchantPower = com.brilliafy.magicstorage.util.EnchantingCraftingHelper.getPowerFromItems(getAllItems(), worldIn);
+        return cachedEnchantPower;
     }
 
     public boolean hasBrewingStand() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableBrewingStand) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null) {
-                if ("minecraft:brewing_stand".equals(stack.getItem().getRegistryName().toString())) return true;
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasBrewingStand;
     }
 
     public boolean hasAnvil() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableAnvil) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:anvil".equals(stack.getItem().getRegistryName().toString())) return true;
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasAnvil;
     }
 
     public boolean hasFurnace() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableFurnace) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:furnace".equals(stack.getItem().getRegistryName().toString())) return true;
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasFurnace;
     }
 
     public boolean hasEnchantingTable() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableEnchantingTable) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:enchanting_table".equals(stack.getItem().getRegistryName().toString())) return true;
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasEnchantingTable;
     }
 
     public boolean hasCraftingTable() {
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() != null && stack.getItem().getRegistryName() != null && "minecraft:crafting_table".equals(stack.getItem().getRegistryName().toString())) return true;
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasCraftingTable;
     }
 
     public boolean hasRusticSimpleCondenser() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticAlchemy || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
-        int retorts = 0;
-        int condensers = 0;
-        int advRetorts = 0;
-        int advCondensers = 0;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                String regName = stack.getItem().getRegistryName().toString();
-                if ("rustic:retort".equals(regName)) retorts += stack.getCount();
-                else if ("rustic:condenser".equals(regName)) condensers += stack.getCount();
-                else if ("rustic:retort_advanced".equals(regName)) advRetorts += stack.getCount();
-                else if ("rustic:condenser_advanced".equals(regName)) advCondensers += stack.getCount();
-            }
-        }
-        boolean hasBasic = retorts >= 3 && condensers >= 1;
-        boolean hasAdv = advRetorts >= 3 && advCondensers >= 1;
-        return hasBasic || hasAdv;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasRusticSimpleCondenser;
     }
 
     public boolean hasRusticAdvancedCondenser() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticAlchemy || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
-        int retorts = 0;
-        int condensers = 0;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                String regName = stack.getItem().getRegistryName().toString();
-                if ("rustic:retort_advanced".equals(regName)) retorts += stack.getCount();
-                else if ("rustic:condenser_advanced".equals(regName)) condensers += stack.getCount();
-            }
-        }
-        return retorts >= 3 && condensers >= 1;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasRusticAdvancedCondenser;
     }
 
     public boolean hasRusticBrewingBarrel() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticBrewing || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("rustic:brewing_barrel".equals(stack.getItem().getRegistryName().toString())) return true;
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasRusticBrewingBarrel;
     }
 
     public boolean hasRusticCrushingTub() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableRusticCrushing || !net.minecraftforge.fml.common.Loader.isModLoaded("rustic")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("rustic:crushing_tub".equals(stack.getItem().getRegistryName().toString())) return true;
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasRusticCrushingTub;
     }
 
     public boolean hasDisenchanterTable() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable || !net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("disenchanter:disenchantmenttable".equals(stack.getItem().getRegistryName().toString())) return true;
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasDisenchanterTable;
     }
 
     public boolean isDisenchanterVoiding() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable || !net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("disenchanter:disenchantmenttable".equals(stack.getItem().getRegistryName().toString())) {
-                    int meta = stack.getMetadata();
-                    if ((meta & 4) != 0) return true;
-                }
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedDisenchanterVoiding;
     }
 
     public boolean isDisenchanterBulk() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableDisenchanterTable || !net.minecraftforge.fml.common.Loader.isModLoaded("disenchanter")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("disenchanter:disenchantmenttable".equals(stack.getItem().getRegistryName().toString())) {
-                    int meta = stack.getMetadata();
-                    if ((meta & 2) != 0) return true;
-                }
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedDisenchanterBulk;
     }
 
     public boolean hasBountifulBaublesReforger() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableBountifulBaublesReforger || !net.minecraftforge.fml.common.Loader.isModLoaded("bountifulbaubles")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("bountifulbaubles:reforger".equals(stack.getItem().getRegistryName().toString())) return true;
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasBountifulBaublesReforger;
     }
 
     public boolean hasQualityToolsReforger() {
         if (!com.brilliafy.magicstorage.config.ModConfig.enableQualityToolsReforger || !net.minecraftforge.fml.common.Loader.isModLoaded("qualitytools")) return false;
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem().getRegistryName() != null) {
-                if ("qualitytools:reforging_station".equals(stack.getItem().getRegistryName().toString())) return true;
-            }
-        }
-        return false;
+        if (stationsDirty) updateStationFlags();
+        return cachedHasQualityToolsReforger;
     }
 
     @Override
@@ -405,8 +446,8 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     public void markNeedsRefresh() { needsRefresh = true; }
 
     public void refreshNetwork() {
-        connectedUnits.clear();
-        connectedAccessPoints.clear();
+        Set<BlockPos> newUnits = new LinkedHashSet<>();
+        Set<BlockPos> newAccessPoints = new LinkedHashSet<>();
 
         Set<BlockPos> visited = new HashSet<>();
         Queue<BlockPos> queue = new LinkedList<>();
@@ -427,19 +468,19 @@ public class TileStorageHeart extends TileEntity implements ITickable {
 
                 TileEntity te = world.getTileEntity(neighbor);
                 if (te instanceof TileStorageUnit) {
-                    connectedUnits.add(neighbor);
+                    newUnits.add(neighbor);
                     ((TileStorageUnit) te).setHeart(pos);
                     queue.add(neighbor);
                 } else if (te instanceof TileStorageAccess) {
-                    connectedAccessPoints.add(neighbor);
+                    newAccessPoints.add(neighbor);
                     ((TileStorageAccess) te).setHeartPos(pos);
                     queue.add(neighbor);
                 } else if (te instanceof TileCraftingAccess) {
-                    connectedAccessPoints.add(neighbor);
+                    newAccessPoints.add(neighbor);
                     ((TileCraftingAccess) te).setHeartPos(pos);
                     queue.add(neighbor);
                 } else if (te instanceof TileRemoteAccess) {
-                    connectedAccessPoints.add(neighbor);
+                    newAccessPoints.add(neighbor);
                     ((TileRemoteAccess) te).setLinkedHeartPos(pos);
                     queue.add(neighbor);
                 } else if (te instanceof TileStorageHeart && !neighbor.equals(pos)) {
@@ -447,9 +488,20 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 }
             }
         }
-        markDirty();
-        // Keep chunks loaded so remote access works across dimensions
-        updateForcedChunks();
+
+        boolean topologyChanged = !newUnits.equals(connectedUnits) || !newAccessPoints.equals(connectedAccessPoints);
+        if (topologyChanged || chunkTicket == null) {
+            connectedUnits.clear();
+            connectedUnits.addAll(newUnits);
+            connectedAccessPoints.clear();
+            connectedAccessPoints.addAll(newAccessPoints);
+            cachedAllItems = null;
+            cachedUnitTiles = null;
+            cachedEnchantPower = -1;
+            markDirty();
+            // Keep chunks loaded so remote access works across dimensions
+            updateForcedChunks();
+        }
     }
 
     public void disconnectNetwork() {
@@ -464,6 +516,9 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         }
         connectedUnits.clear();
         connectedAccessPoints.clear();
+        cachedAllItems = null;
+        cachedUnitTiles = null;
+        cachedEnchantPower = -1;
         // Release chunkloading ticket so the chunks can unload
         releaseChunkTicket();
     }
@@ -507,60 +562,64 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     }
 
     public List<ItemStack> getAllItems() {
+        if (cachedAllItems != null) {
+            return new ArrayList<>(cachedAllItems);
+        }
         Map<ItemStackKey, ItemStack> merged = new LinkedHashMap<>();
-        for (BlockPos p : connectedUnits) {
-            TileEntity te = world.getTileEntity(p);
-            if (te instanceof TileStorageUnit) {
-                TileStorageUnit unit = (TileStorageUnit) te;
-                for (int i = 0; i < unit.getSlotCount(); i++) {
-                    ItemStack s = unit.getInventory().getStackInSlot(i);
-                    if (!s.isEmpty()) {
-                        ItemStackKey key = new ItemStackKey(s);
-                        ItemStack existing = merged.get(key);
-                        if (existing != null) {
-                            existing.grow(s.getCount());
-                        } else {
-                            merged.put(key, s.copy());
-                        }
+        List<TileStorageUnit> units = getValidUnits();
+        for (TileStorageUnit unit : units) {
+            if (unit.isEmpty()) continue;
+            for (int i = 0; i < unit.getSlotCount(); i++) {
+                ItemStack s = unit.getInventory().getStackInSlot(i);
+                if (!s.isEmpty()) {
+                    ItemStackKey key = new ItemStackKey(s);
+                    ItemStack existing = merged.get(key);
+                    if (existing != null) {
+                        existing.grow(s.getCount());
+                    } else {
+                        merged.put(key, s.copy());
                     }
                 }
             }
         }
-        return new ArrayList<>(merged.values());
+        cachedAllItems = new ArrayList<>(merged.values());
+        return new ArrayList<>(cachedAllItems);
     }
 
     public void autosort() {
         if (world.isRemote || connectedUnits.size() < 2) return;
 
-        List<BlockPos> sortedUnits = new ArrayList<>(connectedUnits);
+        List<TileStorageUnit> validUnits = getValidUnits();
+        if (validUnits.size() < 2) return;
+
+        List<TileStorageUnit> sortedUnits = new ArrayList<>(validUnits);
         sortedUnits.sort((a, b) -> {
-            int cmp = Double.compare(a.distanceSq(pos), b.distanceSq(pos));
+            int cmp = Double.compare(a.getPos().distanceSq(pos), b.getPos().distanceSq(pos));
             if (cmp != 0) return cmp;
-            return a.toLong() < b.toLong() ? -1 : (a.toLong() > b.toLong() ? 1 : 0);
+            return a.getPos().toLong() < b.getPos().toLong() ? -1 : (a.getPos().toLong() > b.getPos().toLong() ? 1 : 0);
         });
 
         Map<BlockPos, TileStorageUnit> unitMap = new LinkedHashMap<>();
-        for (BlockPos p : sortedUnits) {
-            TileEntity te = world.getTileEntity(p);
-            if (te instanceof TileStorageUnit) unitMap.put(p, (TileStorageUnit) te);
+        for (TileStorageUnit unit : sortedUnits) {
+            unitMap.put(unit.getPos(), unit);
         }
-        if (unitMap.size() < 2) return;
 
-        Map<String, List<SlotEntry>> itemMap = new LinkedHashMap<>();
+        Map<ItemStackKey, List<SlotEntry>> itemMap = new LinkedHashMap<>();
         for (Map.Entry<BlockPos, TileStorageUnit> uEntry : unitMap.entrySet()) {
             BlockPos up = uEntry.getKey();
             TileStorageUnit unit = uEntry.getValue();
+            if (unit.isEmpty()) continue;
             for (int i = 0; i < unit.getSlotCount(); i++) {
                 ItemStack s = unit.getInventory().getStackInSlot(i);
                 if (!s.isEmpty()) {
-                    String key = s.getItem().getRegistryName() + "@" + s.getMetadata();
-                    if (s.hasTagCompound()) key += "#" + s.getTagCompound().toString();
+                    ItemStackKey key = new ItemStackKey(s);
                     itemMap.computeIfAbsent(key, k -> new ArrayList<>()).add(new SlotEntry(up, i, s.getCount()));
                 }
             }
         }
 
-        for (Map.Entry<String, List<SlotEntry>> entry : itemMap.entrySet()) {
+        boolean anyMoved = false;
+        for (Map.Entry<ItemStackKey, List<SlotEntry>> entry : itemMap.entrySet()) {
             List<SlotEntry> slots = entry.getValue();
             if (slots.size() < 2) continue;
             slots.sort((a, b) -> {
@@ -601,6 +660,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                                 ItemStack remainder = altUnit.getInventory().insertItem(alt.slot, toInsert, false);
                                 int moved = canTake - remainder.getCount();
                                 if (moved > 0) {
+                                    anyMoved = true;
                                     srcStack.shrink(moved);
                                     if (srcStack.isEmpty()) srcUnit.getInventory().setStackInSlot(src.slot, ItemStack.EMPTY);
                                     roomInTarget += moved;
@@ -626,6 +686,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                     ItemStack remainder = nearestUnit.getInventory().insertItem(nearest.slot, toInsert, false);
                     int moved = canTake - remainder.getCount();
                     if (moved > 0) {
+                        anyMoved = true;
                         srcStack.shrink(moved);
                         if (srcStack.isEmpty()) srcUnit.getInventory().setStackInSlot(src.slot, ItemStack.EMPTY);
                         roomInTarget -= moved;
@@ -656,6 +717,7 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                             ItemStack remainder = nextUnit.getInventory().insertItem(nextNearest.slot, toInsert, false);
                             int moved = canTake - remainder.getCount();
                             if (moved > 0) {
+                                anyMoved = true;
                                 srcStack.shrink(moved);
                                 if (srcStack.isEmpty()) srcUnit.getInventory().setStackInSlot(src.slot, ItemStack.EMPTY);
                                 nr -= moved;
@@ -665,15 +727,19 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 }
             }
         }
-        markContentsDirty();
+        if (anyMoved) {
+            markContentsDirty();
+        }
     }
 
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
+        if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack remainder = stack.copy();
-        for (BlockPos p : connectedUnits) {
-            TileEntity te = world.getTileEntity(p);
-            if (te instanceof TileStorageUnit) {
-                TileStorageUnit unit = (TileStorageUnit) te;
+        List<TileStorageUnit> units = getValidUnits();
+
+        // Pass 1: Try units that already contain this item type
+        for (TileStorageUnit unit : units) {
+            if (unit.containsItem(remainder.getItem())) {
                 remainder = unit.insertItem(remainder, simulate);
                 if (remainder.isEmpty()) {
                     if (!simulate) markContentsDirty();
@@ -681,7 +747,21 @@ public class TileStorageHeart extends TileEntity implements ITickable {
                 }
             }
         }
-        if (!simulate) markContentsDirty();
+
+        // Pass 2: Try units that have empty slots
+        for (TileStorageUnit unit : units) {
+            if (unit.hasEmptySlot()) {
+                remainder = unit.insertItem(remainder, simulate);
+                if (remainder.isEmpty()) {
+                    if (!simulate) markContentsDirty();
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
+
+        if (!simulate && remainder.getCount() < stack.getCount()) {
+            markContentsDirty();
+        }
         return remainder;
     }
 
@@ -689,35 +769,36 @@ public class TileStorageHeart extends TileEntity implements ITickable {
         if (maxCount <= 0) return ItemStack.EMPTY;
         ItemStack extracted = ItemStack.EMPTY;
         int needed = maxCount;
+        List<TileStorageUnit> units = getValidUnits();
 
-        for (BlockPos p : connectedUnits) {
-            TileEntity te = world.getTileEntity(p);
-            if (te instanceof TileStorageUnit) {
-                TileStorageUnit unit = (TileStorageUnit) te;
-                for (int i = 0; i < unit.getSlotCount(); i++) {
-                    ItemStack s = unit.getInventory().getStackInSlot(i);
-                    if (!s.isEmpty() && matcher.test(s)) {
-                        if (extracted.isEmpty() || com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(extracted, s)) {
-                            int toExtract = Math.min(needed, s.getCount());
-                            if (extracted.isEmpty()) {
-                                extracted = s.copy();
-                                extracted.setCount(toExtract);
-                            } else {
-                                extracted.grow(toExtract);
-                            }
-                            needed -= toExtract;
-                            if (!simulate) {
-                                s.shrink(toExtract);
-                                unit.getInventory().setStackInSlot(i, s);
-                                markContentsDirty();
-                            }
-                            if (needed <= 0) {
-                                return extracted;
-                            }
+        for (TileStorageUnit unit : units) {
+            if (unit.isEmpty()) continue;
+            for (int i = 0; i < unit.getSlotCount(); i++) {
+                ItemStack s = unit.getInventory().getStackInSlot(i);
+                if (!s.isEmpty() && matcher.test(s)) {
+                    if (extracted.isEmpty() || com.brilliafy.magicstorage.util.ItemMatchHelper.matchesStorageItem(extracted, s)) {
+                        int toExtract = Math.min(needed, s.getCount());
+                        if (extracted.isEmpty()) {
+                            extracted = s.copy();
+                            extracted.setCount(toExtract);
+                        } else {
+                            extracted.grow(toExtract);
+                        }
+                        needed -= toExtract;
+                        if (!simulate) {
+                            s.shrink(toExtract);
+                            unit.getInventory().setStackInSlot(i, s.isEmpty() ? ItemStack.EMPTY : s);
+                        }
+                        if (needed <= 0) {
+                            if (!simulate) markContentsDirty();
+                            return extracted;
                         }
                     }
                 }
             }
+        }
+        if (!simulate && !extracted.isEmpty()) {
+            markContentsDirty();
         }
         return extracted;
     }
@@ -761,7 +842,10 @@ public class TileStorageHeart extends TileEntity implements ITickable {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        if (compound.hasKey("Inventory")) inventory.deserializeNBT(compound.getCompoundTag("Inventory"));
+        if (compound.hasKey("Inventory")) {
+            inventory.deserializeNBT(compound.getCompoundTag("Inventory"));
+            updateStationFlags();
+        }
         if (compound.hasKey("brewingCraftCounter")) brewingCraftCounter = compound.getInteger("brewingCraftCounter");
         if (compound.hasKey("reforgeCraftCounter")) reforgeCraftCounter = compound.getInteger("reforgeCraftCounter");
         connectedUnits.clear();

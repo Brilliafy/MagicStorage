@@ -50,6 +50,14 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
     protected boolean isSimple;
     protected com.brilliafy.magicstorage.container.ContainerMagicStorageBase magicContainer;
 
+    private boolean needsFilterAndSort = true;
+    private boolean needsSlotRebuild = true;
+    private String lastSearchText = "";
+    private int lastPage = -1;
+    private EnumSortType lastSort = null;
+    private boolean lastDownwards = false;
+    private boolean wasShiftDown = false;
+
     public GuiCraftingAccess(com.brilliafy.magicstorage.container.ContainerMagicStorageBase container) {
         super(container);
         this.magicContainer = container;
@@ -83,6 +91,9 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
                 }
                 if (!match) { zeroStacks.add(i); stack.setCount(1); }
             }
+            needsSlotRebuild = true;
+        } else {
+            needsFilterAndSort = true;
         }
     }
 
@@ -102,6 +113,9 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         searchBar.setTextColor(16777215);
         searchBar.setFocused(false);
         searchBar.setText(SearchSettings.getSearch());
+        needsFilterAndSort = true;
+        needsSlotRebuild = true;
+        lastPage = -1;
         directionBtn = new GuiStorageButton(0, guiLeft + 7, searchBar.y - 3, "");
         addButton(directionBtn);
         sortBtn = new GuiStorageButton(1, guiLeft + 21, searchBar.y - 3, "");
@@ -174,18 +188,44 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         if (!isScreenValid()) return;
         this.drawDefaultBackground();
         renderTextures();
-        // Use cached stacks from container (synced from server) instead of client-side heart query
-        if (magicContainer != null) {
-            stacks = magicContainer.getCachedStacks();
+
+        String currentSearch = searchBar != null ? searchBar.getText() : "";
+        if (!currentSearch.equals(lastSearchText)) {
+            lastSearchText = currentSearch;
+            needsFilterAndSort = true;
         }
-        if (!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || displayedStacks == null) {
-            displayedStacks = applySearchTextToSlots();
-            sortStackWrappers(displayedStacks);
+
+        EnumSortType currentSort = getSort();
+        boolean currentDownwards = getDownwards();
+        if (currentSort != lastSort || currentDownwards != lastDownwards) {
+            lastSort = currentSort;
+            lastDownwards = currentDownwards;
+            needsFilterAndSort = true;
         }
+
+        boolean shiftDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+        if (wasShiftDown && !shiftDown) {
+            needsFilterAndSort = true;
+        }
+        wasShiftDown = shiftDown;
+
+        if (!shiftDown || displayedStacks == null) {
+            if (needsFilterAndSort || displayedStacks == null) {
+                displayedStacks = applySearchTextToSlots();
+                sortStackWrappers(displayedStacks);
+                needsFilterAndSort = false;
+                needsSlotRebuild = true;
+            }
+        }
+
         applyScrollPaging(displayedStacks);
-        rebuildItemSlots(displayedStacks);
+        if (page != lastPage || needsSlotRebuild) {
+            lastPage = page;
+            needsSlotRebuild = false;
+            rebuildItemSlots(displayedStacks);
+        }
         renderItemSlots(mouseX, mouseY);
-        searchBar.drawTextBox();
+        if (searchBar != null) searchBar.drawTextBox();
     }
 
     private void renderTextures() {
@@ -195,11 +235,57 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
     }
 
     private List<ItemStack> applySearchTextToSlots() {
-        String text = searchBar.getText();
-        if (text.equals("")) return Lists.newArrayList(stacks);
+        String text = searchBar != null ? searchBar.getText() : "";
+        if (text.isEmpty()) return Lists.newArrayList(stacks);
+        String searchLower = text.toLowerCase();
         List<ItemStack> result = Lists.newArrayList();
-        for (ItemStack s : stacks)
-            if (doesStackMatchSearch(s)) result.add(s);
+        if (searchLower.startsWith("@")) {
+            String query = searchLower.substring(1);
+            for (ItemStack s : stacks) {
+                if (s.getItem().getRegistryName() != null && s.getItem().getRegistryName().getNamespace().toLowerCase().contains(query)) {
+                    result.add(s);
+                }
+            }
+        } else if (searchLower.startsWith("#")) {
+            String query = searchLower.substring(1);
+            for (ItemStack s : stacks) {
+                try {
+                    String tooltipStr = Joiner.on(' ').join(s.getTooltip(mc.player, TooltipFlags.NORMAL));
+                    if (ChatFormatting.stripFormatting(tooltipStr).toLowerCase().contains(query)) {
+                        result.add(s);
+                    }
+                } catch (Exception ignored) {}
+            }
+        } else if (searchLower.startsWith("$")) {
+            String query = searchLower.substring(1);
+            for (ItemStack s : stacks) {
+                for (int id : OreDictionary.getOreIDs(s)) {
+                    if (OreDictionary.getOreName(id).toLowerCase().contains(query)) {
+                        result.add(s);
+                        break;
+                    }
+                }
+            }
+        } else if (searchLower.startsWith("%")) {
+            String query = searchLower.substring(1);
+            for (ItemStack s : stacks) {
+                CreativeTabs[] tabs = s.getItem().getCreativeTabs();
+                if (tabs != null) {
+                    for (CreativeTabs tab : tabs) {
+                        if (tab != null && tab.getTabLabel().toLowerCase().contains(query)) {
+                            result.add(s);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            for (ItemStack s : stacks) {
+                if (s.getDisplayName().toLowerCase().contains(searchLower)) {
+                    result.add(s);
+                }
+            }
+        }
         return result;
     }
 
@@ -238,18 +324,19 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
     }
 
     private void sortStackWrappers(List<ItemStack> list) {
-        Collections.sort(list, new Comparator<ItemStack>() {
-            int mul = getDownwards() ? -1 : 1;
-            @Override
-            public int compare(ItemStack o1, ItemStack o2) {
-                switch (getSort()) {
-                    case AMOUNT: return Integer.compare(o2.getCount(), o1.getCount()) * mul;
-                    case NAME: return o2.getDisplayName().compareToIgnoreCase(o1.getDisplayName()) * mul;
-                    case MOD: return o2.getItem().getRegistryName().getNamespace().compareToIgnoreCase(o1.getItem().getRegistryName().getNamespace()) * mul;
-                }
-                return 0;
-            }
-        });
+        final EnumSortType sortType = getSort();
+        final int mul = getDownwards() ? -1 : 1;
+        if (sortType == EnumSortType.AMOUNT) {
+            list.sort((o1, o2) -> Integer.compare(o2.getCount(), o1.getCount()) * mul);
+        } else if (sortType == EnumSortType.NAME) {
+            list.sort((o1, o2) -> o2.getDisplayName().compareToIgnoreCase(o1.getDisplayName()) * mul);
+        } else if (sortType == EnumSortType.MOD) {
+            list.sort((o1, o2) -> {
+                String mod1 = o1.getItem().getRegistryName() != null ? o1.getItem().getRegistryName().getNamespace() : "";
+                String mod2 = o2.getItem().getRegistryName() != null ? o2.getItem().getRegistryName().getNamespace() : "";
+                return mod2.compareToIgnoreCase(mod1) * mul;
+            });
+        }
     }
 
     @Override
@@ -312,11 +399,11 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         super.actionPerformed(button);
         if (button == null) return;
         boolean doSort = true;
-        if (button.id == directionBtn.id) setDownwards(!getDownwards());
-        else if (button.id == sortBtn.id) setSort(getSort().next());
+        if (button.id == directionBtn.id) { setDownwards(!getDownwards()); needsFilterAndSort = true; }
+        else if (button.id == sortBtn.id) { setSort(getSort().next()); needsFilterAndSort = true; }
         else if (button.id == keepBtn.id) { doSort = false; SearchSettings.setKeepSearch(!SearchSettings.isSearchKept()); SearchSettings.setSearch(searchBar.getText()); }
         else if (button.id == jeiBtn.id) { doSort = false; SearchSettings.setJeiSearchSync(!SearchSettings.isJeiSearchSynced()); SearchSettings.setSearch(searchBar.getText()); }
-        else if (button.id == clearTextBtn.id) { doSort = false; clearSearch(); forceFocus = true; }
+        else if (button.id == clearTextBtn.id) { doSort = false; clearSearch(); forceFocus = true; needsFilterAndSort = true; }
         else if (button.id == autofillBtn.id) {
             doSort = false;
             SearchSettings.setAutofillMode(SearchSettings.getAutofillMode().next());
@@ -325,7 +412,7 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         }
     }
 
-    private void clearSearch() { searchBar.setText(""); SearchSettings.setSearch(""); }
+    private void clearSearch() { searchBar.setText(""); SearchSettings.setSearch(""); needsFilterAndSort = true; }
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
@@ -359,6 +446,20 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         }
     }
 
+    private static java.lang.reflect.Field hoveredSlotField;
+    static {
+        try {
+            hoveredSlotField = net.minecraft.client.gui.inventory.GuiContainer.class.getDeclaredField("hoveredSlot");
+            hoveredSlotField.setAccessible(true);
+        } catch (Exception e) {
+            try {
+                hoveredSlotField = net.minecraftforge.fml.relauncher.ReflectionHelper.findField(
+                    net.minecraft.client.gui.inventory.GuiContainer.class, "hoveredSlot", "field_147006_u");
+                hoveredSlotField.setAccessible(true);
+            } catch (Exception ignored) {}
+        }
+    }
+
     @Override
     public void keyTyped(char typedChar, int keyCode) throws IOException {
         if (!stackUnderMouse.isEmpty() && com.brilliafy.magicstorage.jei.JeiHooks.isJeiKeybind(keyCode)) {
@@ -368,11 +469,11 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
 
         // Read the private hoveredSlot field from GuiContainer
         net.minecraft.inventory.Slot hoveredSlot = null;
-        try {
-            java.lang.reflect.Field f = net.minecraft.client.gui.inventory.GuiContainer.class.getDeclaredField("hoveredSlot");
-            f.setAccessible(true);
-            hoveredSlot = (net.minecraft.inventory.Slot) f.get(this);
-        } catch (Exception ignored) {}
+        if (hoveredSlotField != null) {
+            try {
+                hoveredSlot = (net.minecraft.inventory.Slot) hoveredSlotField.get(this);
+            } catch (Exception ignored) {}
+        }
         
         // Handle result slot hotkey: craft + move to hotbar via SWAP click
         // (server intercepts SWAP on slot 0 to craft instead of swapping ghosts)
@@ -392,6 +493,7 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
             Keyboard.enableRepeatEvents(true);
             if (searchBar.isFocused() && searchBar.textboxKeyTyped(typedChar, keyCode)) {
                 SearchSettings.setSearch(searchBar.getText());
+                needsFilterAndSort = true;
                 return;
             }
             if (!searchBar.isFocused() && !stackUnderMouse.isEmpty() && mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode)) {
@@ -414,6 +516,7 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
             String jeiText = com.brilliafy.magicstorage.jei.JeiHooks.getFilterText();
             if (jeiText != null && searchBar != null && !jeiText.equals(searchBar.getText())) {
                 searchBar.setText(jeiText);
+                needsFilterAndSort = true;
             }
         }
     }
@@ -425,8 +528,8 @@ public abstract class GuiCraftingAccess extends GuiContainer implements IStorage
         int j = height - Mouse.getY() * height / mc.displayHeight - 1;
         if (inField(i, j)) {
             int m = Mouse.getEventDWheel();
-            if (m > 0 && page > 1) page--;
-            if (m < 0 && page < maxPage) page++;
+            if (m > 0 && page > 1) { page--; needsSlotRebuild = true; }
+            if (m < 0 && page < maxPage) { page++; needsSlotRebuild = true; }
         }
     }
 

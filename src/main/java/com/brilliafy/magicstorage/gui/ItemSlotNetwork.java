@@ -76,11 +76,11 @@ public class ItemSlotNetwork {
 
             String s;
             if (slot.size >= 10000000) {
-                s = String.format("%.1fM", slot.size / 1000000.0);
+                s = (slot.size / 1000000) + "." + ((slot.size % 1000000) / 100000) + "M";
             } else if (slot.size >= 100000) {
-                s = String.format("%.0fk", slot.size / 1000.0);
+                s = (slot.size / 1000) + "k";
             } else if (slot.size >= 1000) {
-                s = String.format("%.1fk", slot.size / 1000.0);
+                s = (slot.size / 1000) + "." + ((slot.size % 1000) / 100) + "k";
             } else {
                 s = String.valueOf(slot.size);
             }
@@ -101,12 +101,6 @@ public class ItemSlotNetwork {
     public void drawTooltip(int mouseX, int mouseY) {
         if (!stack.isEmpty()) {
             try {
-                List<String> tooltip = stack.getTooltip(
-                    Minecraft.getMinecraft().player,
-                    Minecraft.getMinecraft().gameSettings.advancedItemTooltips
-                        ? net.minecraft.client.util.ITooltipFlag.TooltipFlags.ADVANCED
-                        : net.minecraft.client.util.ITooltipFlag.TooltipFlags.NORMAL
-                );
                 gui.renderToolTipP(stack, mouseX, mouseY);
             } catch (Throwable e) { }
         }

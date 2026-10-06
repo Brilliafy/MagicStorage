@@ -44,12 +44,9 @@ public class NetworkHandler {
     // === Helpers ===
     private static ItemStack readItemStack(ByteBuf buf) {
         if (!buf.readBoolean()) return ItemStack.EMPTY;
-        short len = buf.readShort();
-        if (len < 0) return ItemStack.EMPTY;
-        byte[] bytes = new byte[len];
-        buf.readBytes(bytes);
         try {
-            net.minecraft.nbt.NBTTagCompound tag = net.minecraft.nbt.CompressedStreamTools.readCompressed(new java.io.ByteArrayInputStream(bytes));
+            net.minecraft.nbt.NBTTagCompound tag = net.minecraftforge.fml.common.network.ByteBufUtils.readTag(buf);
+            if (tag == null) return ItemStack.EMPTY;
             ItemStack stack = new ItemStack(tag);
             stack.setCount(buf.readInt());
             return stack;
@@ -65,16 +62,8 @@ public class NetworkHandler {
         }
         buf.writeBoolean(true);
         net.minecraft.nbt.NBTTagCompound tag = stack.writeToNBT(new net.minecraft.nbt.NBTTagCompound());
-        try {
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            net.minecraft.nbt.CompressedStreamTools.writeCompressed(tag, baos);
-            byte[] bytes = baos.toByteArray();
-            buf.writeShort(bytes.length);
-            buf.writeBytes(bytes);
-            buf.writeInt(stack.getCount());
-        } catch (Exception e) {
-            buf.writeShort(-1);
-        }
+        net.minecraftforge.fml.common.network.ByteBufUtils.writeTag(buf, tag);
+        buf.writeInt(stack.getCount());
     }
 
     private static String readString(ByteBuf buf) {

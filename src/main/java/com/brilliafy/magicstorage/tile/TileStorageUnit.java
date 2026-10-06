@@ -22,6 +22,64 @@ public class TileStorageUnit extends TileEntity {
     @Nullable
     private BlockPos heartPos = null;
 
+    private int emptySlotCount = -1;
+    private final java.util.Map<net.minecraft.item.Item, Integer> itemTypeCounts = new java.util.HashMap<>();
+
+    private void updateSlotTracking(ItemStack oldStack, ItemStack newStack) {
+        if (emptySlotCount < 0) {
+            rebuildSlotTracking();
+            return;
+        }
+        boolean oldEmpty = oldStack.isEmpty();
+        boolean newEmpty = newStack.isEmpty();
+        if (oldEmpty && !newEmpty) {
+            emptySlotCount--;
+        } else if (!oldEmpty && newEmpty) {
+            emptySlotCount++;
+        }
+        if (!oldEmpty && (newEmpty || oldStack.getItem() != newStack.getItem())) {
+            int c = itemTypeCounts.getOrDefault(oldStack.getItem(), 0);
+            if (c <= 1) {
+                itemTypeCounts.remove(oldStack.getItem());
+            } else {
+                itemTypeCounts.put(oldStack.getItem(), c - 1);
+            }
+        }
+        if (!newEmpty && (oldEmpty || oldStack.getItem() != newStack.getItem())) {
+            itemTypeCounts.put(newStack.getItem(), itemTypeCounts.getOrDefault(newStack.getItem(), 0) + 1);
+        }
+    }
+
+    public void rebuildSlotTracking() {
+        int empty = 0;
+        itemTypeCounts.clear();
+        int max = getSlotCount();
+        for (int i = 0; i < max; i++) {
+            ItemStack s = inventory.getStackInSlot(i);
+            if (s.isEmpty()) {
+                empty++;
+            } else {
+                itemTypeCounts.put(s.getItem(), itemTypeCounts.getOrDefault(s.getItem(), 0) + 1);
+            }
+        }
+        emptySlotCount = empty;
+    }
+
+    public boolean hasEmptySlot() {
+        if (emptySlotCount < 0) rebuildSlotTracking();
+        return emptySlotCount > 0;
+    }
+
+    public boolean isEmpty() {
+        if (emptySlotCount < 0) rebuildSlotTracking();
+        return emptySlotCount >= getSlotCount();
+    }
+
+    public boolean containsItem(net.minecraft.item.Item item) {
+        if (emptySlotCount < 0) rebuildSlotTracking();
+        return itemTypeCounts.containsKey(item);
+    }
+
     public TileStorageUnit() {
     }
 
@@ -36,14 +94,34 @@ public class TileStorageUnit extends TileEntity {
                 return slot < getSlotCount();
             }
             @Override
+            public void setStackInSlot(int slot, ItemStack stack) {
+                if (slot < getSlotCount()) {
+                    ItemStack old = getStackInSlot(slot);
+                    super.setStackInSlot(slot, stack);
+                    updateSlotTracking(old, stack);
+                } else {
+                    super.setStackInSlot(slot, stack);
+                }
+            }
+            @Override
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
                 if (slot >= getSlotCount() || stack.isEmpty()) return stack;
-                return super.insertItem(slot, stack, simulate);
+                ItemStack old = simulate ? ItemStack.EMPTY : getStackInSlot(slot);
+                ItemStack res = super.insertItem(slot, stack, simulate);
+                if (!simulate && (res.isEmpty() || res.getCount() < stack.getCount())) {
+                    updateSlotTracking(old, getStackInSlot(slot));
+                }
+                return res;
             }
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 if (slot >= getSlotCount()) return ItemStack.EMPTY;
-                return super.extractItem(slot, amount, simulate);
+                ItemStack old = simulate ? ItemStack.EMPTY : getStackInSlot(slot);
+                ItemStack res = super.extractItem(slot, amount, simulate);
+                if (!simulate && !res.isEmpty()) {
+                    updateSlotTracking(old, getStackInSlot(slot));
+                }
+                return res;
             }
             @Override
             public int getSlotLimit(int slot) {
@@ -70,6 +148,7 @@ public class TileStorageUnit extends TileEntity {
         // Just update the tier — the handler already has enough capacity (max size = 315)
         // getSlots() returns getSlotCount() which reads this.tier, so it auto-adjusts
         this.tier = tier;
+        rebuildSlotTracking();
         markDirty();
         if (world != null && !world.isRemote) {
             ((net.minecraft.world.WorldServer) world).getPlayerChunkMap().markBlockForUpdate(pos);
@@ -110,6 +189,7 @@ public class TileStorageUnit extends TileEntity {
     }
 
     public ItemStack extractItem(java.util.function.Predicate<ItemStack> matcher, int maxCount, boolean simulate) {
+        if (isEmpty()) return ItemStack.EMPTY;
         ItemStackHandler inv = getInventory();
         int remaining = maxCount;
         ItemStack result = ItemStack.EMPTY;
@@ -139,6 +219,11 @@ public class TileStorageUnit extends TileEntity {
         return newTier > tier && newTier < TIER_SLOT_COUNTS.length;
     }
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (emptySlotCount < 0) rebuildSlotTracking();
+        if (emptySlotCount == 0 && !containsItem(stack.getItem())) {
+            return stack;
+        }
         return net.minecraftforge.items.ItemHandlerHelper.insertItemStacked(getInventory(), stack, simulate);
     }
 
@@ -193,6 +278,7 @@ public class TileStorageUnit extends TileEntity {
         } else {
             heartPos = null;
         }
+        rebuildSlotTracking();
     }
 
     @Override

@@ -43,22 +43,31 @@ public class ItemMatchHelper {
         return true;
     }
 
+    private static boolean hasIgnoredTags(NBTTagCompound tag) {
+        return tag.hasKey("enchChecked") || tag.hasKey("enchantmentsInvalid") || tag.hasKey("HideFlags")
+            || tag.hasKey("UUID") || tag.hasKey("UUIDMost") || tag.hasKey("UUIDLeast");
+    }
+
     public static NBTTagCompound getComparableNBT(ItemStack stack) {
         if (stack == null || stack.isEmpty() || !stack.hasTagCompound()) return null;
-        NBTTagCompound tag = stack.getTagCompound().copy();
+        NBTTagCompound tag = stack.getTagCompound();
+        if (!hasIgnoredTags(tag)) {
+            return tag.getKeySet().isEmpty() ? null : tag;
+        }
 
+        NBTTagCompound copy = tag.copy();
         // Strip client-side tooltip mutations (e.g. SpartanWeaponry tooltip enchant check, Bountiful Baubles shields)
-        tag.removeTag("enchChecked");
-        tag.removeTag("enchantmentsInvalid");
-        tag.removeTag("HideFlags");
+        copy.removeTag("enchChecked");
+        copy.removeTag("enchantmentsInvalid");
+        copy.removeTag("HideFlags");
 
         // Strip random instance UUIDs (e.g. SpartanWeaponry throwing weapons assigning random UUIDs)
-        tag.removeTag("UUID");
-        tag.removeTag("UUIDMost");
-        tag.removeTag("UUIDLeast");
+        copy.removeTag("UUID");
+        copy.removeTag("UUIDMost");
+        copy.removeTag("UUIDLeast");
 
-        if (tag.getKeySet().isEmpty()) return null;
-        return tag;
+        if (copy.getKeySet().isEmpty()) return null;
+        return copy;
     }
 
     public static boolean matchesStorageItem(ItemStack stored, ItemStack requested) {
@@ -69,6 +78,19 @@ public class ItemMatchHelper {
 
         if (isPotionItem(stored) || isPotionItem(requested)) {
             return matchesPotion(stored, requested);
+        }
+
+        boolean hasA = stored.hasTagCompound();
+        boolean hasB = requested.hasTagCompound();
+        if (!hasA && !hasB) return true;
+
+        if (hasA && hasB) {
+            NBTTagCompound rawA = stored.getTagCompound();
+            NBTTagCompound rawB = requested.getTagCompound();
+            if (rawA == rawB) return true;
+            if (!hasIgnoredTags(rawA) && !hasIgnoredTags(rawB)) {
+                return rawA.equals(rawB);
+            }
         }
 
         NBTTagCompound tagA = getComparableNBT(stored);
