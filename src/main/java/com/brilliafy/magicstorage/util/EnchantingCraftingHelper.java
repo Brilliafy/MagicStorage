@@ -76,7 +76,7 @@ public class EnchantingCraftingHelper {
     public static int getPowerFromHeart(
             com.brilliafy.magicstorage.tile.TileStorageHeart heart, World world) {
         if (heart == null || world == null) return 0;
-        return getPowerFromItems(heart.getAllItems(), world);
+        return heart.getEnchantPower(world);
     }
 
     // ============================================================

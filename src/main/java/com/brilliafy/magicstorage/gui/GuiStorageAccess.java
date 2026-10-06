@@ -26,6 +26,11 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
     protected ItemStack stackUnderMouse = ItemStack.EMPTY;
     protected long lastClick;
     protected List<ItemSlotNetwork> slots = new ArrayList<>();
+    private List<ItemStack> sortedFilteredItems = new ArrayList<>();
+    private boolean needsFilterAndSort = true;
+    private boolean needsSlotRebuild = true;
+    private String lastSearchText = "";
+    private int lastPage = -1;
 
     public GuiStorageAccess(InventoryPlayer playerInv, com.brilliafy.magicstorage.gui.IStorageContainer container) {
         super((net.minecraft.inventory.Container) container);
@@ -47,6 +52,9 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
         searchBar.setTextColor(16777215);
         searchBar.setFocused(false);
         searchBar.setText("");
+        needsFilterAndSort = true;
+        needsSlotRebuild = true;
+        lastPage = -1;
         // Request items from server (mouseButton=-1 signals refresh)
         com.brilliafy.magicstorage.network.NetworkHandler.INSTANCE.sendToServer(
             new com.brilliafy.magicstorage.network.NetworkHandler.RequestMessage(-1, net.minecraft.item.ItemStack.EMPTY, false, false));
@@ -69,6 +77,7 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
     @Override public void setStacks(List<ItemStack> stacks) {
         // Store in container so drawGuiContainerBackgroundLayer picks it up
         container.setStacks(stacks);
+        needsFilterAndSort = true;
     }
     @Override public void setCraftableStacks(List<ItemStack> stacks) {}
 
@@ -79,33 +88,51 @@ public class GuiStorageAccess extends GuiContainer implements IStorageInventory 
         mc.getTextureManager().bindTexture(TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
-        List<ItemStack> items = new ArrayList<>(container.getCachedStacks());
-
         String search = searchBar != null ? searchBar.getText() : "";
-        if (!search.isEmpty()) {
-            List<ItemStack> filtered = new ArrayList<>();
-            for (ItemStack s : items)
-                if (s.getDisplayName().toLowerCase().contains(search.toLowerCase())) filtered.add(s);
-            items = filtered;
+        if (!search.equals(lastSearchText)) {
+            lastSearchText = search;
+            needsFilterAndSort = true;
         }
 
-        items.sort((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
+        if (needsFilterAndSort) {
+            List<ItemStack> raw = container.getCachedStacks();
+            List<ItemStack> filtered;
+            if (search.isEmpty()) {
+                filtered = new ArrayList<>(raw);
+            } else {
+                String searchLower = search.toLowerCase();
+                filtered = new ArrayList<>();
+                for (ItemStack s : raw) {
+                    if (s.getDisplayName().toLowerCase().contains(searchLower)) {
+                        filtered.add(s);
+                    }
+                }
+            }
+            filtered.sort((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
+            sortedFilteredItems = filtered;
+            needsFilterAndSort = false;
+            needsSlotRebuild = true;
+        }
 
         int perPage = getLines() * getColumns();
-        maxPage = Math.max(1, (items.size() + perPage - 1) / perPage);
+        maxPage = Math.max(1, (sortedFilteredItems.size() + perPage - 1) / perPage);
         if (page > maxPage) page = maxPage;
         if (page < 1) page = 1;
 
-        slots.clear();
-        int index = (page - 1) * getColumns();
-        for (int row = 0; row < getLines(); row++) {
-            for (int col = 0; col < getColumns(); col++) {
-                if (index >= items.size()) break;
-                ItemStack stack = items.get(index);
-                slots.add(new ItemSlotNetwork(this, stack,
-                    guiLeft + 8 + col * 18, guiTop + 10 + row * 18,
-                    stack.getCount(), guiLeft, guiTop, true));
-                index++;
+        if (page != lastPage || needsSlotRebuild) {
+            lastPage = page;
+            needsSlotRebuild = false;
+            slots.clear();
+            int index = (page - 1) * getColumns();
+            for (int row = 0; row < getLines(); row++) {
+                for (int col = 0; col < getColumns(); col++) {
+                    if (index >= sortedFilteredItems.size()) break;
+                    ItemStack stack = sortedFilteredItems.get(index);
+                    slots.add(new ItemSlotNetwork(this, stack,
+                        guiLeft + 8 + col * 18, guiTop + 10 + row * 18,
+                        stack.getCount(), guiLeft, guiTop, true));
+                    index++;
+                }
             }
         }
 

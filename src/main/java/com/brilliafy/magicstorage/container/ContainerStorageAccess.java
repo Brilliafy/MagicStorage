@@ -73,9 +73,8 @@ public class ContainerStorageAccess extends Container implements IStorageContain
             ItemStack stack = slot.getStack().copy();
             TileStorageHeart heart = resolveHeart();
             if (heart != null) {
-                ItemStack simulated = heart.insertItem(stack.copy(), true);
-                if (simulated.getCount() < stack.getCount()) {
-                    ItemStack remainder = heart.insertItem(stack.copy(), false);
+                ItemStack remainder = heart.insertItem(stack.copy(), false);
+                if (remainder.getCount() < stack.getCount()) {
                     slot.putStack(remainder.isEmpty() ? ItemStack.EMPTY : net.minecraftforge.items.ItemHandlerHelper.copyStackWithSize(stack, remainder.getCount()));
                     slot.onSlotChanged();
                     detectAndSendChanges();

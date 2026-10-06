@@ -25,11 +25,14 @@ public class TileRemoteAccess extends TileEntity implements ITickable {
         markDirty();
     }
 
+    private int tickCounter = 0;
+
     @Override
     public void update() {
         if (world.isRemote) return;
+        if (++tickCounter % 80 != 0) return;
         // Heart's BFS handles linking. Just check if link is still valid.
-        if (linkedHeartPos != null && !(world.getTileEntity(linkedHeartPos) instanceof TileStorageHeart)) {
+        if (linkedHeartPos != null && world.isBlockLoaded(linkedHeartPos) && !(world.getTileEntity(linkedHeartPos) instanceof TileStorageHeart)) {
             setLinkedHeartPos(null);
         }
     }

@@ -20,9 +20,7 @@ public class SmeltingCraftingHelper {
     public static int getSingleBurnTime(ItemStack stack) {
         if (stack.isEmpty()) return 0;
         try {
-            ItemStack single = stack.copy();
-            single.setCount(1);
-            return net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(single);
+            return net.minecraft.tileentity.TileEntityFurnace.getItemBurnTime(stack);
         } catch (Exception e) {
             if (stack.getItem() == net.minecraft.init.Items.COAL) return 1600;
             return 0;
