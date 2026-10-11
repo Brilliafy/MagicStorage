@@ -61,4 +61,15 @@ Opening a Storage Access or Crafting Access terminal presents the network invent
 
 ---
 
+## 5. Progression & World Exploration
+
+As your storage needs grow, explore the world to advance through 8 distinct storage unit tiers:
+
+1. **Overworld / Early Game:** Start with Basic Units (36 slots). Expand with **Crimtane** or **Demonite** Upgrades (54 slots) forged from evil biome metals, iron blocks, and redstone/obsidian.
+2. **The Nether (Hellstone Tier - 90 slots):** Venture into the Nether depths. **Hellstone Ore** spawns exclusively **beneath lava oceans (strictly Y < 31)**. Mine it for Hellstone Fragments (Fortune applies!) and forge them into **Hellstone Bars** using Obsidian and Blaze Powder in a Storage Heart equipped with a Furnace.
+3. **Mid-to-Late Game (Hallowed & Blue Chlorophyte):** Holy **Hallowed Ingots** (135 slots) and botanical **Chlorophyte Bars** with Lapis Blocks (180 slots).
+4. **The End (Luminite & Terra Tiers):** Explore outer End islands ($r \ge 1024$ blocks) for celestial **Luminite Ore** (252 slots). Synthesize all metals and boss drops into the **Terra Singularity** for the ultimate **Terra Storage Unit** (360 slots).
+
+---
+
 [← Back to Wiki Hub](README.md) | [Main Documentation](../README.md)

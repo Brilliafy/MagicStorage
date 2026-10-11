@@ -28,10 +28,10 @@ public class WorldGenOres implements IWorldGenerator {
         int dim = world.provider.getDimension();
         if (dim == -1) {
             // Nether: Hellstone Ore
-            // Generates in Netherrack, concentrated in lower depths Y: 10 - 115
+            // Generates in Netherrack beneath the Nether lava oceans (strictly below Y: 31)
             for (int i = 0; i < 8; i++) {
                 int x = chunkX * 16 + random.nextInt(16);
-                int y = 10 + random.nextInt(105);
+                int y = 5 + random.nextInt(26); // Y: 5 to 30 (under lava ocean level Y 31)
                 int z = chunkZ * 16 + random.nextInt(16);
                 hellstoneGen.generate(world, random, new BlockPos(x, y, z));
             }
