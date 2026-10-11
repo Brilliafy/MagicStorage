@@ -271,6 +271,15 @@ public abstract class ContainerMagicStorageBase extends Container implements ISt
             if (recipe != null) {
                 ItemStack output = recipe.getCraftingResult(craftMatrix);
                 if (!output.isEmpty()) {
+                    if (output.getItem() instanceof com.brilliafy.magicstorage.item.ItemPortableAccess) {
+                        for (int i = 0; i < 9; i++) {
+                            ItemStack st = craftMatrix.getStackInSlot(i);
+                            if (!st.isEmpty() && st.getItem() instanceof com.brilliafy.magicstorage.item.ItemPortableAccess && st.hasTagCompound()) {
+                                output.setTagCompound(st.getTagCompound().copy());
+                                break;
+                            }
+                        }
+                    }
                     result.setInventorySlotContents(0, output);
                     return;
                 }

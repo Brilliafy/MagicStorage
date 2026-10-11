@@ -1,0 +1,13 @@
+{
+  "type": "magicstorage:heart_furnace",
+  "ingredients": [
+    { "item": "magicstorage:hellstone_ore" },
+    { "item": "magicstorage:hellstone_ore" },
+    { "item": "magicstorage:hellstone_ore" },
+    { "item": "minecraft:obsidian" }
+  ],
+  "result": {
+    "item": "magicstorage:bar_hellstone",
+    "count": 1
+  }
+}
