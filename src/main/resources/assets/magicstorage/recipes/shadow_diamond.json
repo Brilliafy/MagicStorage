@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:obsidian" },
+    { "item": "minecraft:obsidian" },
+    { "item": "magicstorage:ingot_demonite" },
+    { "item": "magicstorage:ingot_crimtane" }
+  ],
+  "result": {
+    "item": "magicstorage:shadow_diamond",
+    "count": 1
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "recipes": {
+    "heart_furnace": "com.brilliafy.magicstorage.crafting.RecipeHeartFurnace$Factory"
+  }
+}

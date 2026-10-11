@@ -37,6 +37,8 @@ item.magicstorage.bar_hellstone.name=Hellstone Bar
 item.magicstorage.ingot_hallowed.name=Hallowed Ingot
 item.magicstorage.bar_chlorophyte.name=Chlorophyte Bar
 item.magicstorage.bar_luminite.name=Luminite Bar
+item.magicstorage.shadow_diamond.name=Shadow Diamond
+item.magicstorage.radiant_jewel.name=Radiant Jewel
 item.magicstorage.terra_singularity.name=Terra Singularity
 
 # Portable access remotes

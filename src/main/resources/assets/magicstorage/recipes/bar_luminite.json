@@ -1,0 +1,13 @@
+{
+  "type": "magicstorage:heart_furnace",
+  "ingredients": [
+    { "item": "magicstorage:luminite_ore" },
+    { "item": "magicstorage:luminite_ore" },
+    { "item": "magicstorage:luminite_ore" },
+    { "item": "magicstorage:luminite_ore" }
+  ],
+  "result": {
+    "item": "magicstorage:bar_luminite",
+    "count": 1
+  }
+}

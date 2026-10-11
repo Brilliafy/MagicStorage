@@ -1,17 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "GEG",
-    "PAP",
-    "OCO"
+    "GSG",
+    "PRP",
+    "DAD"
   ],
   "key": {
     "G": { "item": "minecraft:gold_ingot" },
-    "E": { "item": "minecraft:ender_eye" },
+    "S": { "item": "magicstorage:shadow_diamond" },
     "P": { "item": "minecraft:ender_pearl" },
-    "A": { "item": "magicstorage:storage_access" },
-    "O": { "item": "minecraft:obsidian" },
-    "C": { "item": "minecraft:compass" }
+    "R": { "item": "magicstorage:remote_access" },
+    "D": { "item": "minecraft:diamond" },
+    "A": { "item": "magicstorage:storage_access" }
   },
   "result": {
     "item": "magicstorage:portable_access",

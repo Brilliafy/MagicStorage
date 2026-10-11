@@ -28,6 +28,8 @@ public class ModItems {
     public static Item BAR_CHLOROPHYTE;
     public static Item BAR_LUMINITE;
     public static Item TERRA_SINGULARITY;
+    public static Item SHADOW_DIAMOND;
+    public static Item RADIANT_JEWEL;
 
     public static ItemStack storageComponent(int count) {
         return new ItemStack(STORAGE_COMPONENT, count);

@@ -1,7 +1,6 @@
 package com.brilliafy.magicstorage.init;
 
 import com.brilliafy.magicstorage.block.*;
-import com.brilliafy.magicstorage.crafting.*;
 import com.brilliafy.magicstorage.item.*;
 import com.brilliafy.magicstorage.reference.ModBlocksRef;
 import com.brilliafy.magicstorage.reference.ModInfo;
@@ -9,16 +8,9 @@ import com.brilliafy.magicstorage.reference.ModItems;
 import com.brilliafy.magicstorage.tile.*;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.item.crafting.ShapelessRecipes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -26,6 +18,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -117,12 +110,12 @@ public class RegistryHandler {
         // Custom Progression Materials
         ModItems.INGOT_DEMONITE = new ItemMaterial("ingot_demonite", TextFormatting.DARK_PURPLE,
             TextFormatting.GRAY + "Shadow-infused metal",
-            TextFormatting.DARK_GRAY + "Used for Demonite Storage Upgrades");
+            TextFormatting.DARK_GRAY + "Used for Demonite Storage Upgrades & Shadow Diamonds");
         registry.register(ModItems.INGOT_DEMONITE);
 
         ModItems.INGOT_CRIMTANE = new ItemMaterial("ingot_crimtane", TextFormatting.RED,
             TextFormatting.GRAY + "Flesh-carved metal",
-            TextFormatting.DARK_GRAY + "Used for Crimtane Storage Upgrades");
+            TextFormatting.DARK_GRAY + "Used for Crimtane Storage Upgrades & Shadow Diamonds");
         registry.register(ModItems.INGOT_CRIMTANE);
 
         ModItems.BAR_HELLSTONE = new ItemMaterial("bar_hellstone", TextFormatting.DARK_RED,
@@ -133,7 +126,7 @@ public class RegistryHandler {
 
         ModItems.INGOT_HALLOWED = new ItemMaterial("ingot_hallowed", TextFormatting.YELLOW,
             TextFormatting.GRAY + "Sacred metal radiating holy energy",
-            TextFormatting.DARK_GRAY + "Used for Hallowed Storage Upgrades");
+            TextFormatting.DARK_GRAY + "Used for Hallowed Storage Upgrades & Advanced Remotes");
         registry.register(ModItems.INGOT_HALLOWED);
 
         ModItems.BAR_CHLOROPHYTE = new ItemMaterial("bar_chlorophyte", TextFormatting.GREEN,
@@ -144,8 +137,18 @@ public class RegistryHandler {
         ModItems.BAR_LUMINITE = new ItemMaterial("bar_luminite", TextFormatting.AQUA,
             TextFormatting.GOLD + "Smelting Station: Storage Heart with Furnace",
             TextFormatting.GRAY + "Refined from celestial End Luminite Ore",
-            TextFormatting.DARK_GRAY + "Used for Luminite Storage Upgrades");
+            TextFormatting.DARK_GRAY + "Used for Luminite Storage Upgrades & Radiant Jewels");
         registry.register(ModItems.BAR_LUMINITE);
+
+        ModItems.SHADOW_DIAMOND = new ItemMaterial("shadow_diamond", TextFormatting.DARK_PURPLE,
+            TextFormatting.GRAY + "A dark, abyssal diamond infused with shadow magic",
+            TextFormatting.DARK_GRAY + "Used to craft Basic Portable Access Remotes");
+        registry.register(ModItems.SHADOW_DIAMOND);
+
+        ModItems.RADIANT_JEWEL = new ItemMaterial("radiant_jewel", TextFormatting.AQUA,
+            TextFormatting.GOLD + "A celestial prism radiating stellar energy",
+            TextFormatting.DARK_GRAY + "Used to craft Ultimate Portable Access Remotes");
+        registry.register(ModItems.RADIANT_JEWEL);
 
         ModItems.TERRA_SINGULARITY = new ItemMaterial("terra_singularity", TextFormatting.LIGHT_PURPLE,
             TextFormatting.GOLD + "The ultimate synthesis of all tiers",
@@ -164,93 +167,17 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
-    public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
-        IForgeRegistry<IRecipe> registry = event.getRegistry();
-
-        // 1. Heart Furnace Recipes (Smelted in Storage Heart equipped with Furnace)
-        Ingredient oreH = Ingredient.fromItem(Item.getItemFromBlock(ModBlocksRef.HELLSTONE_ORE));
-        Ingredient obs = Ingredient.fromItem(Item.getItemFromBlock(Blocks.OBSIDIAN));
-        ShapelessRecipes innerHellstone = makeShapeless(new ResourceLocation(ModInfo.MOD_ID, "bar_hellstone"),
-            new ItemStack(ModItems.BAR_HELLSTONE), oreH, oreH, oreH, obs);
-        registry.register(new RecipeHeartFurnace(innerHellstone.getRegistryName(), innerHellstone));
-
-        Ingredient oreL = Ingredient.fromItem(Item.getItemFromBlock(ModBlocksRef.LUMINITE_ORE));
-        ShapelessRecipes innerLuminite = makeShapeless(new ResourceLocation(ModInfo.MOD_ID, "bar_luminite"),
-            new ItemStack(ModItems.BAR_LUMINITE), oreL, oreL, oreL, oreL);
-        registry.register(new RecipeHeartFurnace(innerLuminite.getRegistryName(), innerLuminite));
-
-        // 2. Portable Access Conversion to Crafting Remote (shapeless with Crafting Table, preserves NBT link!)
-        registry.register(new RecipeRemoteConversion(new ResourceLocation(ModInfo.MOD_ID, "remote_conversion_prehm"), 0));
-        registry.register(new RecipeRemoteConversion(new ResourceLocation(ModInfo.MOD_ID, "remote_conversion_hm"), 1));
-        registry.register(new RecipeRemoteConversion(new ResourceLocation(ModInfo.MOD_ID, "remote_conversion_ultimate"), 2));
-
-        // 3. Remote Tier Upgrades (preserves NBT link!)
-        Ingredient shulker = Ingredient.fromItem(Items.SHULKER_SHELL);
-        Ingredient star = Ingredient.fromItem(Items.NETHER_STAR);
-        Ingredient chorus = Ingredient.fromItem(Items.CHORUS_FRUIT_POPPED);
-        Ingredient remote0 = Ingredient.fromStacks(new ItemStack(PORTABLE_ACCESS, 1, 0));
-        Ingredient dBlock = Ingredient.fromItem(Item.getItemFromBlock(Blocks.DIAMOND_BLOCK));
-        Ingredient eye = Ingredient.fromItem(Items.ENDER_EYE);
-
-        ShapedRecipes hmInner = make3x3(new ResourceLocation(ModInfo.MOD_ID, "portable_access_hm"),
-            new ItemStack(PORTABLE_ACCESS, 1, 1),
-            shulker, star, shulker,
-            chorus, remote0, chorus,
-            dBlock, eye, dBlock);
-        registry.register(new RecipeRemoteUpgrade(hmInner.getRegistryName(), hmInner));
-
-        Ingredient craftRemote0 = Ingredient.fromStacks(new ItemStack(PORTABLE_CRAFTING_ACCESS, 1, 0));
-        ShapedRecipes hmCraftInner = make3x3(new ResourceLocation(ModInfo.MOD_ID, "portable_crafting_access_hm"),
-            new ItemStack(PORTABLE_CRAFTING_ACCESS, 1, 1),
-            shulker, star, shulker,
-            chorus, craftRemote0, chorus,
-            dBlock, eye, dBlock);
-        registry.register(new RecipeRemoteUpgrade(hmCraftInner.getRegistryName(), hmCraftInner));
-
-        Ingredient breath = Ingredient.fromItem(Items.DRAGON_BREATH);
-        Ingredient beacon = Ingredient.fromItem(Item.getItemFromBlock(Blocks.BEACON));
-        Ingredient crystal = Ingredient.fromItem(Items.END_CRYSTAL);
-        Ingredient remote1 = Ingredient.fromStacks(new ItemStack(PORTABLE_ACCESS, 1, 1));
-        Ingredient barL = Ingredient.fromItem(ModItems.BAR_LUMINITE);
-        Ingredient sing = Ingredient.fromItem(ModItems.TERRA_SINGULARITY);
-
-        ShapedRecipes ultInner = make3x3(new ResourceLocation(ModInfo.MOD_ID, "portable_access_ultimate"),
-            new ItemStack(PORTABLE_ACCESS, 1, 2),
-            breath, beacon, breath,
-            crystal, remote1, crystal,
-            barL, sing, barL);
-        registry.register(new RecipeRemoteUpgrade(ultInner.getRegistryName(), ultInner));
-
-        Ingredient craftRemote1 = Ingredient.fromStacks(new ItemStack(PORTABLE_CRAFTING_ACCESS, 1, 1));
-        ShapedRecipes ultCraftInner = make3x3(new ResourceLocation(ModInfo.MOD_ID, "portable_crafting_access_ultimate"),
-            new ItemStack(PORTABLE_CRAFTING_ACCESS, 1, 2),
-            breath, beacon, breath,
-            crystal, craftRemote1, crystal,
-            barL, sing, barL);
-        registry.register(new RecipeRemoteUpgrade(ultCraftInner.getRegistryName(), ultCraftInner));
-    }
-
-    private static ShapedRecipes make3x3(ResourceLocation name, ItemStack result,
-                                          Ingredient i0, Ingredient i1, Ingredient i2,
-                                          Ingredient i3, Ingredient i4, Ingredient i5,
-                                          Ingredient i6, Ingredient i7, Ingredient i8) {
-        NonNullList<Ingredient> list = NonNullList.create();
-        list.add(i0); list.add(i1); list.add(i2);
-        list.add(i3); list.add(i4); list.add(i5);
-        list.add(i6); list.add(i7); list.add(i8);
-        ShapedRecipes r = new ShapedRecipes("", 3, 3, list, result);
-        r.setRegistryName(name);
-        return r;
-    }
-
-    private static ShapelessRecipes makeShapeless(ResourceLocation name, ItemStack result, Ingredient... ingredients) {
-        NonNullList<Ingredient> list = NonNullList.create();
-        for (Ingredient ing : ingredients) {
-            list.add(ing);
+    public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        if (event.craftMatrix == null || event.crafting.isEmpty()) return;
+        if (event.crafting.getItem() instanceof ItemPortableAccess) {
+            for (int i = 0; i < event.craftMatrix.getSizeInventory(); i++) {
+                ItemStack stack = event.craftMatrix.getStackInSlot(i);
+                if (!stack.isEmpty() && stack.getItem() instanceof ItemPortableAccess && stack.hasTagCompound()) {
+                    event.crafting.setTagCompound(stack.getTagCompound().copy());
+                    break;
+                }
+            }
         }
-        ShapelessRecipes r = new ShapelessRecipes("", result, list);
-        r.setRegistryName(name);
-        return r;
     }
 
     @SubscribeEvent
@@ -289,6 +216,8 @@ public class RegistryHandler {
         registerItemModel(ModItems.INGOT_HALLOWED);
         registerItemModel(ModItems.BAR_CHLOROPHYTE);
         registerItemModel(ModItems.BAR_LUMINITE);
+        registerItemModel(ModItems.SHADOW_DIAMOND);
+        registerItemModel(ModItems.RADIANT_JEWEL);
         registerItemModel(ModItems.TERRA_SINGULARITY);
 
         // Portable access - 3 variants each, use inventory variant with full path

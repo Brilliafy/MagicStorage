@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DRD",
+    "LPL",
+    "ETE"
+  ],
+  "key": {
+    "D": { "item": "minecraft:dragon_breath" },
+    "R": { "item": "magicstorage:radiant_jewel" },
+    "L": { "item": "magicstorage:bar_luminite" },
+    "P": { "item": "magicstorage:portable_crafting_access", "data": 1 },
+    "E": { "item": "minecraft:end_crystal" },
+    "T": { "item": "magicstorage:terra_singularity" }
+  },
+  "result": {
+    "item": "magicstorage:portable_crafting_access",
+    "data": 2,
+    "count": 1
+  }
+}
