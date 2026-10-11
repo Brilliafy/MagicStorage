@@ -1,14 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DMD",
-    "GSG",
-    "DGD"
+    "DID",
+    "OSO",
+    "DID"
   ],
   "key": {
     "D": { "item": "magicstorage:ingot_demonite" },
-    "M": { "item": "magicstorage:shadow_diamond" },
-    "G": { "item": "minecraft:gold_block" },
+    "I": { "item": "minecraft:iron_block" },
+    "O": { "item": "minecraft:obsidian" },
     "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
