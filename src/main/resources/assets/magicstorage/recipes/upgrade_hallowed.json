@@ -1,12 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " H ",
-    "HSH",
-    " H "
+    "HDH",
+    "GSG",
+    "HDH"
   ],
   "key": {
     "H": { "item": "magicstorage:ingot_hallowed" },
+    "D": { "item": "minecraft:diamond_block" },
+    "G": { "item": "minecraft:ghast_tear" },
     "S": { "item": "magicstorage:storage_component" }
   },
   "result": {

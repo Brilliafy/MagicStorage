@@ -1,12 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " L ",
-    "LSL",
-    " L "
+    "LRL",
+    "KSK",
+    "LRL"
   ],
   "key": {
     "L": { "item": "magicstorage:bar_luminite" },
+    "R": { "item": "magicstorage:radiant_jewel" },
+    "K": { "item": "minecraft:shulker_shell" },
     "S": { "item": "magicstorage:storage_component" }
   },
   "result": {

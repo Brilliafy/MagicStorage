@@ -1,15 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "ELE",
-    "LTL",
-    "ESE"
+    "RTR",
+    "LSL",
+    "ENE"
   ],
   "key": {
     "T": { "item": "magicstorage:terra_singularity" },
-    "S": { "item": "magicstorage:storage_component" },
+    "R": { "item": "magicstorage:radiant_jewel" },
     "L": { "item": "magicstorage:bar_luminite" },
-    "E": { "item": "minecraft:end_crystal" }
+    "N": { "item": "minecraft:nether_star" },
+    "E": { "item": "minecraft:end_crystal" },
+    "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
     "item": "magicstorage:upgrade_terra",
