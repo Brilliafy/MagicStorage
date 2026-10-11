@@ -18,3 +18,7 @@ Thumbs.db
 # Minecraft
 run/
 scripts/
+
+# Python
+__pycache__/
+*.pyc

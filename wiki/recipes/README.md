@@ -2,47 +2,34 @@
 
 # Magic Storage Recipe Catalog & Station Demonstrations
 
-This catalog contains high-resolution crafting recipes for all **Magic Storage** items and blocks, as well as demonstration recipes for all dynamic station integrations supported within the **Crafting Access**.
+This catalog contains high-resolution crafting recipes for all **Magic Storage** items and blocks, progression materials, and demonstration recipes for dynamic station integrations supported within the **Crafting Access**.
 
 ---
 
 ## Table of Contents
-- [Core Components & Blocks](#1-core-components--blocks)
-- [Storage Units (8 Tiers)](#2-storage-units-8-tiers)
-- [Storage Upgrades](#3-storage-upgrades)
-- [Portable Storage Remotes](#4-portable-storage-remotes)
-- [Portable Crafting Remotes](#5-portable-crafting-remotes)
-- [Dynamic Station Demonstrations](#6-dynamic-station-demonstrations)
-  - [Furnace Smelting](#furnace-smelting-demonstration)
-  - [Enchanting Table](#enchanting-table-demonstration)
-  - [Anvil Repair & Combining](#anvil-repair--combination-demonstrations)
-  - [Brewing Stand](#brewing-stand-demonstration)
-  - [Rustic Alchemy (Simple & Advanced)](#rustic-alchemy-demonstrations)
-  - [Rustic Brewing Barrel](#rustic-brewing-barrel-demonstration)
-  - [Rustic Crushing Tub](#rustic-crushing-tub-demonstration)
-  - [Disenchanter Table](#disenchanter-table-demonstration)
-  - [Bountiful Baubles Reforger](#bountiful-baubles-reforger-demonstration)
-  - [Quality Tools Reforging Station](#quality-tools-reforging-station-demonstration)
+- [1. Core Components & Blocks](#1-core-components--blocks)
+- [2. Storage Units (8 Tiers)](#2-storage-units-8-tiers)
+- [3. Storage Upgrades](#3-storage-upgrades)
+- [4. Progression Materials, Ores & Jewels](#4-progression-materials-ores--jewels)
+- [5. Portable Storage Remotes](#5-portable-storage-remotes)
+- [6. Portable Crafting Remotes](#6-portable-crafting-remotes)
+- [7. Dynamic Station Demonstrations](#7-dynamic-station-demonstrations)
 
 ---
 
 ## 1. Core Components & Blocks
 
 ### Storage Component
-The base crafting component used in virtually every block, upgrade, and remote recipe in Magic Storage.
-
+The base crafting component used in network blocks and upgrades.
 ![Storage Component](images/crafting_storage_component.png)
-
 - **Ingredients:** 4x Iron Ingots, 4x Wooden Chests, 1x Redstone Dust.
 - **Yield:** 1x Storage Component.
 
 ---
 
 ### Storage Heart
-The central core of your storage network. Contains a 20-slot inventory for crafting stations, emits Light Level 15 (Sea Lantern brightness), and chunk-loads the network.
-
+The central core of your storage network. Contains a 20-slot inventory for crafting stations, emits Light Level 15, and manages network storage.
 ![Storage Heart](images/crafting_storage_heart.png)
-
 - **Ingredients:** 2x Diamonds, 1x Sea Lantern, 2x Emeralds, 1x Storage Component, 3x Redstone Blocks.
 - **Yield:** 1x Storage Heart.
 
@@ -50,9 +37,7 @@ The central core of your storage network. Contains a 20-slot inventory for craft
 
 ### Storage Access Terminal
 The access terminal for browsing, searching, sorting, depositing, and withdrawing network items.
-
 ![Storage Access](images/crafting_storage_access.png)
-
 - **Ingredients:** 7x Iron Ingots, 1x Diamond, 1x Storage Component, 1x Wooden Chest.
 - **Yield:** 1x Storage Access.
 
@@ -60,9 +45,7 @@ The access terminal for browsing, searching, sorting, depositing, and withdrawin
 
 ### Crafting Access Interface
 The crafting terminal connected to your network. Provides a 3x3 crafting grid with multi-station mechanics and 3-state autofill.
-
 ![Crafting Access](images/crafting_crafting_access.png)
-
 - **Ingredients:** 4x Diamonds, 1x Clock, 1x Storage Component, 3x Lapis Lazuli Blocks.
 - **Yield:** 1x Crafting Access Interface.
 
@@ -70,9 +53,7 @@ The crafting terminal connected to your network. Provides a 3x3 crafting grid wi
 
 ### Remote Storage Access Block
 The physical anchor block required to link wireless portable remotes to your Storage Heart network.
-
 ![Remote Storage Access](images/crafting_remote_access.png)
-
 - **Ingredients:** 4x Obsidian, 3x Ender Pearls, 1x Storage Component, 1x Diamond.
 - **Yield:** 1x Remote Storage Access Block.
 
@@ -80,9 +61,7 @@ The physical anchor block required to link wireless portable remotes to your Sto
 
 ### Hell Bricks (x8)
 A defensive and building block. Ignites entities standing on it for 3 seconds unless protected by Fire Resistance.
-
 ![Hell Bricks](images/crafting_hell_bricks.png)
-
 - **Ingredients:** 8x Nether Bricks, 1x Magma Block.
 - **Yield:** 8x Hell Bricks.
 
@@ -90,88 +69,155 @@ A defensive and building block. Ignites entities standing on it for 3 seconds un
 
 ## 2. Storage Units (8 Tiers)
 
-Storage Units can be crafted directly with crafting table recipes or upgraded in-place using upgrade items.
+Storage Units can be crafted directly using a lower-tier unit with its tier upgrade, or upgraded in-place in the world.
 
-| Storage Unit | Slot Capacity | Crafting Recipe |
-| :--- | :---: | :--- |
-| **Basic Storage Unit** | 40 Slots | ![Basic Unit](images/crafting_storage_unit_basic.png) |
-| **Crimtane Storage Unit** | 80 Slots | ![Crimtane Unit](images/crafting_storage_unit_crimtane.png) |
-| **Demonite Storage Unit** | 80 Slots | ![Demonite Unit](images/crafting_storage_unit_demonite.png) |
-| **Hellstone Storage Unit** | 120 Slots | ![Hellstone Unit](images/crafting_storage_unit_hellstone.png) |
-| **Hallowed Storage Unit** | 160 Slots | ![Hallowed Unit](images/crafting_storage_unit_hallowed.png) |
-| **Blue Chlorophyte Unit** | 220 Slots | ![Blue Chlorophyte Unit](images/crafting_storage_unit_blue_chlorophyte.png) |
-| **Luminite Storage Unit** | 300 Slots | ![Luminite Unit](images/crafting_storage_unit_luminite.png) |
-| **Terra Storage Unit** | 600 Slots | ![Terra Unit](images/crafting_storage_unit_terra.png) |
+| Storage Unit | Stack Capacity | Row Count | Direct Crafting Recipe |
+| :--- | :---: | :---: | :--- |
+| **Basic Storage Unit** | **36 Slots** | 4 Rows | ![Basic Unit](images/crafting_storage_unit_basic.png) |
+| **Crimtane Storage Unit** | **54 Slots** | 6 Rows | ![Crimtane Unit](images/crafting_storage_unit_crimtane.png) |
+| **Demonite Storage Unit** | **54 Slots** | 6 Rows | ![Demonite Unit](images/crafting_storage_unit_demonite.png) |
+| **Hellstone Storage Unit** | **90 Slots** | 10 Rows | ![Hellstone Unit](images/crafting_storage_unit_hellstone.png) |
+| **Hallowed Storage Unit** | **135 Slots** | 15 Rows | ![Hallowed Unit](images/crafting_storage_unit_hallowed.png) |
+| **Blue Chlorophyte Unit** | **180 Slots** | 20 Rows | ![Blue Chlorophyte Unit](images/crafting_storage_unit_blue_chlorophyte.png) |
+| **Luminite Storage Unit** | **252 Slots** | 28 Rows | ![Luminite Unit](images/crafting_storage_unit_luminite.png) |
+| **Terra Storage Unit** | **360 Slots** | 40 Rows | ![Terra Unit](images/crafting_storage_unit_terra.png) |
 
 ---
 
 ## 3. Storage Upgrades
 
-Hold an upgrade item and **Shift+Right-Click** an existing storage unit in the world to upgrade it in-place without losing items.
+Hold an upgrade item and **Right-Click** any lower-tier storage unit in the world to upgrade it in-place without losing items.
 
-### Crimtane Storage Upgrade (Basic $\rightarrow$ Crimtane, 80 slots)
+### Crimtane Storage Upgrade (Target: 54 slots / 6 rows)
 ![Crimtane Upgrade](images/crafting_upgrade_crimtane.png)
+- **Ingredients:** 4x Crimtane Ingots, 2x Iron Blocks, 2x Redstone Blocks, 1x Storage Component.
 
-### Demonite Storage Upgrade (Basic $\rightarrow$ Demonite, 80 slots)
+### Demonite Storage Upgrade (Target: 54 slots / 6 rows)
 ![Demonite Upgrade](images/crafting_upgrade_demonite.png)
+- **Ingredients:** 4x Demonite Ingots, 2x Iron Blocks, 2x Obsidian, 1x Storage Component.
 
-### Hellstone Storage Upgrade (Crimtane $\rightarrow$ Hellstone, 120 slots)
+### Hellstone Storage Upgrade (Target: 90 slots / 10 rows)
 ![Hellstone Upgrade](images/crafting_upgrade_hellstone.png)
+- **Ingredients:** 4x Hellstone Bars, 2x Blaze Rods, 2x Hell Bricks, 1x Storage Component.
 
-### Hellstone Storage Upgrade from Demonite (Demonite $\rightarrow$ Hellstone, 120 slots)
-![Hellstone Upgrade from Demonite](images/crafting_upgrade_hellstone_from_demonite.png)
-
-### Hallowed Storage Upgrade (Hellstone $\rightarrow$ Hallowed, 160 slots)
+### Hallowed Storage Upgrade (Target: 135 slots / 15 rows)
 ![Hallowed Upgrade](images/crafting_upgrade_hallowed.png)
+- **Ingredients:** 4x Hallowed Ingots, 2x Diamond Blocks, 2x Ghast Tears, 1x Storage Component.
 
-### Blue Chlorophyte Storage Upgrade (Hallowed $\rightarrow$ Chlorophyte, 220 slots)
+### Blue Chlorophyte Storage Upgrade (Target: 180 slots / 20 rows)
 ![Blue Chlorophyte Upgrade](images/crafting_upgrade_blue_chlorophyte.png)
+- **Ingredients:** 4x Chlorophyte Bars, 2x Lapis Blocks, 2x Sea Lanterns, 1x Storage Component.
 
-### Luminite Storage Upgrade (Chlorophyte $\rightarrow$ Luminite, 300 slots)
+### Luminite Storage Upgrade (Target: 252 slots / 28 rows)
 ![Luminite Upgrade](images/crafting_upgrade_luminite.png)
+- **Ingredients:** 6x Luminite Bars, 1x Radiant Jewel (slot 2), 1x Shulker Shell (slot 8), 1x Storage Component.
 
-### Terra Storage Upgrade (Luminite $\rightarrow$ Terra, 600 slots)
+### Terra Storage Upgrade (Target: 360 slots / 40 rows)
 ![Terra Upgrade](images/crafting_upgrade_terra.png)
+- **Ingredients:** 1x Terra Singularity, 2x Radiant Jewels, 2x Luminite Bars, 1x Nether Star, 2x End Crystals, 1x Storage Component.
 
 ---
 
-## 4. Portable Storage Remotes
+## 4. Progression Materials, Ores & Jewels
+
+### Shadow Diamond
+A dark, abyssal diamond infused with Demonite and Crimtane magic. Used to craft Basic Portable Access remotes.
+![Shadow Diamond](images/crafting_shadow_diamond.png)
+- **Ingredients:** 1x Diamond, 2x Obsidian, 1x Demonite Ingot, 1x Crimtane Ingot (Shapeless).
+
+### Radiant Jewel
+A celestial prism radiating stellar energy from Luminite and the End. Used in Ultimate Portable Access remotes, Luminite Storage Upgrades, and Terra Storage Upgrades.
+![Radiant Jewel](images/crafting_radiant_jewel.png)
+- **Ingredients:** 1x Nether Star, 2x Luminite Bars, 1x Dragon's Breath, 1x End Crystal (Shapeless).
+
+### Terra Singularity
+The ultimate cosmic synthesis of all six metal tiers and endgame bosses. Used to forge Terra Storage Upgrades and Ultimate Portable Crafting Remotes.
+![Terra Singularity](images/crafting_terra_singularity.png)
+- **Ingredients:** 1x Demonite Ingot, 1x Crimtane Ingot, 1x Hellstone Bar, 1x Hallowed Ingot, 1x Chlorophyte Bar, 1x Luminite Bar, 1x Nether Star, 1x Dragon's Breath, 1x End Crystal (Shapeless).
+
+### Hellstone Ore & Hellstone Bar
+- **World Generation:** Generates in the **Nether** deep beneath the lava ocean level (**strictly Y < 31**, depths Y: 5–30) embedded in Netherrack.
+- **Harvesting:** Mining drops **Hellstone Fragments** with **Fortune** enchantment scaling (or drops the block with Silk Touch). Smelting the ore in a furnace yields fragments as well.
+- **Forging:** Must be forged in a **Storage Heart with a Furnace** inside its station inventory.
+![Hellstone Bar](images/crafting_bar_hellstone.png)
+- **Ingredients:** 3x Hellstone Fragments, 1x Obsidian, 1x Blaze Powder (Heart with Furnace).
+
+### Luminite Ore & Luminite Bar
+- **World Generation:** Generates in the **End** on outer islands (**distance $\ge$ 1,024 blocks** from the central island) embedded in End Stone.
+- **Harvesting:** Mining drops **Luminite Fragments** with **Fortune** enchantment scaling (or drops the block with Silk Touch). Smelting the ore in a furnace yields fragments as well.
+- **Forging:** Must be forged in a **Storage Heart with a Furnace** inside its station inventory.
+![Luminite Bar](images/crafting_bar_luminite.png)
+- **Ingredients:** 4x Luminite Fragments (Heart with Furnace).
+
+### Hallowed Ingot (x2)
+A sacred alloy radiating holy energy. Used for Hallowed Storage Upgrades and Advanced Remotes.
+![Hallowed Ingot](images/crafting_ingot_hallowed.png)
+- **Ingredients:** 2x Gold Ingots, 1x Diamond, 1x Glowstone Dust, 2x Nether Quartz placed in slots 3 & 6 (Shaped).
+- **Yield:** 2x Hallowed Ingots.
+
+### Chlorophyte Bar (x2)
+A living botanical alloy used for Blue Chlorophyte Storage Upgrades.
+![Chlorophyte Bar](images/crafting_bar_chlorophyte.png)
+- **Ingredients:** 2x Emeralds, 2x Prismarine Shards, 1x Gold Ingot (Shapeless).
+- **Yield:** 2x Chlorophyte Bars.
+
+### Crimtane Ingot (x2)
+Flesh-carved metal forged from iron, redstone, and Nether wart.
+![Crimtane Ingot](images/crafting_ingot_crimtane.png)
+- **Ingredients:** 2x Iron Ingots, 1x Nether Wart, 1x Redstone Dust (Shapeless).
+- **Yield:** 2x Crimtane Ingots.
+
+### Demonite Ingot (x2)
+Shadow-infused metal forged from iron, obsidian, and ender pearls.
+![Demonite Ingot](images/crafting_ingot_demonite.png)
+- **Ingredients:** 2x Iron Ingots, 1x Obsidian, 1x Ender Pearl (Shapeless).
+- **Yield:** 2x Demonite Ingots.
+
+---
+
+## 5. Portable Storage Remotes
 
 Wireless remotes for browsing and managing items. Bind by **Sneak+Right-Clicking** a placed **Remote Storage Access** block.
 
 ### Basic Portable Storage Access (PreHM)
 - **Range:** 200 blocks (same dimension).
 ![Basic Portable Storage Access](images/crafting_portable_access_prehm.png)
+- **Ingredients:** 2x Gold Ingots, 1x Shadow Diamond, 2x Ender Pearls, 1x Remote Access Block, 2x Diamonds, 1x Storage Access Terminal.
 
 ### Advanced Portable Storage Access (HM)
 - **Range:** Unlimited (same dimension).
 ![Advanced Portable Storage Access](images/crafting_portable_access_hm.png)
+- **Ingredients:** 2x Shulker Shells, 1x Hallowed Ingot, 2x Popped Chorus Fruit, 1x Basic Portable Access Remote, 2x Diamond Blocks, 1x Eye of Ender.
 
 ### Ultimate Portable Storage Access
 - **Range:** Unlimited across **all dimensions**.
 ![Ultimate Portable Storage Access](images/crafting_portable_access_ultimate.png)
+- **Ingredients:** 2x Dragon's Breath, 1x Radiant Jewel, 2x Luminite Bars, 1x Advanced Portable Access Remote, 2x End Crystals, 1x Terra Singularity.
 
 ---
 
-## 5. Portable Crafting Remotes
+## 6. Portable Crafting Remotes
 
-Wireless remotes with full 3x3 crafting grid and station support. Bind by **Sneak+Right-Clicking** a placed **Remote Storage Access** block.
+Wireless remotes with full 3x3 crafting grid and station support. Bind by **Sneak+Right-Clicking** a placed **Remote Storage Access** block. Can also be created by combining a Storage Remote with a Crafting Table.
 
 ### Basic Portable Crafting Access (PreHM)
 - **Range:** 200 blocks (same dimension).
 ![Basic Portable Crafting Access](images/crafting_portable_crafting_access_prehm.png)
+- **Ingredients:** 2x Gold Ingots, 1x Shadow Diamond, 2x Ender Pearls, 1x Remote Access Block, 2x Diamonds, 1x Crafting Access Interface.
 
 ### Advanced Portable Crafting Access (HM)
 - **Range:** Unlimited (same dimension).
 ![Advanced Portable Crafting Access](images/crafting_portable_crafting_access_hm.png)
+- **Ingredients:** 2x Shulker Shells, 1x Hallowed Ingot, 2x Popped Chorus Fruit, 1x Basic Portable Crafting Remote, 2x Diamond Blocks, 1x Eye of Ender.
 
 ### Ultimate Portable Crafting Access
 - **Range:** Unlimited across **all dimensions**.
 ![Ultimate Portable Crafting Access](images/crafting_portable_crafting_access_ultimate.png)
+- **Ingredients:** 2x Dragon's Breath, 1x Radiant Jewel, 2x Luminite Bars, 1x Advanced Portable Crafting Remote, 2x End Crystals, 1x Terra Singularity.
 
 ---
 
-## 6. Dynamic Station Demonstrations
+## 7. Dynamic Station Demonstrations
 
 The **Crafting Access** dynamically reads all crafting station items placed inside the **Storage Heart's 20-slot inventory**.
 
@@ -198,78 +244,22 @@ The **Crafting Access** dynamically reads all crafting station items placed insi
 - **Layout:** Slot 1 holds the primary item; Slot 5 holds the repair material or secondary enchanted book.
 - **Mechanics:** Calculates authentic vanilla repair durability, enchantment combining math, and XP level costs.
 
-#### Anvil Item Repair
 ![Anvil Repair](images/station_anvil_repair.png)
-
-#### Anvil Enchantment Combining
 ![Anvil Combine](images/station_anvil_combine.png)
 
 ---
 
 ### Brewing Stand Demonstration
 - **Station in Heart:** Brewing Stand
-- **Layout:** Slot 1 = Blaze Powder, Slot 2 = Ingredient, Slots 4/5/6 = Potion bottles.
-- **Mechanics:** Supports batch brewing 1 to 3 bottles with authentic 5% Blaze Powder consumption chance.
+- **Layout:** Slot 1 holds Blaze Powder, Slot 2 holds ingredient, Slots 4, 5, 6 hold water/potion bottles.
 
 ![Brewing Stand](images/station_brewing_stand.png)
 
 ---
 
-### Rustic Alchemy Demonstrations
-- **Stations in Heart:** 1 Condenser + 3 Retorts (Simple or Advanced).
-- **Mechanics:** Enforces burn-time tick minimums (400 ticks Simple / 300 ticks Advanced). Water buckets return empty buckets to storage when autofill is enabled.
-
-#### Simple Alchemy: Elixir of Healing
-![Rustic Simple Alchemy](images/station_rustic_alchemy_simple.png)
-
-#### Advanced Alchemy: Elixir of Iron Skin
-![Rustic Advanced Alchemy](images/station_rustic_alchemy_advanced.png)
-
----
-
-### Rustic Brewing Barrel Demonstration
-- **Station in Heart:** Rustic Brewing Barrel
-- **Layout:** Slot 1 holds fruits; Slot 5 holds optional modifier wine bottle.
-- **Mechanics:** Modifier bottles preserve and boost wine quality. Unmodified brews yield baseline 0.36 or 0.72 quality.
-
-![Rustic Brewing Barrel](images/station_rustic_brewing_barrel.png)
-
----
-
-### Rustic Crushing Tub Demonstration
-- **Station in Heart:** Rustic Crushing Tub
-- **Layout:** Slot 1 = 4x Fruits (Grapes, Wildberries, Ironberries), Slot 5 = Empty Glass Bottle.
-- **Mechanics:** Enforces 4-fruit batch consumption with crushing sound effects.
-
-![Rustic Crushing Tub](images/station_rustic_crushing_tub.png)
-
----
-
-### Disenchanter Table Demonstration
-- **Station in Heart:** Disenchantment Table
-- **Layout:** Slot 5 = Enchanted Item, Slot 3 = Book.
-- **Mechanics:** Extracts enchantments into an Enchanted Book; supports Voiding and Bulk disenchanters.
-
-![Disenchanter Table](images/station_disenchanter.png)
-
----
-
-### Bountiful Baubles Reforger Demonstration
-- **Station in Heart:** Reforger
-- **Layout:** Slot 9 = Bauble Item.
-- **Mechanics:** Reforges bauble modifier attributes using player XP levels.
-
-![Bountiful Baubles Reforger](images/station_bountiful_baubles_reforger.png)
-
----
-
-### Quality Tools Reforging Station Demonstration
-- **Station in Heart:** Reforging Station
-- **Layout:** Slot 5 = Tool/Armor/Bauble, Slot 9 = Reforging Material.
-- **Mechanics:** Dynamically supports all 500+ materials (e.g. Spectral Silt for Bezoar, Leather for Tool Belts, Nether Stars, and OreDictionary tags).
-
-![Quality Tools Reforger](images/station_quality_tools_reforge.png)
-
----
-
-[← Back to Wiki Hub](../README.md) | [Main Documentation](../../README.md)
+### Modded Stations (Rustic, Disenchanter, Bountiful Baubles, Quality Tools)
+All modded crafting stations placed inside the Storage Heart automatically unlock their recipes in the Crafting Access:
+- **Rustic Alchemy:** ![Rustic Alchemy Simple](images/station_rustic_alchemy_simple.png) ![Rustic Alchemy Advanced](images/station_rustic_alchemy_advanced.png)
+- **Rustic Brewing Barrel & Crushing Tub:** ![Rustic Brewing Barrel](images/station_rustic_brewing_barrel.png) ![Rustic Crushing Tub](images/station_rustic_crushing_tub.png)
+- **Disenchanter Table:** ![Disenchanter](images/station_disenchanter.png)
+- **Reforgers (Bountiful Baubles & Quality Tools):** ![Bountiful Baubles Reforger](images/station_bountiful_baubles_reforger.png) ![Quality Tools Reforger](images/station_quality_tools_reforge.png)
