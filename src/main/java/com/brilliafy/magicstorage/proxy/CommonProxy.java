@@ -16,6 +16,7 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event) {
         NetworkRegistry.INSTANCE.registerGuiHandler(MagicStorage.instance, new GuiHandler());
+        net.minecraftforge.fml.common.registry.GameRegistry.registerWorldGenerator(new com.brilliafy.magicstorage.world.WorldGenOres(), 10);
     }
 
     public void postInit(FMLPostInitializationEvent event) {

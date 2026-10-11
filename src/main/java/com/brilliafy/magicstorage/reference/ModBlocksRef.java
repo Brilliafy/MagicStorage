@@ -11,6 +11,8 @@ public class ModBlocksRef {
     public static Block STORAGE_UNIT;
     public static Block REMOTE_ACCESS;
     public static Block HELL_BRICK;
+    public static Block HELLSTONE_ORE;
+    public static Block LUMINITE_ORE;
 
     public static ItemStack storageHeart() {
         return new ItemStack(STORAGE_HEART);
@@ -34,5 +36,13 @@ public class ModBlocksRef {
 
     public static ItemStack hellBrick() {
         return new ItemStack(HELL_BRICK);
+    }
+
+    public static ItemStack hellstoneOre() {
+        return new ItemStack(HELLSTONE_ORE);
+    }
+
+    public static ItemStack luminiteOre() {
+        return new ItemStack(LUMINITE_ORE);
     }
 }

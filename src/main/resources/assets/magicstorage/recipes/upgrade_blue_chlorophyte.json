@@ -1,14 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "EPE",
-    "PIP",
-    "EPE"
+    " C ",
+    "CSC",
+    " C "
   ],
   "key": {
-    "E": { "item": "minecraft:lapis_block" },
-    "P": { "item": "minecraft:diamond" },
-    "I": { "item": "magicstorage:upgrade_hallowed" }
+    "C": { "item": "magicstorage:bar_chlorophyte" },
+    "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
     "item": "magicstorage:upgrade_blue_chlorophyte",

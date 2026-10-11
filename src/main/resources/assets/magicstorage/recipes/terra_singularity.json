@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "magicstorage:ingot_demonite" },
+    { "item": "magicstorage:ingot_crimtane" },
+    { "item": "magicstorage:bar_hellstone" },
+    { "item": "magicstorage:ingot_hallowed" },
+    { "item": "magicstorage:bar_chlorophyte" },
+    { "item": "magicstorage:bar_luminite" },
+    { "item": "minecraft:nether_star" },
+    { "item": "minecraft:dragon_breath" },
+    { "item": "minecraft:end_crystal" }
+  ],
+  "result": {
+    "item": "magicstorage:terra_singularity",
+    "count": 1
+  }
+}

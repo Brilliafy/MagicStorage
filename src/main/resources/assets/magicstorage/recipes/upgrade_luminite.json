@@ -1,14 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "EME",
-    "MIM",
-    "EME"
+    " L ",
+    "LSL",
+    " L "
   ],
   "key": {
-    "E": { "item": "minecraft:emerald_block" },
-    "M": { "item": "minecraft:ender_chest" },
-    "I": { "item": "magicstorage:upgrade_blue_chlorophyte" }
+    "L": { "item": "magicstorage:bar_luminite" },
+    "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
     "item": "magicstorage:upgrade_luminite",

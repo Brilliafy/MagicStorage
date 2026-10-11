@@ -7,7 +7,7 @@
   ],
   "key": {
     "U": { "item": "magicstorage:upgrade_hellstone" },
-    "S": { "item": "magicstorage:storage_unit", "data": 1 }
+    "S": { "item": "magicstorage:storage_unit", "data": 0 }
   },
   "result": {
     "item": "magicstorage:storage_unit",

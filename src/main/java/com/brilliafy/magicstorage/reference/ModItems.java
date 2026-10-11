@@ -14,6 +14,21 @@ public class ModItems {
     public static Item UPGRADE_NETHER_STAR;
     public static Item UPGRADE_DEMONITE;
 
+    public static Item UPGRADE_CRIMTANE;
+    public static Item UPGRADE_HELLSTONE;
+    public static Item UPGRADE_HALLOWED;
+    public static Item UPGRADE_BLUE_CHLOROPHYTE;
+    public static Item UPGRADE_LUMINITE;
+    public static Item UPGRADE_TERRA;
+
+    public static Item INGOT_DEMONITE;
+    public static Item INGOT_CRIMTANE;
+    public static Item BAR_HELLSTONE;
+    public static Item INGOT_HALLOWED;
+    public static Item BAR_CHLOROPHYTE;
+    public static Item BAR_LUMINITE;
+    public static Item TERRA_SINGULARITY;
+
     public static ItemStack storageComponent(int count) {
         return new ItemStack(STORAGE_COMPONENT, count);
     }

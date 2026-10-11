@@ -1,15 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "IBI",
-    "IRI",
-    "IPI"
+    " D ",
+    "DSD",
+    " D "
   ],
   "key": {
-    "I": { "item": "minecraft:iron_ingot" },
-    "B": { "item": "minecraft:iron_block" },
-    "P": { "item": "minecraft:purpur_block" },
-    "R": { "item": "minecraft:redstone" }
+    "D": { "item": "magicstorage:ingot_demonite" },
+    "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
     "item": "magicstorage:upgrade_demonite",

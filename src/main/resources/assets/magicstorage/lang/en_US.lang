@@ -7,6 +7,8 @@ tile.magicstorage.storage_access.name=Storage Access
 tile.magicstorage.crafting_access.name=Crafting Access Interface
 tile.magicstorage.remote_access.name=Remote Storage Access
 tile.magicstorage.hell_brick.name=Hell Bricks
+tile.magicstorage.hellstone_ore.name=Hellstone Ore
+tile.magicstorage.luminite_ore.name=Luminite Ore
 
 # Storage Unit variants — numeric suffixes match ItemBlockStorageUnit.getTranslationKey()
 tile.magicstorage.storage_unit_0.name=Basic Storage Unit
@@ -21,11 +23,22 @@ tile.magicstorage.storage_unit_7.name=Terra Storage Unit
 # Items
 item.magicstorage.storage_component.name=Storage Component
 item.magicstorage.upgrade_crimtane.name=Crimtane Storage Upgrade
+item.magicstorage.upgrade_demonite.name=Demonite Storage Upgrade
 item.magicstorage.upgrade_hellstone.name=Hellstone Storage Upgrade
 item.magicstorage.upgrade_hallowed.name=Hallowed Storage Upgrade
 item.magicstorage.upgrade_blue_chlorophyte.name=Blue Chlorophyte Storage Upgrade
 item.magicstorage.upgrade_luminite.name=Luminite Storage Upgrade
 item.magicstorage.upgrade_terra.name=Terra Storage Upgrade
+
+# Materials
+item.magicstorage.ingot_demonite.name=Demonite Ingot
+item.magicstorage.ingot_crimtane.name=Crimtane Ingot
+item.magicstorage.bar_hellstone.name=Hellstone Bar
+item.magicstorage.ingot_hallowed.name=Hallowed Ingot
+item.magicstorage.bar_chlorophyte.name=Chlorophyte Bar
+item.magicstorage.bar_luminite.name=Luminite Bar
+item.magicstorage.terra_singularity.name=Terra Singularity
+
 # Portable access remotes
 item.magicstorage.portable_access_PreHM.name=Basic Portable Storage Access
 item.magicstorage.portable_access_HM.name=Advanced Portable Storage Access
@@ -33,7 +46,6 @@ item.magicstorage.portable_access_Ultimate.name=Ultimate Portable Storage Access
 item.magicstorage.portable_crafting_access_PreHM.name=Basic Portable Crafting Access
 item.magicstorage.portable_crafting_access_HM.name=Advanced Portable Crafting Access
 item.magicstorage.portable_crafting_access_Ultimate.name=Ultimate Portable Crafting Access
-item.magicstorage.upgrade_demonite.name=Demonite Storage Upgrade
 
 # Keybindings
 key.magicstorage.open_remote=Open Remote

@@ -7,7 +7,7 @@
   ],
   "key": {
     "U": { "item": "magicstorage:upgrade_terra" },
-    "S": { "item": "magicstorage:storage_unit", "data": 6 }
+    "S": { "item": "magicstorage:storage_unit", "data": 0 }
   },
   "result": {
     "item": "magicstorage:storage_unit",

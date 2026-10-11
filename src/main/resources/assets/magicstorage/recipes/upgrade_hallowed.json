@@ -1,14 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "GQG",
-    "QIQ",
-    "GQG"
+    " H ",
+    "HSH",
+    " H "
   ],
   "key": {
-    "G": { "item": "minecraft:gold_block" },
-    "Q": { "item": "minecraft:quartz", "data": 0 },
-    "I": { "item": "magicstorage:upgrade_hellstone" }
+    "H": { "item": "magicstorage:ingot_hallowed" },
+    "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
     "item": "magicstorage:upgrade_hallowed",
