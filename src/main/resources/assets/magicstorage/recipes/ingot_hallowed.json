@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:gold_ingot" },
+    { "item": "minecraft:gold_ingot" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:glowstone_dust" }
+  ],
+  "result": {
+    "item": "magicstorage:ingot_hallowed",
+    "count": 2
+  }
+}

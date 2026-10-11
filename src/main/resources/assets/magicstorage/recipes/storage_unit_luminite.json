@@ -7,7 +7,7 @@
   ],
   "key": {
     "U": { "item": "magicstorage:upgrade_luminite" },
-    "S": { "item": "magicstorage:storage_unit", "data": 5 }
+    "S": { "item": "magicstorage:storage_unit", "data": 0 }
   },
   "result": {
     "item": "magicstorage:storage_unit",

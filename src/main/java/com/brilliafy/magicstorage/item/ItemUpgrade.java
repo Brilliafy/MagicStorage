@@ -45,7 +45,7 @@ public class ItemUpgrade extends Item {
         if (targetTier >= 0 && targetTier < com.brilliafy.magicstorage.tile.TileStorageUnit.TIER_NAMES.length) {
             tooltip.add(net.minecraft.util.text.TextFormatting.GOLD + "Upgrade to " + com.brilliafy.magicstorage.tile.TileStorageUnit.TIER_NAMES[targetTier]);
             if (targetTier > 0) {
-                tooltip.add(net.minecraft.util.text.TextFormatting.DARK_GRAY + "Requires: " + com.brilliafy.magicstorage.tile.TileStorageUnit.TIER_NAMES[targetTier - 1] + " Storage Unit");
+                tooltip.add(net.minecraft.util.text.TextFormatting.DARK_GRAY + "Can upgrade any lower-tier Storage Unit");
             }
             int slots = com.brilliafy.magicstorage.tile.TileStorageUnit.TIER_SLOT_COUNTS[targetTier];
             tooltip.add(net.minecraft.util.text.TextFormatting.GRAY + "Capacity: " + slots + " slots (" + (slots / 9) + " rows)");

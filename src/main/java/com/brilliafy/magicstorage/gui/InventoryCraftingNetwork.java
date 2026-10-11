@@ -13,6 +13,10 @@ public class InventoryCraftingNetwork extends InventoryCrafting {
         this.storageContainer = container;
     }
 
+    public IStorageContainer getStorageContainer() {
+        return this.storageContainer;
+    }
+
     @Override
     public ItemStack decrStackSize(int index, int count) {
         ItemStack stack = super.decrStackSize(index, count);
