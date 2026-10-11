@@ -1,10 +1,10 @@
 {
   "type": "magicstorage:heart_furnace",
   "ingredients": [
-    { "item": "magicstorage:luminite_ore" },
-    { "item": "magicstorage:luminite_ore" },
-    { "item": "magicstorage:luminite_ore" },
-    { "item": "magicstorage:luminite_ore" }
+    { "item": "magicstorage:fragment_luminite" },
+    { "item": "magicstorage:fragment_luminite" },
+    { "item": "magicstorage:fragment_luminite" },
+    { "item": "magicstorage:fragment_luminite" }
   ],
   "result": {
     "item": "magicstorage:bar_luminite",

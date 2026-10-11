@@ -120,7 +120,7 @@ public class RegistryHandler {
 
         ModItems.BAR_HELLSTONE = new ItemMaterial("bar_hellstone", TextFormatting.DARK_RED,
             TextFormatting.GOLD + "Smelting Station: Storage Heart with Furnace",
-            TextFormatting.GRAY + "Forged from Nether Hellstone Ore and Obsidian",
+            TextFormatting.GRAY + "Forged from Hellstone Fragments, Obsidian, and Blaze Powder",
             TextFormatting.DARK_GRAY + "Used for Hellstone Storage Upgrades");
         registry.register(ModItems.BAR_HELLSTONE);
 
@@ -136,9 +136,19 @@ public class RegistryHandler {
 
         ModItems.BAR_LUMINITE = new ItemMaterial("bar_luminite", TextFormatting.AQUA,
             TextFormatting.GOLD + "Smelting Station: Storage Heart with Furnace",
-            TextFormatting.GRAY + "Refined from celestial End Luminite Ore",
+            TextFormatting.GRAY + "Refined from celestial End Luminite Fragments",
             TextFormatting.DARK_GRAY + "Used for Luminite Storage Upgrades & Radiant Jewels");
         registry.register(ModItems.BAR_LUMINITE);
+
+        ModItems.FRAGMENT_HELLSTONE = new ItemMaterial("fragment_hellstone", TextFormatting.GOLD,
+            TextFormatting.GRAY + "A fiery molten shard extracted from Hellstone Ore",
+            TextFormatting.DARK_GRAY + "Used to forge Hellstone Bars (Affected by Fortune)");
+        registry.register(ModItems.FRAGMENT_HELLSTONE);
+
+        ModItems.FRAGMENT_LUMINITE = new ItemMaterial("fragment_luminite", TextFormatting.AQUA,
+            TextFormatting.GRAY + "A celestial crystal shard extracted from Luminite Ore",
+            TextFormatting.DARK_GRAY + "Used to forge Luminite Bars (Affected by Fortune)");
+        registry.register(ModItems.FRAGMENT_LUMINITE);
 
         ModItems.SHADOW_DIAMOND = new ItemMaterial("shadow_diamond", TextFormatting.DARK_PURPLE,
             TextFormatting.GRAY + "A dark, abyssal diamond infused with shadow magic",
@@ -216,6 +226,8 @@ public class RegistryHandler {
         registerItemModel(ModItems.INGOT_HALLOWED);
         registerItemModel(ModItems.BAR_CHLOROPHYTE);
         registerItemModel(ModItems.BAR_LUMINITE);
+        registerItemModel(ModItems.FRAGMENT_HELLSTONE);
+        registerItemModel(ModItems.FRAGMENT_LUMINITE);
         registerItemModel(ModItems.SHADOW_DIAMOND);
         registerItemModel(ModItems.RADIANT_JEWEL);
         registerItemModel(ModItems.TERRA_SINGULARITY);
