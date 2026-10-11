@@ -40,6 +40,8 @@ item.magicstorage.bar_luminite.name=Luminite Bar
 item.magicstorage.shadow_diamond.name=Shadow Diamond
 item.magicstorage.radiant_jewel.name=Radiant Jewel
 item.magicstorage.terra_singularity.name=Terra Singularity
+item.magicstorage.fragment_hellstone.name=Hellstone Fragment
+item.magicstorage.fragment_luminite.name=Luminite Fragment
 
 # Portable access remotes
 item.magicstorage.portable_access_PreHM.name=Basic Portable Storage Access
