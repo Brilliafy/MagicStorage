@@ -1,12 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " C ",
-    "CSC",
-    " C "
+    "CEC",
+    "PSP",
+    "CEC"
   ],
   "key": {
     "C": { "item": "magicstorage:bar_chlorophyte" },
+    "E": { "item": "minecraft:emerald_block" },
+    "P": { "item": "minecraft:sea_lantern" },
     "S": { "item": "magicstorage:storage_component" }
   },
   "result": {

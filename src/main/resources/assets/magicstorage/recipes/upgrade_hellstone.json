@@ -1,12 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " H ",
-    "HSH",
-    " H "
+    "HBH",
+    "MSM",
+    "HBH"
   ],
   "key": {
     "H": { "item": "magicstorage:bar_hellstone" },
+    "B": { "item": "minecraft:blaze_rod" },
+    "M": { "item": "magicstorage:hell_brick" },
     "S": { "item": "magicstorage:storage_component" }
   },
   "result": {
